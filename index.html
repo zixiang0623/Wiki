@@ -1326,7 +1326,8 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
     showPlaybackStep(0).then(()=> runCinematicLoop());
   }
 
-  async function showPlaybackStep(idx){
+  async function showPlaybackStep(idx, opts){
+    opts = opts || {};
     idx = Math.max(0, Math.min(idx, state.path.length - 1));
     state.pbIndex = idx;
     el('pb-step').textContent = `${idx+1} / ${state.path.length}`;
@@ -1337,7 +1338,7 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
     try{
       const data = await fetchArticle(state.path[idx]);
       const nextTitle = idx < state.path.length - 1 ? state.path[idx+1] : null;
-      renderPlaybackArticle(data, nextTitle, idx === state.path.length - 1);
+      renderPlaybackArticle(data, nextTitle, idx === state.path.length - 1, !opts.keepScroll);
     }catch(e){
       showToast('記事の読み込みに失敗しました。');
     }
@@ -1347,7 +1348,7 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
     if(idx === state.path.length - 1) stopPbAuto();
   }
 
-  function renderPlaybackArticle(data, nextTitle, isLastHop){
+  function renderPlaybackArticle(data, nextTitle, isLastHop, resetScroll){
     el('article-title').textContent = data.title;
     const body = el('article-body');
     body.innerHTML = data.html;
@@ -1372,7 +1373,7 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
     hintSlot.innerHTML = isLastHop
       ? `<span class="hint-badge">🏁 ゴールに到着しました</span>`
       : `<span class="hint-badge">▶ 次の駅: ${escapeHtml(nextTitle)}</span>`;
-    body.scrollTop = 0;
+    if(resetScroll !== false) body.scrollTop = 0;
   }
 
   function renderRailPlayback(currentIdx){
@@ -1425,10 +1426,23 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
     pointerEl.classList.add('ripple');
   }
 
-  // performs one "human-like" hop: scroll to the next-hop link, glide the pointer to it,
-  // click it, then load the next article. Returns false if the loop should stop.
+  // performs one "human-like" hop: scroll back to top, scroll to the next-hop link,
+  // glide the pointer to it, click it, then load the next article (keeping scroll
+  // position so the *next* hop can visibly scroll back to top again).
+  // Returns false if the loop should stop.
   async function cinematicStep(){
     const body = el('article-body');
+
+    // always start each new page from the top, with a visible scroll if needed
+    if(body.scrollTop > 4){
+      body.scrollTo({ top:0, behavior:'smooth' });
+      await sleep(550);
+    } else {
+      body.scrollTop = 0;
+    }
+    if(!pbPlaying) return false;
+    await sleep(350);
+
     const link = body.querySelector('a.next-hop-link');
     if(!link){
       // couldn't find a visible next-hop link (rare) — just advance without the animation
@@ -1436,8 +1450,6 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
       return pbPlaying;
     }
 
-    await sleep(450);
-    if(!pbPlaying) return false;
     link.scrollIntoView({ behavior:'smooth', block:'center', inline:'center' });
     await sleep(600);
     if(!pbPlaying) return false;
@@ -1456,7 +1468,7 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
     if(!pbPlaying) return false;
 
     hidePointer();
-    await showPlaybackStep(state.pbIndex + 1);
+    await showPlaybackStep(state.pbIndex + 1, { keepScroll:true });
     return pbPlaying;
   }
 
