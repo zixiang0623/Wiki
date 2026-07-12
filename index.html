@@ -26,7 +26,7 @@
   --danger:#dc2626;
 }
 *{box-sizing:border-box; margin:0; padding:0;}
-html,body{height:100%;}
+html,body{height:100%; overflow:hidden;}
 body{
   background:
     radial-gradient(ellipse 900px 500px at 15% -10%, rgba(8,145,178,0.07), transparent 60%),
@@ -35,8 +35,7 @@ body{
     var(--bg);
   color:var(--text);
   font-family:'Outfit',sans-serif;
-  min-height:100vh;
-  overflow-x:hidden;
+  height:100%;
 }
 ::selection{ background:rgba(8,145,178,0.18); }
 
@@ -54,7 +53,8 @@ h1,h2,h3, .display{ font-family:'Syne',sans-serif; letter-spacing:-0.01em; }
 
 /* ================= SETUP SCREEN ================= */
 #setup-screen{
-  min-height:100vh;
+  height:100%;
+  overflow-y:auto;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -202,8 +202,27 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
 }
 .mode-hint{ font-size:11.5px; color:var(--dim); margin:-14px 0 20px; line-height:1.6; }
 
+.lang-toggle{
+  display:flex; gap:4px; padding:4px;
+  background:rgba(15,23,42,0.035);
+  border:1px solid var(--border);
+  border-radius:14px;
+  margin-bottom:14px;
+}
+.lang-btn{
+  flex:1; padding:8px 4px; border-radius:10px;
+  background:transparent; color:var(--dim);
+  font-size:12.5px; font-weight:500;
+  transition:background .15s, color .15s;
+}
+.lang-btn.active{
+  background:linear-gradient(100deg, rgba(167,139,250,0.18), rgba(34,211,238,0.14));
+  color:var(--text);
+  box-shadow:inset 0 0 0 1px rgba(15,23,42,0.06);
+}
+
 /* ---- solve screen ---- */
-#solve-screen, #solved-screen{ display:none; min-height:100vh; align-items:center; justify-content:center; padding:24px; }
+#solve-screen, #solved-screen{ display:none; height:100%; overflow-y:auto; align-items:center; justify-content:center; padding:24px; }
 .solve-card{ width:100%; max-width:480px; padding:34px 28px; text-align:center; }
 .solve-route{
   font-family:'DM Mono',monospace; font-size:13px; color:var(--text);
@@ -261,7 +280,7 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
 }
 
 /* ================= GAME SCREEN ================= */
-#game-screen{ display:none; min-height:100vh; flex-direction:column; }
+#game-screen{ display:none; height:100%; overflow:hidden; flex-direction:column; }
 .top-bar{
   padding:14px 16px 10px;
   position:sticky; top:0; z-index:30;
@@ -485,7 +504,7 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
   z-index:200;
   opacity:0;
   transform:translate(-50%,-50%) scale(1);
-  transition:left .55s cubic-bezier(.4,0,.2,1), top .55s cubic-bezier(.4,0,.2,1), opacity .3s ease, transform .18s ease;
+  transition:left .85s cubic-bezier(.4,0,.2,1), top .85s cubic-bezier(.4,0,.2,1), opacity .35s ease, transform .2s ease;
 }
 .ghost-pointer.visible{ opacity:1; }
 .ghost-pointer.clicking{ transform:translate(-50%,-50%) scale(0.68); }
@@ -504,7 +523,7 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
 
 /* ================= WIN SCREEN ================= */
 #win-screen{
-  display:none; min-height:100vh; align-items:center; justify-content:center; padding:24px;
+  display:none; height:100%; overflow-y:auto; align-items:center; justify-content:center; padding:24px;
 }
 .win-card{
   width:100%; max-width:480px; padding:38px 30px; text-align:center; position:relative; overflow:hidden;
@@ -554,6 +573,12 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
     <div class="eyebrow">WIKIPEDIA LINK TRAIL</div>
     <h1>リンクトレイル</h1>
     <p class="sub">2つの記事を、リンクだけを辿って結ぶ路線を作ろう。スタート記事からゴール記事まで、最短何駅で着けるか?</p>
+
+    <div class="lang-toggle" id="lang-toggle">
+      <button class="lang-btn active" type="button" data-lang="ja">🇯🇵 日本語</button>
+      <button class="lang-btn" type="button" data-lang="en">🇬🇧 English</button>
+      <button class="lang-btn" type="button" data-lang="zh">🇨🇳 中文</button>
+    </div>
 
     <div class="mode-toggle" id="mode-toggle">
       <button class="mode-btn active" type="button" data-mode="manual">🚶 自分で歩く</button>
@@ -709,8 +734,9 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
 (function(){
   "use strict";
 
-  const API = "https://ja.wikipedia.org/w/api.php";
-  const NS_BLOCK = /^(ファイル|画像|Category|カテゴリ|Help|ヘルプ|Wikipedia|ウィキペディア|Template|テンプレート|Portal|ポータル|特別|Special|利用者|User|ノート|Talk|MediaWiki|モジュール|Module|TimedText|Draft|草案):/i;
+  let currentLang = 'ja';
+  let API = "https://ja.wikipedia.org/w/api.php";
+  const NS_BLOCK = /^(ファイル|画像|Category|カテゴリ|Help|ヘルプ|Wikipedia|ウィキペディア|Template|テンプレート|Portal|ポータル|特別|Special|利用者|User|ノート|Talk|MediaWiki|モジュール|Module|TimedText|Draft|草案|文件|檔案|分类|分類|帮助|幫助|维基百科|維基百科|模板|範本|门户|門戶|用户|使用者|讨论|討論|模块|模組|草稿):/i;
 
   const el = (id) => document.getElementById(id);
   const setupScreen = el('setup-screen');
@@ -817,6 +843,30 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
   el('btn-swap').addEventListener('click', ()=>{
     const t = startInput.value; startInput.value = goalInput.value; goalInput.value = t;
   });
+
+  // ---------- Language toggle ----------
+  const LANG_EXAMPLES = {
+    ja: { start:'例: 名古屋市', goal:'例: ラプラス変換' },
+    en: { start:'e.g. Nagoya',  goal:'e.g. Laplace transform' },
+    zh: { start:'例如：名古屋市', goal:'例如：拉普拉斯变换' }
+  };
+  function applyLangPlaceholders(){
+    const ex = LANG_EXAMPLES[currentLang] || LANG_EXAMPLES.ja;
+    startInput.placeholder = ex.start;
+    goalInput.placeholder = ex.goal;
+  }
+  el('lang-toggle').addEventListener('click', (e)=>{
+    const b = e.target.closest('.lang-btn');
+    if(!b) return;
+    currentLang = b.dataset.lang;
+    API = `https://${currentLang}.wikipedia.org/w/api.php`;
+    [...el('lang-toggle').children].forEach(c=> c.classList.toggle('active', c===b));
+    applyLangPlaceholders();
+    startInput.value = ''; goalInput.value = '';
+    el('start-suggest').style.display = 'none';
+    el('goal-suggest').style.display = 'none';
+  });
+  applyLangPlaceholders();
 
   // ---------- Mode toggle ----------
   el('mode-toggle').addEventListener('click', (e)=>{
@@ -1208,6 +1258,31 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
     solveCancelled = true;
   });
 
+  // Resolve every node in a found path to its canonical (post-redirect) title in one batch
+  // call, then collapse consecutive duplicates. This fixes the common case where a BFS hop
+  // lands on a redirect page whose real link text on the rendered article differs from the
+  // raw graph title — without this, the "next hop" link can fail to match on playback.
+  async function canonicalizePath(path){
+    if(path.length < 2) return path;
+    try{
+      const url = `${API}?action=query&titles=${encodeURIComponent(path.join('|'))}&redirects=1&format=json&origin=*`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const map = {};
+      if(data.query && data.query.redirects){
+        data.query.redirects.forEach(r => { map[norm(r.from)] = r.to; });
+      }
+      const resolved = path.map(t => map[norm(t)] || t);
+      const deduped = [];
+      resolved.forEach(t => {
+        if(deduped.length === 0 || norm(deduped[deduped.length-1]) !== norm(t)) deduped.push(t);
+      });
+      return deduped.length >= 1 ? deduped : path;
+    }catch(e){
+      return path;
+    }
+  }
+
   async function startAutoSolve(){
     const s = startInput.value.trim();
     const g = goalInput.value.trim();
@@ -1265,17 +1340,18 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
     solvedScreen.style.display = 'flex';
 
     if(result.path){
-      logLine('meet', `✓ 経路が見つかりました (${result.path.length - 1} ホップ)`);
+      const canonicalPath = await canonicalizePath(result.path);
+      logLine('meet', `✓ 経路が見つかりました (${canonicalPath.length - 1} ホップ)`);
       state.startTitle = sData.title;
       state.goalTitle = gData.title;
-      state.solvedPath = result.path;
+      state.solvedPath = canonicalPath;
       el('solved-success').style.display = 'block';
       el('solved-fail').style.display = 'none';
       el('solved-sub').textContent = `${sData.title} → ${gData.title}`;
-      el('solved-hops').textContent = result.path.length - 1;
+      el('solved-hops').textContent = canonicalPath.length - 1;
       el('solved-nodes').textContent = result.nodes;
       el('solved-time').textContent = fmtTime(Math.floor((Date.now()-t0)/1000));
-      el('solved-path').innerHTML = result.path.map((t,i)=> `${i+1}. ${i===0||i===result.path.length-1 ? `<b>${escapeHtml(t)}</b>` : escapeHtml(t)}`).join('<br>');
+      el('solved-path').innerHTML = canonicalPath.map((t,i)=> `${i+1}. ${i===0||i===canonicalPath.length-1 ? `<b>${escapeHtml(t)}</b>` : escapeHtml(t)}`).join('<br>');
     } else {
       state.startTitle = sData.title;
       state.goalTitle = gData.title;
@@ -1436,35 +1512,52 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
     // always start each new page from the top, with a visible scroll if needed
     if(body.scrollTop > 4){
       body.scrollTo({ top:0, behavior:'smooth' });
-      await sleep(550);
+      await sleep(900);
     } else {
       body.scrollTop = 0;
     }
     if(!pbPlaying) return false;
-    await sleep(350);
+    await sleep(600);
 
-    const link = body.querySelector('a.next-hop-link');
+    // prefer the real "next hop" link; if it can't be matched (e.g. the article links to
+    // a redirect whose text differs from our resolved title), fall back to any visible
+    // article link nearby so the pointer still has something natural to click on.
+    let link = body.querySelector('a.next-hop-link');
+    if(!link) link = body.querySelector('a[data-wiki-title]');
+
     if(!link){
-      // couldn't find a visible next-hop link (rare) — just advance without the animation
-      await showPlaybackStep(state.pbIndex + 1);
+      // no clickable article links at all in this page — mime a click in place and move on
+      showPointer();
+      const bodyRect = body.getBoundingClientRect();
+      movePointerTo(bodyRect.left + bodyRect.width/2, bodyRect.top + 160);
+      await sleep(650);
+      if(pbPlaying){
+        retriggerRipple();
+        pointerEl.classList.add('clicking');
+        await sleep(180);
+        pointerEl.classList.remove('clicking');
+        await sleep(400);
+      }
+      hidePointer();
+      await showPlaybackStep(state.pbIndex + 1, { keepScroll:true });
       return pbPlaying;
     }
 
     link.scrollIntoView({ behavior:'smooth', block:'center', inline:'center' });
-    await sleep(600);
+    await sleep(950);
     if(!pbPlaying) return false;
 
     const rect = link.getBoundingClientRect();
     showPointer();
     movePointerTo(rect.left + rect.width/2, rect.top + rect.height/2);
-    await sleep(550);
+    await sleep(900);
     if(!pbPlaying) return false;
 
     retriggerRipple();
     pointerEl.classList.add('clicking');
-    await sleep(150);
+    await sleep(180);
     pointerEl.classList.remove('clicking');
-    await sleep(250);
+    await sleep(400);
     if(!pbPlaying) return false;
 
     hidePointer();
@@ -1480,7 +1573,7 @@ button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
       const shouldContinue = await cinematicStep();
       if(!shouldContinue) break;
       if(!pbPlaying) break;
-      await sleep(500);
+      await sleep(900);
     }
     pbPlaying = false;
     hidePointer();
