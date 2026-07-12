@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>リンクトレイル — Wikipedia路線探索</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b14;
+  --bg2:#0d1220;
+  --glass:rgba(255,255,255,0.045);
+  --glass-strong:rgba(255,255,255,0.08);
+  --border:rgba(255,255,255,0.09);
+  --cyan:#22d3ee;
+  --violet:#a78bfa;
+  --amber:#fbbf24;
+  --text:#e6ecf5;
+  --dim:#8b96ac;
+  --danger:#f87171;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  background:
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(34,211,238,0.10), transparent 60%),
+    radial-gradient(ellipse 900px 600px at 110% 10%, rgba(167,139,250,0.10), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 50% 120%, rgba(251,191,36,0.05), transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:'Outfit',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+::selection{ background:rgba(34,211,238,0.3); }
+
+.glass{
+  background:var(--glass);
+  border:1px solid var(--border);
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  border-radius:18px;
+}
+
+h1,h2,h3, .display{ font-family:'Syne',sans-serif; letter-spacing:-0.01em; }
+.mono{ font-family:'DM Mono',monospace; }
+
+/* ================= SETUP SCREEN ================= */
+#setup-screen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.setup-card{
+  width:100%;
+  max-width:520px;
+  padding:36px 30px 30px;
+  position:relative;
+  overflow:hidden;
+}
+.setup-card::before{
+  content:"";
+  position:absolute; top:-40%; left:-10%;
+  width:60%; height:200%;
+  background:linear-gradient(120deg, rgba(34,211,238,0.08), transparent 60%);
+  pointer-events:none;
+  transform:rotate(12deg);
+}
+.eyebrow{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  letter-spacing:0.22em;
+  color:var(--cyan);
+  text-transform:uppercase;
+  margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+.eyebrow::before{ content:""; width:16px; height:1px; background:var(--cyan); display:inline-block; }
+.setup-card h1{
+  font-size:28px;
+  font-weight:800;
+  line-height:1.25;
+  margin-bottom:8px;
+}
+.setup-card .sub{
+  color:var(--dim);
+  font-size:13.5px;
+  line-height:1.7;
+  margin-bottom:26px;
+}
+
+.field{ margin-bottom:16px; position:relative; }
+.field label{
+  display:block;
+  font-size:11.5px;
+  color:var(--dim);
+  margin-bottom:6px;
+  font-family:'DM Mono',monospace;
+  letter-spacing:0.04em;
+}
+.field .input-wrap{ position:relative; }
+.field input{
+  width:100%;
+  background:rgba(255,255,255,0.035);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:13px 14px;
+  color:var(--text);
+  font-size:15px;
+  font-family:'Outfit',sans-serif;
+  outline:none;
+  transition:border-color .15s, background .15s;
+}
+.field input:focus{ border-color:var(--cyan); background:rgba(34,211,238,0.05); }
+.field.start .input-wrap::before{ background:var(--cyan); }
+.field.goal .input-wrap::before{ background:var(--amber); }
+.field .dot{
+  position:absolute; left:-16px; top:50%; transform:translateY(-50%);
+  width:8px; height:8px; border-radius:50%;
+}
+.field.start .dot{ background:var(--cyan); box-shadow:0 0 8px var(--cyan); }
+.field.goal .dot{ background:var(--amber); box-shadow:0 0 8px var(--amber); }
+
+.suggest-list{
+  position:absolute; top:calc(100% + 4px); left:0; right:0;
+  background:#0d1424ee;
+  border:1px solid var(--border);
+  border-radius:10px;
+  max-height:200px; overflow-y:auto;
+  z-index:20;
+  display:none;
+  backdrop-filter:blur(10px);
+}
+.suggest-list div{
+  padding:9px 13px; font-size:13.5px; cursor:pointer; color:var(--text);
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.suggest-list div:last-child{ border-bottom:none; }
+.suggest-list div:hover, .suggest-list div.active{ background:rgba(34,211,238,0.12); color:var(--cyan); }
+
+.link-line{
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  margin:2px 0 14px; color:var(--dim);
+}
+.link-line .stem{ width:1px; height:18px; background:linear-gradient(var(--cyan),var(--amber)); opacity:.5; }
+
+.setup-actions{ display:flex; gap:10px; margin-top:22px; }
+button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
+.btn{
+  border-radius:12px;
+  padding:12px 18px;
+  font-size:14px;
+  font-weight:600;
+  transition:transform .12s, opacity .12s, box-shadow .12s;
+}
+.btn:active{ transform:scale(0.97); }
+.btn-primary{
+  flex:1;
+  background:linear-gradient(100deg, var(--cyan), #38bdf8);
+  color:#04202a;
+  box-shadow:0 8px 24px -8px rgba(34,211,238,0.5);
+}
+.btn-ghost{
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--border);
+  color:var(--text);
+}
+.btn-ghost:hover{ background:rgba(255,255,255,0.09); }
+.setup-secondary{ display:flex; gap:8px; margin-top:10px; }
+.setup-secondary .btn{ flex:1; padding:9px; font-size:12.5px; }
+.setup-error{
+  color:var(--danger); font-size:12.5px; margin-top:10px; min-height:16px; font-family:'DM Mono',monospace;
+}
+
+.mode-toggle{
+  display:flex; gap:4px; padding:4px;
+  background:rgba(255,255,255,0.035);
+  border:1px solid var(--border);
+  border-radius:14px;
+  margin-bottom:24px;
+}
+.mode-btn{
+  flex:1; padding:10px 6px; border-radius:10px;
+  background:transparent; color:var(--dim);
+  font-size:13px; font-weight:500;
+  transition:background .15s, color .15s;
+}
+.mode-btn.active{
+  background:linear-gradient(100deg, rgba(34,211,238,0.16), rgba(167,139,250,0.16));
+  color:var(--text);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+.mode-hint{ font-size:11.5px; color:var(--dim); margin:-14px 0 20px; line-height:1.6; }
+
+/* ---- solve screen ---- */
+#solve-screen, #solved-screen{ display:none; min-height:100vh; align-items:center; justify-content:center; padding:24px; }
+.solve-card{ width:100%; max-width:480px; padding:34px 28px; text-align:center; }
+.solve-route{
+  font-family:'DM Mono',monospace; font-size:13px; color:var(--text);
+  margin:6px 0 22px; display:flex; align-items:center; justify-content:center; gap:10px;
+  flex-wrap:wrap;
+}
+.solve-route .arrow{ color:var(--violet); animation:swap 1.4s infinite; }
+@keyframes swap{ 0%,100%{ opacity:.4; } 50%{ opacity:1; } }
+.solve-stats{ display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+.solve-stats .cell{
+  flex:1; min-width:80px; background:rgba(255,255,255,0.04); border:1px solid var(--border);
+  border-radius:12px; padding:12px 6px;
+}
+.solve-stats .cell .v{ font-family:'DM Mono',monospace; font-size:18px; font-weight:500; color:var(--cyan); }
+.solve-stats .cell .k{ font-size:9px; color:var(--dim); margin-top:4px; font-family:'DM Mono',monospace; letter-spacing:.04em;}
+.solve-log{
+  text-align:left; height:150px; overflow-y:auto;
+  background:rgba(0,0,0,0.25); border:1px solid var(--border);
+  border-radius:12px; padding:10px 12px; margin-bottom:18px;
+  font-size:11.5px; font-family:'DM Mono',monospace; color:var(--dim); line-height:1.9;
+}
+.solve-log .fwd{ color:var(--cyan); }
+.solve-log .bwd{ color:var(--amber); }
+.solve-log .meet{ color:#4ade80; font-weight:600; }
+.spinner-sm{
+  width:16px; height:16px; border-radius:50%;
+  border:2px solid rgba(34,211,238,0.2); border-top-color:var(--cyan);
+  animation:spin .8s linear infinite; display:inline-block; vertical-align:-3px; margin-right:8px;
+}
+
+/* ---- playback bar ---- */
+.playback-only{ display:none; }
+.playback-bar{
+  display:none; align-items:center; gap:10px;
+  padding:12px 16px; margin:0 12px 12px;
+}
+.playback-bar .iconbtn{ flex-shrink:0; }
+.pb-step{ font-size:12px; color:var(--dim); min-width:52px; text-align:center; }
+#game-screen.playback-mode .manual-only{ display:none !important; }
+#game-screen.playback-mode .playback-only{ display:flex; }
+#game-screen.playback-mode .playback-bar{ display:flex; }
+
+.article-body a.next-hop-link{
+  color:var(--cyan);
+  border-bottom:1px solid rgba(34,211,238,0.6);
+  background:rgba(34,211,238,0.12);
+  font-weight:600;
+  animation:nexthoppulse 1.4s infinite;
+}
+@keyframes nexthoppulse{
+  0%,100%{ background:rgba(34,211,238,0.1); }
+  50%{ background:rgba(34,211,238,0.24); }
+}
+
+/* ================= GAME SCREEN ================= */
+#game-screen{ display:none; min-height:100vh; flex-direction:column; }
+.top-bar{
+  padding:14px 16px 10px;
+  position:sticky; top:0; z-index:30;
+  background:linear-gradient(var(--bg) 70%, transparent);
+}
+.stat-row{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 4px 10px;
+}
+.stat-group{ display:flex; gap:16px; }
+.stat{ text-align:left; }
+.stat .k{ font-size:9.5px; color:var(--dim); font-family:'DM Mono',monospace; letter-spacing:.08em; text-transform:uppercase;}
+.stat .v{ font-size:17px; font-family:'DM Mono',monospace; font-weight:500; }
+.stat.clicks .v{ color:var(--cyan); }
+.stat.timer .v{ color:var(--violet); }
+.topbtns{ display:flex; gap:8px; }
+.iconbtn{
+  width:34px; height:34px; border-radius:10px;
+  background:var(--glass); border:1px solid var(--border);
+  color:var(--dim); font-size:15px;
+  display:flex; align-items:center; justify-content:center;
+}
+.iconbtn:hover{ color:var(--text); border-color:var(--glass-strong); }
+.iconbtn:disabled{ opacity:.3; }
+
+/* route rail - subway line diagram */
+.rail-wrap{
+  border-radius:16px;
+  padding:14px 10px 16px;
+  overflow-x:auto;
+  white-space:nowrap;
+  scrollbar-width:none;
+}
+.rail-wrap::-webkit-scrollbar{ display:none; }
+.rail{
+  display:inline-flex;
+  align-items:flex-end;
+  position:relative;
+  padding:0 14px;
+  min-height:56px;
+}
+.station{
+  display:inline-flex;
+  flex-direction:column;
+  align-items:center;
+  position:relative;
+  width:88px;
+  flex-shrink:0;
+}
+.station .seg{
+  position:absolute; left:-44px; top:22px; width:88px; height:3px;
+  background:linear-gradient(90deg, var(--cyan), var(--cyan));
+  z-index:0;
+}
+.station:first-child .seg{ display:none; }
+.station .node{
+  width:14px; height:14px; border-radius:50%;
+  background:var(--bg2);
+  border:3px solid var(--cyan);
+  z-index:1;
+  margin-top:16px;
+  transition:transform .2s;
+}
+.station.current .node{
+  border-color:var(--cyan);
+  background:var(--cyan);
+  box-shadow:0 0 0 4px rgba(34,211,238,0.22), 0 0 14px rgba(34,211,238,0.7);
+  animation:pulse 1.6s infinite;
+}
+.station.start .node{ border-color:var(--cyan); }
+.station.goal .node{
+  border-color:var(--amber);
+  background:var(--amber);
+  box-shadow:0 0 0 5px rgba(251,191,36,0.2), 0 0 16px rgba(251,191,36,0.8);
+}
+.station.goal .seg{ background:linear-gradient(90deg, var(--cyan), var(--amber)); }
+@keyframes pulse{
+  0%,100%{ box-shadow:0 0 0 4px rgba(34,211,238,0.22), 0 0 14px rgba(34,211,238,0.7); }
+  50%{ box-shadow:0 0 0 8px rgba(34,211,238,0.05), 0 0 20px rgba(34,211,238,0.9); }
+}
+.station .label{
+  font-size:10.5px;
+  color:var(--dim);
+  margin-top:8px;
+  max-width:86px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-family:'DM Mono',monospace;
+}
+.station.current .label{ color:var(--cyan); font-weight:500; }
+.station.goal .label{ color:var(--amber); font-weight:500; }
+
+/* goal ghost terminus */
+.terminus{
+  display:inline-flex; flex-direction:column; align-items:center; width:88px; flex-shrink:0; position:relative;
+}
+.terminus .seg{
+  position:absolute; left:-44px; top:22px; width:88px; height:3px;
+  background:repeating-linear-gradient(90deg, rgba(251,191,36,0.35) 0 6px, transparent 6px 12px);
+}
+.terminus .node{
+  width:16px; height:16px; border-radius:50%;
+  border:2px dashed rgba(251,191,36,0.5);
+  margin-top:15px;
+}
+.terminus .label{ font-size:10.5px; color:rgba(251,191,36,0.7); margin-top:8px; max-width:86px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:'DM Mono',monospace; }
+
+/* article content */
+.article-wrap{
+  flex:1;
+  margin:6px 12px 12px;
+  border-radius:18px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+.article-head{
+  padding:16px 20px 12px;
+  border-bottom:1px solid var(--border);
+}
+.article-head h2{
+  font-size:20px;
+  font-weight:700;
+}
+.hint-badge{
+  display:inline-flex; align-items:center; gap:5px;
+  margin-top:8px;
+  font-size:11px;
+  color:var(--amber);
+  background:rgba(251,191,36,0.1);
+  border:1px solid rgba(251,191,36,0.3);
+  padding:4px 9px;
+  border-radius:99px;
+  font-family:'DM Mono',monospace;
+  animation:glow 1.5s infinite alternate;
+}
+@keyframes glow{ from{ opacity:.7; } to{ opacity:1; } }
+.article-body{
+  flex:1;
+  overflow-y:auto;
+  padding:16px 20px 60px;
+  font-size:15px;
+  line-height:1.85;
+  color:#c7d0e0;
+}
+.article-body p{ margin-bottom:14px; }
+.article-body a{
+  color:var(--cyan);
+  text-decoration:none;
+  border-bottom:1px solid rgba(34,211,238,0.35);
+  transition:background .12s, color .12s;
+  padding:0 1px;
+  border-radius:3px;
+}
+.article-body a:hover{ background:rgba(34,211,238,0.15); }
+.article-body a.goal-link{
+  color:var(--amber);
+  border-bottom:1px solid rgba(251,191,36,0.6);
+  background:rgba(251,191,36,0.1);
+  font-weight:600;
+  animation:goalpulse 1.4s infinite;
+}
+@keyframes goalpulse{
+  0%,100%{ background:rgba(251,191,36,0.1); }
+  50%{ background:rgba(251,191,36,0.24); }
+}
+.article-body a.disabled-link{ color:var(--dim); border-bottom-color:rgba(255,255,255,0.15); cursor:not-allowed; }
+.article-body table{ max-width:100%; overflow-x:auto; display:block; font-size:13px; margin-bottom:14px; border-collapse:collapse;}
+.article-body table td, .article-body table th{ border:1px solid var(--border); padding:5px 8px; }
+.article-body img{ max-width:100%; height:auto; border-radius:8px; margin:8px 0; }
+.article-body .infobox, .article-body table.infobox{ float:none; width:100%!important; margin:0 0 16px; background:rgba(255,255,255,0.03); border-radius:12px; padding:4px; }
+.article-body .navbox, .article-body .metadata, .article-body .mw-editsection, .article-body sup.reference{ display:none; }
+.article-body h2, .article-body h3{ margin:20px 0 10px; font-size:16px; color:var(--text); border-bottom:1px solid var(--border); padding-bottom:6px; }
+
+.loading-veil{
+  position:absolute; inset:0;
+  background:rgba(8,11,20,0.75);
+  backdrop-filter:blur(4px);
+  display:none;
+  align-items:center; justify-content:center;
+  flex-direction:column; gap:12px;
+  z-index:10;
+}
+.spinner{
+  width:34px; height:34px; border-radius:50%;
+  border:3px solid rgba(34,211,238,0.15);
+  border-top-color:var(--cyan);
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }
+.loading-veil .msg{ font-size:12.5px; color:var(--dim); font-family:'DM Mono',monospace; }
+
+.toast{
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:#12182bee; border:1px solid var(--border);
+  padding:11px 18px; border-radius:12px;
+  font-size:13px; color:var(--text);
+  opacity:0; pointer-events:none;
+  transition:opacity .25s, transform .25s;
+  z-index:100; backdrop-filter:blur(10px);
+  max-width:80vw; text-align:center;
+}
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ================= WIN SCREEN ================= */
+#win-screen{
+  display:none; min-height:100vh; align-items:center; justify-content:center; padding:24px;
+}
+.win-card{
+  width:100%; max-width:480px; padding:38px 30px; text-align:center; position:relative; overflow:hidden;
+}
+.win-card::before{
+  content:""; position:absolute; inset:0;
+  background:radial-gradient(circle at 50% 0%, rgba(251,191,36,0.14), transparent 55%);
+  pointer-events:none;
+}
+.win-badge{
+  width:60px; height:60px; border-radius:50%;
+  background:linear-gradient(135deg, var(--amber), #f59e0b);
+  display:flex; align-items:center; justify-content:center;
+  font-size:26px; margin:0 auto 18px;
+  box-shadow:0 0 30px rgba(251,191,36,0.5);
+}
+.win-card h2{ font-size:24px; margin-bottom:6px; }
+.win-card .sub{ color:var(--dim); font-size:13px; margin-bottom:24px; }
+.win-stats{ display:flex; gap:10px; margin-bottom:22px; }
+.win-stats .cell{
+  flex:1; background:rgba(255,255,255,0.04); border:1px solid var(--border);
+  border-radius:12px; padding:14px 8px;
+}
+.win-stats .cell .v{ font-family:'DM Mono',monospace; font-size:22px; font-weight:500; color:var(--amber); }
+.win-stats .cell .k{ font-size:10px; color:var(--dim); margin-top:4px; font-family:'DM Mono',monospace; letter-spacing:.05em;}
+.win-path{
+  text-align:left; max-height:160px; overflow-y:auto;
+  background:rgba(255,255,255,0.03); border:1px solid var(--border);
+  border-radius:12px; padding:12px 14px; margin-bottom:22px;
+  font-size:12.5px; font-family:'DM Mono',monospace; color:var(--dim); line-height:1.9;
+}
+.win-path b{ color:var(--cyan); }
+.win-actions{ display:flex; gap:10px; }
+
+@media (max-width:480px){
+  .setup-card{ padding:28px 20px 22px; }
+  .article-body{ font-size:14.5px; padding:14px 16px 60px; }
+  .article-wrap{ margin:6px 8px 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ SETUP SCREEN ============ -->
+<div id="setup-screen">
+  <div class="setup-card glass">
+    <div class="eyebrow">WIKIPEDIA LINK TRAIL</div>
+    <h1>リンクトレイル</h1>
+    <p class="sub">2つの記事を、リンクだけを辿って結ぶ路線を作ろう。スタート記事からゴール記事まで、最短何駅で着けるか?</p>
+
+    <div class="mode-toggle" id="mode-toggle">
+      <button class="mode-btn active" type="button" data-mode="manual">🚶 自分で歩く</button>
+      <button class="mode-btn" type="button" data-mode="auto">🤖 勝手に探索する</button>
+    </div>
+
+    <div class="field start">
+      <span class="dot"></span>
+      <label>スタート駅（記事）</label>
+      <div class="input-wrap">
+        <input type="text" id="start-input" placeholder="例: 名古屋市" autocomplete="off">
+        <div class="suggest-list" id="start-suggest"></div>
+      </div>
+    </div>
+
+    <div class="link-line"><div class="stem"></div></div>
+
+    <div class="field goal">
+      <span class="dot"></span>
+      <label>ゴール駅（記事）</label>
+      <div class="input-wrap">
+        <input type="text" id="goal-input" placeholder="例: ラプラス変換" autocomplete="off">
+        <div class="suggest-list" id="goal-suggest"></div>
+      </div>
+    </div>
+
+    <div class="setup-secondary">
+      <button class="btn btn-ghost" id="btn-random-both">🎲 両方ランダム</button>
+      <button class="btn btn-ghost" id="btn-swap">⇅ 入れ替え</button>
+    </div>
+
+    <div class="setup-actions">
+      <button class="btn btn-primary" id="btn-start">出発する →</button>
+    </div>
+    <div class="setup-error" id="setup-error"></div>
+  </div>
+</div>
+
+<!-- ============ AUTO SOLVE (SEARCHING) SCREEN ============ -->
+<div id="solve-screen">
+  <div class="solve-card glass">
+    <div class="eyebrow">AUTO PATHFINDER</div>
+    <h2 id="solve-heading"><span class="spinner-sm"></span>経路を探索中…</h2>
+    <div class="solve-route">
+      <span id="solve-start-label">—</span>
+      <span class="arrow">⇄</span>
+      <span id="solve-goal-label">—</span>
+    </div>
+    <div class="solve-stats">
+      <div class="cell"><div class="v" id="solve-fetches">0</div><div class="k">API呼び出し</div></div>
+      <div class="cell"><div class="v" id="solve-nodes">0</div><div class="k">探索ページ</div></div>
+      <div class="cell"><div class="v" id="solve-depth">0 / 0</div><div class="k">深さ 前/後</div></div>
+      <div class="cell"><div class="v" id="solve-elapsed">0:00</div><div class="k">経過</div></div>
+    </div>
+    <div class="solve-log" id="solve-log"></div>
+    <button class="btn btn-ghost" id="btn-cancel-solve" style="width:100%">キャンセルして戻る</button>
+  </div>
+</div>
+
+<!-- ============ AUTO SOLVE RESULT SCREEN ============ -->
+<div id="solved-screen">
+  <div class="win-card glass" id="solved-success" style="display:none">
+    <div class="win-badge">🧭</div>
+    <h2>経路を発見！</h2>
+    <p class="sub" id="solved-sub"></p>
+    <div class="win-stats">
+      <div class="cell"><div class="v" id="solved-hops">0</div><div class="k">HOPS</div></div>
+      <div class="cell"><div class="v" id="solved-nodes">0</div><div class="k">探索ページ</div></div>
+      <div class="cell"><div class="v" id="solved-time">0:00</div><div class="k">TIME</div></div>
+    </div>
+    <div class="win-path" id="solved-path"></div>
+    <div class="win-actions">
+      <button class="btn btn-ghost" id="btn-solved-newgame" style="flex:1">新しい旅へ</button>
+      <button class="btn btn-primary" id="btn-solved-playback" style="flex:1">▶ 記事で再生する</button>
+    </div>
+  </div>
+  <div class="win-card glass" id="solved-fail" style="display:none">
+    <div class="win-badge" style="background:linear-gradient(135deg,#f87171,#b91c1c); box-shadow:0 0 30px rgba(248,113,113,0.4);">💤</div>
+    <h2>見つかりませんでした</h2>
+    <p class="sub">探索の上限（API呼び出し数・深さ・時間）に達しました。もっと深いところで繋がっている可能性はありますが、今回は見つけられませんでした。</p>
+    <div class="win-actions">
+      <button class="btn btn-ghost" id="btn-fail-manual" style="flex:1">自分で歩いてみる</button>
+      <button class="btn btn-primary" id="btn-fail-newgame" style="flex:1">新しい旅へ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ GAME SCREEN ============ -->
+<div id="game-screen">
+  <div class="top-bar">
+    <div class="stat-row">
+      <div class="stat-group manual-only">
+        <div class="stat clicks"><div class="k">CLICKS</div><div class="v" id="stat-clicks">0</div></div>
+        <div class="stat timer"><div class="k">TIME</div><div class="v" id="stat-timer">0:00</div></div>
+      </div>
+      <div class="stat-group playback-only">
+        <div class="stat clicks"><div class="k">MODE</div><div class="v" style="color:var(--violet); font-size:14px;">🤖 再生中</div></div>
+      </div>
+      <div class="topbtns">
+        <button class="iconbtn manual-only" id="btn-undo" title="1駅戻る">↺</button>
+        <button class="iconbtn manual-only" id="btn-giveup" title="最初からやり直す">✕</button>
+        <button class="iconbtn playback-only" id="btn-pb-free" title="ここから自由に操作する">🖐</button>
+        <button class="iconbtn playback-only" id="btn-pb-exit" title="終了して新しい旅へ">✕</button>
+      </div>
+    </div>
+    <div class="rail-wrap glass">
+      <div class="rail" id="rail"></div>
+    </div>
+  </div>
+
+  <div class="article-wrap glass">
+    <div class="loading-veil" id="loading-veil">
+      <div class="spinner"></div>
+      <div class="msg">記事を読み込み中…</div>
+    </div>
+    <div class="article-head">
+      <h2 id="article-title">—</h2>
+      <div id="hint-slot"></div>
+    </div>
+    <div class="article-body" id="article-body"></div>
+  </div>
+
+  <div class="playback-bar glass" id="playback-bar">
+    <button class="iconbtn" id="pb-prev" title="前へ">◀</button>
+    <button class="btn btn-ghost" id="pb-auto" style="flex:1">▶ 自動再生</button>
+    <button class="iconbtn" id="pb-next" title="次へ">▶</button>
+    <div class="pb-step mono" id="pb-step">1 / 1</div>
+  </div>
+</div>
+
+<!-- ============ WIN SCREEN ============ -->
+<div id="win-screen">
+  <div class="win-card glass">
+    <div class="win-badge">🏆</div>
+    <h2>到着！</h2>
+    <p class="sub" id="win-sub">ゴール駅に到達しました</p>
+    <div class="win-stats">
+      <div class="cell"><div class="v" id="win-clicks">0</div><div class="k">CLICKS</div></div>
+      <div class="cell"><div class="v" id="win-time">0:00</div><div class="k">TIME</div></div>
+    </div>
+    <div class="win-path" id="win-path"></div>
+    <div class="win-actions">
+      <button class="btn btn-ghost" id="btn-again" style="flex:1">同じ経路でもう一度</button>
+      <button class="btn btn-primary" id="btn-newgame" style="flex:1">新しい旅へ</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  const API = "https://ja.wikipedia.org/w/api.php";
+  const NS_BLOCK = /^(ファイル|画像|Category|カテゴリ|Help|ヘルプ|Wikipedia|ウィキペディア|Template|テンプレート|Portal|ポータル|特別|Special|利用者|User|ノート|Talk|MediaWiki|モジュール|Module|TimedText|Draft|草案):/i;
+
+  const el = (id) => document.getElementById(id);
+  const setupScreen = el('setup-screen');
+  const gameScreen = el('game-screen');
+  const winScreen = el('win-screen');
+  const startInput = el('start-input');
+  const goalInput = el('goal-input');
+  const toastEl = el('toast');
+  const solveScreen = el('solve-screen');
+  const solvedScreen = el('solved-screen');
+
+  let uiMode = 'manual'; // 'manual' | 'auto' -- which mode the setup screen will launch
+  let solveCancelled = false;
+  let pbAutoHandle = null;
+
+  let state = {
+    startTitle: null,
+    goalTitle: null,
+    path: [],        // array of title strings, normalized display titles
+    clicks: 0,
+    timerHandle: null,
+    startTime: null,
+    won: false,
+    mode: 'manual',   // 'manual' | 'playback'
+    pbIndex: 0
+  };
+
+  function showToast(msg, ms){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=> toastEl.classList.remove('show'), ms || 2200);
+  }
+
+  function norm(t){
+    return (t||'').trim().replace(/_/g,' ').toLowerCase();
+  }
+
+  // ---------- Autocomplete ----------
+  function wireSuggest(inputEl, listEl){
+    let timer = null, activeIdx = -1, items = [];
+    inputEl.addEventListener('input', ()=>{
+      clearTimeout(timer);
+      const q = inputEl.value.trim();
+      activeIdx = -1;
+      if(!q){ listEl.style.display='none'; return; }
+      timer = setTimeout(async ()=>{
+        try{
+          const url = `${API}?action=opensearch&search=${encodeURIComponent(q)}&limit=7&namespace=0&format=json&origin=*`;
+          const res = await fetch(url);
+          const data = await res.json();
+          items = data[1] || [];
+          if(!items.length){ listEl.style.display='none'; return; }
+          listEl.innerHTML = items.map((t,i)=>`<div data-i="${i}">${escapeHtml(t)}</div>`).join('');
+          listEl.style.display = 'block';
+        }catch(e){ listEl.style.display='none'; }
+      }, 220);
+    });
+    listEl.addEventListener('mousedown', (e)=>{
+      const d = e.target.closest('div[data-i]');
+      if(!d) return;
+      inputEl.value = items[+d.dataset.i];
+      listEl.style.display = 'none';
+    });
+    inputEl.addEventListener('keydown', (e)=>{
+      const kids = [...listEl.children];
+      if(listEl.style.display !== 'block' || !kids.length) return;
+      if(e.key === 'ArrowDown'){ e.preventDefault(); activeIdx = Math.min(activeIdx+1, kids.length-1); }
+      else if(e.key === 'ArrowUp'){ e.preventDefault(); activeIdx = Math.max(activeIdx-1, 0); }
+      else if(e.key === 'Enter'){
+        if(activeIdx >= 0){ e.preventDefault(); inputEl.value = items[activeIdx]; listEl.style.display='none'; }
+        return;
+      } else return;
+      kids.forEach((k,i)=> k.classList.toggle('active', i===activeIdx));
+    });
+    document.addEventListener('click', (e)=>{
+      if(!listEl.contains(e.target) && e.target !== inputEl) listEl.style.display='none';
+    });
+  }
+  wireSuggest(startInput, el('start-suggest'));
+  wireSuggest(goalInput, el('goal-suggest'));
+
+  function escapeHtml(s){
+    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // ---------- Random / swap ----------
+  async function randomTitle(){
+    const url = `${API}?action=query&list=random&rnnamespace=0&rnlimit=1&format=json&origin=*`;
+    const res = await fetch(url);
+    const data = await res.json();
+    return data.query.random[0].title;
+  }
+
+  el('btn-random-both').addEventListener('click', async ()=>{
+    el('btn-random-both').textContent = '読み込み中…';
+    try{
+      const [a,b] = await Promise.all([randomTitle(), randomTitle()]);
+      startInput.value = a; goalInput.value = b;
+    }catch(e){ showToast('ランダム記事の取得に失敗しました'); }
+    el('btn-random-both').textContent = '🎲 両方ランダム';
+  });
+
+  el('btn-swap').addEventListener('click', ()=>{
+    const t = startInput.value; startInput.value = goalInput.value; goalInput.value = t;
+  });
+
+  // ---------- Mode toggle ----------
+  el('mode-toggle').addEventListener('click', (e)=>{
+    const b = e.target.closest('.mode-btn');
+    if(!b) return;
+    uiMode = b.dataset.mode;
+    [...el('mode-toggle').children].forEach(c=> c.classList.toggle('active', c===b));
+    el('btn-start').textContent = uiMode === 'auto' ? '🤖 探索を開始する' : '出発する →';
+  });
+
+  // ---------- Start game / start solve ----------
+  el('btn-start').addEventListener('click', ()=>{
+    if(uiMode === 'auto') startAutoSolve();
+    else startGame();
+  });
+  [startInput, goalInput].forEach(inp => inp.addEventListener('keydown', e=>{
+    if(e.key === 'Enter'){
+      el('start-suggest').style.display='none'; el('goal-suggest').style.display='none';
+      if(uiMode === 'auto') startAutoSolve(); else startGame();
+    }
+  }));
+
+  async function startGame(){
+    const s = startInput.value.trim();
+    const g = goalInput.value.trim();
+    const errEl = el('setup-error');
+    errEl.textContent = '';
+    if(!s || !g){ errEl.textContent = 'スタートとゴールの両方を入力してください。'; return; }
+    if(norm(s) === norm(g)){ errEl.textContent = 'スタートとゴールが同じです。別の記事を選んでください。'; return; }
+
+    el('btn-start').textContent = '記事を確認中…';
+    el('btn-start').disabled = true;
+    try{
+      const [sData, gData] = await Promise.all([fetchArticle(s), fetchArticle(g)]);
+      state = {
+        startTitle: sData.title,
+        goalTitle: gData.title,
+        path: [sData.title],
+        clicks: 0,
+        timerHandle: null,
+        startTime: Date.now(),
+        won: false,
+        mode: 'manual',
+        pbIndex: 0
+      };
+      setupScreen.style.display = 'none';
+      winScreen.style.display = 'none';
+      solveScreen.style.display = 'none';
+      solvedScreen.style.display = 'none';
+      gameScreen.classList.remove('playback-mode');
+      gameScreen.style.display = 'flex';
+      renderArticle(sData);
+      renderRail();
+      startTimer();
+    }catch(e){
+      errEl.textContent = '記事が見つかりませんでした。タイトルを確認してください。';
+    }
+    el('btn-start').textContent = '出発する →';
+    el('btn-start').disabled = false;
+  }
+
+  // ---------- Fetch / render article ----------
+  async function fetchArticle(title){
+    const url = `${API}?action=parse&page=${encodeURIComponent(title)}&prop=text&format=json&formatversion=2&redirects=1&origin=*&disabletoc=1`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if(data.error) throw new Error(data.error.info || 'not found');
+    return { title: data.parse.title, html: data.parse.text };
+  }
+
+  function setLoading(on){
+    el('loading-veil').style.display = on ? 'flex' : 'none';
+  }
+
+  function fixProtocolRelativeUrls(container){
+    container.querySelectorAll('img[src^="//"]').forEach(img=>{
+      img.src = 'https:' + img.getAttribute('src');
+    });
+    container.querySelectorAll('img[srcset]').forEach(img=>{
+      const fixed = img.getAttribute('srcset').split(',').map(part=>{
+        const trimmed = part.trim();
+        return trimmed.startsWith('//') ? 'https:' + trimmed : trimmed;
+      }).join(', ');
+      img.setAttribute('srcset', fixed);
+    });
+    container.querySelectorAll('source[srcset]').forEach(s=>{
+      const fixed = s.getAttribute('srcset').split(',').map(part=>{
+        const trimmed = part.trim();
+        return trimmed.startsWith('//') ? 'https:' + trimmed : trimmed;
+      }).join(', ');
+      s.setAttribute('srcset', fixed);
+    });
+  }
+
+  function renderArticle(data){
+    el('article-title').textContent = data.title;
+    const body = el('article-body');
+    body.innerHTML = data.html;
+
+    // strip dangerous / noisy elements
+    body.querySelectorAll('script,style,.mw-editsection,.navbox,.metadata,.ambox,.hatnote,.noprint').forEach(n=>n.remove());
+    fixProtocolRelativeUrls(body);
+
+    let goalFound = false;
+    body.querySelectorAll('a[href]').forEach(a=>{
+      const href = a.getAttribute('href') || '';
+      if(href.startsWith('#')){ a.classList.add('disabled-link'); return; }
+      if(href.startsWith('/wiki/')){
+        let t = decodeURIComponent(href.replace('/wiki/','').split('#')[0]).replace(/_/g,' ');
+        if(NS_BLOCK.test(t)){
+          a.classList.add('disabled-link');
+        } else {
+          a.dataset.wikiTitle = t;
+          if(norm(t) === norm(state.goalTitle)){
+            a.classList.add('goal-link');
+            goalFound = true;
+          }
+        }
+      } else if(href.startsWith('http') || href.startsWith('//')){
+        a.setAttribute('target', '_blank');
+        a.setAttribute('rel', 'noopener noreferrer');
+      } else {
+        a.classList.add('disabled-link');
+      }
+    });
+
+    const hintSlot = el('hint-slot');
+    hintSlot.innerHTML = goalFound
+      ? `<span class="hint-badge">🎯 このページからゴールへ直通できます</span>`
+      : '';
+
+    body.scrollTop = 0;
+  }
+
+  el('article-body').addEventListener('click', (e)=>{
+    if(state.mode !== 'manual') return;
+    const a = e.target.closest('a');
+    if(!a) return;
+    e.preventDefault();
+    if(a.classList.contains('disabled-link')) {
+      showToast('このページへは移動できません（記事本文ではありません）');
+      return;
+    }
+    const t = a.dataset.wikiTitle;
+    if(!t) return;
+    navigateTo(t);
+  });
+
+  async function navigateTo(title){
+    setLoading(true);
+    try{
+      const data = await fetchArticle(title);
+      state.clicks += 1;
+      state.path.push(data.title);
+      renderArticle(data);
+      renderRail();
+      el('stat-clicks').textContent = state.clicks;
+
+      if(norm(data.title) === norm(state.goalTitle)){
+        onWin();
+      }
+    }catch(e){
+      showToast('このページは読み込めませんでした。');
+    }
+    setLoading(false);
+  }
+
+  // ---------- Undo / restart ----------
+  el('btn-undo').addEventListener('click', async ()=>{
+    if(state.path.length <= 1) return;
+    state.path.pop();
+    const prevTitle = state.path[state.path.length - 1];
+    setLoading(true);
+    try{
+      const data = await fetchArticle(prevTitle);
+      renderArticle(data);
+      renderRail();
+    }catch(e){ showToast('戻れませんでした。'); }
+    setLoading(false);
+  });
+
+  el('btn-giveup').addEventListener('click', ()=>{
+    stopTimer();
+    gameScreen.style.display = 'none';
+    setupScreen.style.display = 'flex';
+  });
+
+  // ---------- Rail (route diagram) ----------
+  function renderRail(){
+    const rail = el('rail');
+    const frag = document.createElement('div');
+    let html = '';
+    state.path.forEach((title, i)=>{
+      const isFirst = i === 0;
+      const isLast = i === state.path.length - 1;
+      const isGoal = state.won && norm(title) === norm(state.goalTitle);
+      let cls = 'station';
+      if(isFirst) cls += ' start';
+      if(isLast && !state.won) cls += ' current';
+      if(isGoal) cls += ' goal';
+      html += `<div class="${cls}"><div class="seg"></div><div class="node"></div><div class="label" title="${escapeHtml(title)}">${escapeHtml(title)}</div></div>`;
+    });
+    if(!state.won){
+      html += `<div class="terminus"><div class="seg"></div><div class="node"></div><div class="label" title="${escapeHtml(state.goalTitle)}">${escapeHtml(state.goalTitle)}</div></div>`;
+    }
+    rail.innerHTML = html;
+    const wrap = rail.parentElement;
+    requestAnimationFrame(()=>{ wrap.scrollLeft = wrap.scrollWidth; });
+  }
+
+  // ---------- Timer ----------
+  function startTimer(){
+    stopTimer();
+    state.timerHandle = setInterval(()=>{
+      const secs = Math.floor((Date.now() - state.startTime)/1000);
+      el('stat-timer').textContent = fmtTime(secs);
+    }, 1000);
+  }
+  function stopTimer(){ if(state.timerHandle) clearInterval(state.timerHandle); }
+  function fmtTime(secs){
+    const m = Math.floor(secs/60), s = secs%60;
+    return `${m}:${String(s).padStart(2,'0')}`;
+  }
+
+  // ---------- Win ----------
+  function onWin(){
+    state.won = true;
+    stopTimer();
+    const secs = Math.floor((Date.now() - state.startTime)/1000);
+    renderRail();
+    setTimeout(()=>{
+      gameScreen.style.display = 'none';
+      winScreen.style.display = 'flex';
+      el('win-sub').textContent = `${state.startTitle} → ${state.goalTitle} に到達しました`;
+      el('win-clicks').textContent = state.clicks;
+      el('win-time').textContent = fmtTime(secs);
+      el('win-path').innerHTML = state.path.map((t,i)=> `${i+1}. ${i===0||i===state.path.length-1 ? `<b>${escapeHtml(t)}</b>` : escapeHtml(t)}`).join('<br>');
+    }, 550);
+  }
+
+  el('btn-again').addEventListener('click', ()=>{
+    startInput.value = state.startTitle;
+    goalInput.value = state.goalTitle;
+    winScreen.style.display = 'none';
+    startGame();
+  });
+  el('btn-newgame').addEventListener('click', ()=>{
+    winScreen.style.display = 'none';
+    setupScreen.style.display = 'flex';
+    startInput.value = ''; goalInput.value = '';
+  });
+
+  // ================= AUTO SOLVE (bidirectional BFS over Wikipedia link graph) =================
+  const SOLVE_MAX_DEPTH = 4;         // per side
+  const SOLVE_LINKS_PER_PAGE = 350;  // cap outgoing/incoming links fetched per page
+  const SOLVE_MAX_FETCHES = 650;     // hard cap on API calls
+  const SOLVE_CONCURRENCY = 8;
+  const SOLVE_TIME_LIMIT_MS = 55000;
+
+  function logLine(cls, text){
+    const logEl = el('solve-log');
+    const line = document.createElement('div');
+    line.className = cls;
+    line.textContent = text;
+    logEl.appendChild(line);
+    while(logEl.children.length > 60) logEl.removeChild(logEl.firstChild);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  async function mapLimit(items, limit, fn){
+    const ret = new Array(items.length);
+    let i = 0;
+    async function worker(){
+      while(i < items.length){
+        const idx = i++;
+        ret[idx] = await fn(items[idx], idx);
+      }
+    }
+    await Promise.all(Array.from({length: Math.min(limit, items.length)}, worker));
+    return ret;
+  }
+
+  async function fetchLinkNeighbors(title, direction){
+    const prop = direction === 'out' ? 'links' : 'linkshere';
+    const limitParam = direction === 'out' ? `plnamespace=0&pllimit=${SOLVE_LINKS_PER_PAGE}` : `lhnamespace=0&lhlimit=${SOLVE_LINKS_PER_PAGE}&lhshow=!redirect`;
+    const url = `${API}?action=query&titles=${encodeURIComponent(title)}&prop=${prop}&${limitParam}&format=json&origin=*`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const pages = data.query && data.query.pages;
+    if(!pages) return [];
+    const page = Object.values(pages)[0];
+    const arr = direction === 'out' ? page.links : page.linkshere;
+    if(!arr) return [];
+    return arr.map(x => x.title);
+  }
+
+  async function biDirectionalSearch(startTitle, goalTitle, onProgress, isCancelled){
+    let fetches = 0;
+    if(norm(startTitle) === norm(goalTitle)){
+      return { path:[startTitle], fetches:0, nodes:1 };
+    }
+    const forwardVisited = new Map();
+    const backwardVisited = new Map();
+    forwardVisited.set(norm(startTitle), { title:startTitle, parent:null });
+    backwardVisited.set(norm(goalTitle), { title:goalTitle, parent:null });
+
+    let forwardFrontier = [startTitle];
+    let backwardFrontier = [goalTitle];
+    let forwardDepth = 0, backwardDepth = 0;
+    const t0 = Date.now();
+
+    function reconstruct(meetKey){
+      const fSeq = [];
+      let node = forwardVisited.get(meetKey);
+      while(node){
+        fSeq.unshift(node.title);
+        node = node.parent ? forwardVisited.get(norm(node.parent)) : null;
+      }
+      const bSeq = [];
+      node = backwardVisited.get(meetKey);
+      while(node){
+        bSeq.push(node.title);
+        node = node.parent ? backwardVisited.get(norm(node.parent)) : null;
+      }
+      return fSeq.concat(bSeq.slice(1));
+    }
+
+    while(true){
+      if(isCancelled()) return { path:null, cancelled:true, fetches };
+      if(fetches >= SOLVE_MAX_FETCHES) break;
+      if(Date.now() - t0 > SOLVE_TIME_LIMIT_MS) break;
+
+      const fwdAvail = forwardDepth < SOLVE_MAX_DEPTH && forwardFrontier.length > 0;
+      const bwdAvail = backwardDepth < SOLVE_MAX_DEPTH && backwardFrontier.length > 0;
+      if(!fwdAvail && !bwdAvail) break;
+      const goForward = fwdAvail && bwdAvail
+        ? forwardFrontier.length <= backwardFrontier.length
+        : fwdAvail;
+      const frontier = goForward ? forwardFrontier : backwardFrontier;
+      const visited = goForward ? forwardVisited : backwardVisited;
+      const otherVisited = goForward ? backwardVisited : forwardVisited;
+
+      const capped = frontier.slice(0, Math.max(1, Math.floor((SOLVE_MAX_FETCHES - fetches))));
+      const linksResults = await mapLimit(capped, SOLVE_CONCURRENCY, async (title) => {
+        fetches++;
+        try{ return await fetchLinkNeighbors(title, goForward ? 'out' : 'in'); }
+        catch(e){ return []; }
+      });
+
+      const nextFrontier = [];
+      let meetKey = null;
+      for(let fi = 0; fi < capped.length; fi++){
+        const parentTitle = capped[fi];
+        const links = linksResults[fi] || [];
+        for(const lt of links){
+          const key = norm(lt);
+          if(NS_BLOCK.test(lt)) continue;
+          if(!visited.has(key)){
+            visited.set(key, { title: lt, parent: parentTitle });
+            nextFrontier.push(lt);
+          }
+          if(otherVisited.has(key) && !meetKey){
+            meetKey = key;
+          }
+        }
+        if(meetKey) break;
+      }
+
+      if(goForward){ forwardFrontier = nextFrontier; forwardDepth++; }
+      else { backwardFrontier = nextFrontier; backwardDepth++; }
+
+      const sample = capped.slice(0, 3);
+      onProgress && onProgress({
+        fetches, forwardDepth, backwardDepth,
+        nodes: forwardVisited.size + backwardVisited.size,
+        direction: goForward ? 'fwd' : 'bwd',
+        sample
+      });
+
+      if(meetKey){
+        const path = reconstruct(meetKey);
+        return { path, fetches, nodes: forwardVisited.size + backwardVisited.size };
+      }
+    }
+    return { path:null, fetches, nodes: forwardVisited.size + backwardVisited.size };
+  }
+
+  el('btn-cancel-solve').addEventListener('click', ()=>{
+    solveCancelled = true;
+  });
+
+  async function startAutoSolve(){
+    const s = startInput.value.trim();
+    const g = goalInput.value.trim();
+    const errEl = el('setup-error');
+    errEl.textContent = '';
+    if(!s || !g){ errEl.textContent = 'スタートとゴールの両方を入力してください。'; return; }
+    if(norm(s) === norm(g)){ errEl.textContent = 'スタートとゴールが同じです。別の記事を選んでください。'; return; }
+
+    el('btn-start').disabled = true;
+    let sData, gData;
+    try{
+      [sData, gData] = await Promise.all([fetchArticle(s), fetchArticle(g)]);
+    }catch(e){
+      errEl.textContent = '記事が見つかりませんでした。タイトルを確認してください。';
+      el('btn-start').disabled = false;
+      return;
+    }
+    el('btn-start').disabled = false;
+
+    solveCancelled = false;
+    setupScreen.style.display = 'none';
+    solveScreen.style.display = 'flex';
+    el('solve-log').innerHTML = '';
+    el('solve-start-label').textContent = sData.title;
+    el('solve-goal-label').textContent = gData.title;
+    el('solve-fetches').textContent = '0';
+    el('solve-nodes').textContent = '0';
+    el('solve-depth').textContent = '0 / 0';
+    el('solve-elapsed').textContent = '0:00';
+
+    const t0 = Date.now();
+    const elapsedHandle = setInterval(()=>{
+      el('solve-elapsed').textContent = fmtTime(Math.floor((Date.now()-t0)/1000));
+    }, 1000);
+
+    const result = await biDirectionalSearch(
+      sData.title, gData.title,
+      (p)=>{
+        el('solve-fetches').textContent = p.fetches;
+        el('solve-nodes').textContent = p.nodes;
+        el('solve-depth').textContent = `${p.forwardDepth} / ${p.backwardDepth}`;
+        p.sample.forEach(t => logLine(p.direction === 'fwd' ? 'fwd' : 'bwd', (p.direction === 'fwd' ? '→ ' : '← ') + t));
+      },
+      ()=> solveCancelled
+    );
+    clearInterval(elapsedHandle);
+
+    if(solveCancelled){
+      solveScreen.style.display = 'none';
+      setupScreen.style.display = 'flex';
+      return;
+    }
+
+    solveScreen.style.display = 'none';
+    solvedScreen.style.display = 'flex';
+
+    if(result.path){
+      logLine('meet', `✓ 経路が見つかりました (${result.path.length - 1} ホップ)`);
+      state.startTitle = sData.title;
+      state.goalTitle = gData.title;
+      state.solvedPath = result.path;
+      el('solved-success').style.display = 'block';
+      el('solved-fail').style.display = 'none';
+      el('solved-sub').textContent = `${sData.title} → ${gData.title}`;
+      el('solved-hops').textContent = result.path.length - 1;
+      el('solved-nodes').textContent = result.nodes;
+      el('solved-time').textContent = fmtTime(Math.floor((Date.now()-t0)/1000));
+      el('solved-path').innerHTML = result.path.map((t,i)=> `${i+1}. ${i===0||i===result.path.length-1 ? `<b>${escapeHtml(t)}</b>` : escapeHtml(t)}`).join('<br>');
+    } else {
+      state.startTitle = sData.title;
+      state.goalTitle = gData.title;
+      state.solvedPath = null;
+      el('solved-success').style.display = 'none';
+      el('solved-fail').style.display = 'block';
+    }
+  }
+
+  el('btn-solved-newgame').addEventListener('click', ()=>{
+    solvedScreen.style.display = 'none';
+    setupScreen.style.display = 'flex';
+    startInput.value = ''; goalInput.value = '';
+  });
+  el('btn-fail-newgame').addEventListener('click', ()=>{
+    solvedScreen.style.display = 'none';
+    setupScreen.style.display = 'flex';
+    startInput.value = ''; goalInput.value = '';
+  });
+  el('btn-fail-manual').addEventListener('click', ()=>{
+    solvedScreen.style.display = 'none';
+    uiMode = 'manual';
+    [...el('mode-toggle').children].forEach(c=> c.classList.toggle('active', c.dataset.mode==='manual'));
+    el('btn-start').textContent = '出発する →';
+    startInput.value = state.startTitle || '';
+    goalInput.value = state.goalTitle || '';
+    setupScreen.style.display = 'flex';
+  });
+
+  // ---------- Playback mode ----------
+  el('btn-solved-playback').addEventListener('click', ()=>{
+    if(!state.solvedPath) return;
+    solvedScreen.style.display = 'none';
+    beginPlayback(state.solvedPath, state.startTitle, state.goalTitle);
+  });
+
+  function beginPlayback(path, startT, goalT){
+    state.mode = 'playback';
+    state.path = path.slice();
+    state.pbIndex = 0;
+    state.startTitle = startT;
+    state.goalTitle = goalT;
+    state.won = true;
+    gameScreen.classList.add('playback-mode');
+    gameScreen.style.display = 'flex';
+    stopPbAuto();
+    showPlaybackStep(0);
+  }
+
+  async function showPlaybackStep(idx){
+    idx = Math.max(0, Math.min(idx, state.path.length - 1));
+    state.pbIndex = idx;
+    el('pb-step').textContent = `${idx+1} / ${state.path.length}`;
+    el('pb-prev').disabled = idx === 0;
+    el('pb-next').disabled = idx === state.path.length - 1;
+
+    setLoading(true);
+    try{
+      const data = await fetchArticle(state.path[idx]);
+      const nextTitle = idx < state.path.length - 1 ? state.path[idx+1] : null;
+      renderPlaybackArticle(data, nextTitle, idx === state.path.length - 1);
+    }catch(e){
+      showToast('記事の読み込みに失敗しました。');
+    }
+    setLoading(false);
+    renderRailPlayback(idx);
+
+    if(idx === state.path.length - 1) stopPbAuto();
+  }
+
+  function renderPlaybackArticle(data, nextTitle, isLastHop){
+    el('article-title').textContent = data.title;
+    const body = el('article-body');
+    body.innerHTML = data.html;
+    body.querySelectorAll('script,style,.mw-editsection,.navbox,.metadata,.ambox,.hatnote,.noprint').forEach(n=>n.remove());
+    fixProtocolRelativeUrls(body);
+
+    body.querySelectorAll('a[href]').forEach(a=>{
+      const href = a.getAttribute('href') || '';
+      if(href.startsWith('/wiki/')){
+        let t = decodeURIComponent(href.replace('/wiki/','').split('#')[0]).replace(/_/g,' ');
+        if(!NS_BLOCK.test(t)){
+          a.dataset.wikiTitle = t;
+          if(nextTitle && norm(t) === norm(nextTitle)) a.classList.add('next-hop-link');
+        }
+      } else if(href.startsWith('http') || href.startsWith('//')){
+        a.setAttribute('target', '_blank');
+        a.setAttribute('rel', 'noopener noreferrer');
+      }
+    });
+
+    const hintSlot = el('hint-slot');
+    hintSlot.innerHTML = isLastHop
+      ? `<span class="hint-badge">🏁 ゴールに到着しました</span>`
+      : `<span class="hint-badge">▶ 次の駅: ${escapeHtml(nextTitle)}</span>`;
+    body.scrollTop = 0;
+  }
+
+  function renderRailPlayback(currentIdx){
+    const rail = el('rail');
+    let html = '';
+    state.path.forEach((title, i)=>{
+      let cls = 'station';
+      if(i === 0) cls += ' start';
+      if(i === currentIdx) cls += ' current';
+      if(i === state.path.length - 1) cls += ' goal';
+      html += `<div class="${cls}"><div class="seg"></div><div class="node"></div><div class="label" title="${escapeHtml(title)}">${escapeHtml(title)}</div></div>`;
+    });
+    rail.innerHTML = html;
+    const wrap = rail.parentElement;
+    requestAnimationFrame(()=>{
+      const node = rail.children[currentIdx];
+      if(node) wrap.scrollLeft = node.offsetLeft - wrap.clientWidth/2 + 44;
+    });
+  }
+
+  // playback mode: only the highlighted "next hop" link advances; everything else is inert
+  el('article-body').addEventListener('click', (e)=>{
+    if(state.mode !== 'playback') return;
+    const a = e.target.closest('a');
+    if(!a) return;
+    e.preventDefault();
+    if(a.classList.contains('next-hop-link')){
+      showPlaybackStep(state.pbIndex + 1);
+    } else {
+      showToast('プレイバック中です。「▶ 次へ」または🖐で自由操作に切り替えてください');
+    }
+  });
+
+  el('pb-prev').addEventListener('click', ()=> showPlaybackStep(state.pbIndex - 1));
+  el('pb-next').addEventListener('click', ()=> showPlaybackStep(state.pbIndex + 1));
+
+  function stopPbAuto(){
+    if(pbAutoHandle){ clearInterval(pbAutoHandle); pbAutoHandle = null; }
+    el('pb-auto').textContent = '▶ 自動再生';
+  }
+  el('pb-auto').addEventListener('click', ()=>{
+    if(pbAutoHandle){ stopPbAuto(); return; }
+    el('pb-auto').textContent = '⏸ 停止';
+    pbAutoHandle = setInterval(()=>{
+      if(state.pbIndex >= state.path.length - 1){ stopPbAuto(); return; }
+      showPlaybackStep(state.pbIndex + 1);
+    }, 2600);
+  });
+
+  el('btn-pb-exit').addEventListener('click', ()=>{
+    stopPbAuto();
+    gameScreen.classList.remove('playback-mode');
+    gameScreen.style.display = 'none';
+    setupScreen.style.display = 'flex';
+  });
+
+  el('btn-pb-free').addEventListener('click', async ()=>{
+    stopPbAuto();
+    state.mode = 'manual';
+    state.won = false;
+    state.path = state.path.slice(0, state.pbIndex + 1);
+    state.clicks = state.pbIndex;
+    state.startTime = Date.now();
+    gameScreen.classList.remove('playback-mode');
+    el('stat-clicks').textContent = state.clicks;
+    startTimer();
+    setLoading(true);
+    try{
+      const data = await fetchArticle(state.path[state.path.length - 1]);
+      renderArticle(data);
+      renderRail();
+    }catch(e){ showToast('読み込みに失敗しました。'); }
+    setLoading(false);
+    showToast('ここから自由に操作できます。リンクをクリックして進みましょう。');
+  });
+
+})();
+</script>
+</body>
+</html>
