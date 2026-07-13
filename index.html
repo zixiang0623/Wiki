@@ -733,7 +733,7 @@ figure{margin:0;}
       <div class="mark">栞</div>
       <div>
         <span class="name">shiori</span>
-        <span class="sub">Wikipedia Reader</span>
+        <span class="sub" id="brandSubLabel">Wikipedia Reader</span>
       </div>
     </div>
 
@@ -753,7 +753,7 @@ figure{margin:0;}
         </button>
         <div class="lang-dropdown" id="langPanel">
           <div id="langOtherVersions"></div>
-          <div class="lang-dropdown-heading">既定の表示言語</div>
+          <div class="lang-dropdown-heading" id="langDefaultHeading">既定の表示言語</div>
           <div class="lang-chip-grid" id="langChipGrid"></div>
         </div>
       </div>
@@ -775,7 +775,7 @@ figure{margin:0;}
     <div class="drawer-scrim" id="drawerScrim"></div>
 
     <aside class="panel toc-panel collapsed" id="tocPanel">
-      <div class="toc-heading">目次</div>
+      <div class="toc-heading" id="tocHeadingLabel">目次</div>
       <ul class="toc-list" id="tocList"></ul>
     </aside>
 
@@ -787,8 +787,8 @@ figure{margin:0;}
 
     <aside class="panel info-panel collapsed" id="infoPanel">
       <div class="info-tabs">
-        <div class="info-tab active" data-tab="about">概要</div>
-        <div class="info-tab" data-tab="bookmarks">ブックマーク</div>
+        <div class="info-tab active" data-tab="about" id="infoTabAboutLabel">概要</div>
+        <div class="info-tab" data-tab="bookmarks" id="infoTabBookmarksLabel">ブックマーク</div>
       </div>
       <div class="info-body">
         <div class="info-section active" id="tabAbout"></div>
@@ -831,178 +831,514 @@ const LANG_ORDER = Object.keys(LANGS_FULL);
 
 const UI_TEXT = {
   ja: {
-    settingsTitle: '設定',
-    settingsDesc: 'アプリの動作を調整します。検索バーからいつでも記事を開けます。',
-    fontSize: '文字サイズ',
-    fontSizePercent: '現在 {0}%',
-    defaultLang: '既定の表示言語',
-    bookmarks: 'ブックマーク',
-    bookmarksCount: '{0}件 保存されています',
-    history: '閲覧履歴',
-    historyCount: '{0}件',
-    random: 'ランダムな記事を開く'
+    brandSub:'Wikipediaリーダー', tocHeading:'目次', homeTooltip:'ホームへ',
+    searchPlaceholder:'記事を検索…', langToggleTitle:'多言語切替',
+    fontMinusTitle:'文字を小さく', fontPlusTitle:'文字を大きく',
+    infoToggleTitle:'この記事について / ブックマーク', backTitle:'戻る', forwardTitle:'進む',
+    randomLabel:'ランダム', tabAbout:'概要', settingsTitle:'設定',
+    settingsDesc:'アプリの動作を調整します。検索バーからいつでも記事を開けます。',
+    fontSize:'文字サイズ', fontSizePercent:'現在 {0}%', defaultLang:'既定の表示言語',
+    bookmarks:'ブックマーク', bookmarksCount:'{0}件 保存されています',
+    history:'閲覧履歴', historyCount:'{0}件', random:'ランダムな記事を開く',
+    statusReady:'読書の準備ができました',
+    suggestNoResults:'「{0}」に一致する記事が見つかりません',
+    suggestSearchFailed:'検索に失敗しました。通信環境をご確認ください。',
+    loadingArticle:'記事を取得しています…',
+    errorNotFoundTitle:'記事が見つかりませんでした',
+    errorNotFoundDesc:'「{0}」は存在しないか、通信に失敗した可能性があります。',
+    errorBackHome:'ホームへ戻る', statusFetchFailed:'記事の取得に失敗しました',
+    editionLabel:'{0}版 · Wikipedia', openOriginal:'Wikipedia原文を新しいタブで開く ↗',
+    bookmarkSaved:'保存済み', bookmarkAdd:'ブックマーク',
+    statusViewing:'{0} — {1}版を表示中', navGeneric:'関連項目', navPrefix:'ナビゲーション: ',
+    tocEmpty:'この記事に目次はありません', tabCloseTitle:'タブを閉じる',
+    searchingRandom:'ランダムな記事を探しています…', randomFailed:'ランダム記事の取得に失敗しました',
+    bookmarksEmpty:'まだブックマークがありません。<br>記事内の「ブックマーク」ボタンから追加できます。',
+    aboutEmpty:'記事を開くと、ここに概要が表示されます。',
+    aboutCardTitle:'この記事について', aboutLoadingExtract:'概要を取得中…',
+    aboutLangCardTitle:'表示言語',
+    aboutLangCardDesc:'{0}版を表示しています。ヘッダーの地球アイコンで他言語版に切り替えられます。',
+    aboutOtherVersionsTitle:'他言語版',
+    aboutOtherVersionsFound:'{0}言語の翻訳版が見つかりました。',
+    aboutOtherVersionsNone:'他言語版は見つかりませんでした。',
+    aboutTocCardTitle:'目次', aboutTocCardDesc:'{0}個のセクションがあります。左パネルからジャンプできます。',
+    langOtherVersionsHeading:'この記事の他言語版 ({0})',
+    langOtherVersionsEmpty:'この記事には他言語版が見つかりませんでした。',
+    langNoTranslation:'「{0}」の{1}版は見つかりませんでした。検索してお探しください。',
+    langSwitchedDefault:'既定の表示言語を{0}に切り替えました'
   },
   en: {
-    settingsTitle: 'Settings',
-    settingsDesc: 'Adjust app settings. Open articles anytime from the search bar.',
-    fontSize: 'Font Size',
-    fontSizePercent: 'Currently {0}%',
-    defaultLang: 'Default Language',
-    bookmarks: 'Bookmarks',
-    bookmarksCount: '{0} saved',
-    history: 'History',
-    historyCount: '{0} articles',
-    random: 'Open random article'
+    brandSub:'Wikipedia Reader', tocHeading:'Contents', homeTooltip:'Go home',
+    searchPlaceholder:'Search articles…', langToggleTitle:'Switch language',
+    fontMinusTitle:'Decrease text size', fontPlusTitle:'Increase text size',
+    infoToggleTitle:'About this article / Bookmarks', backTitle:'Back', forwardTitle:'Forward',
+    randomLabel:'Random', tabAbout:'Overview', settingsTitle:'Settings',
+    settingsDesc:'Adjust app settings. Open articles anytime from the search bar.',
+    fontSize:'Font Size', fontSizePercent:'Currently {0}%', defaultLang:'Default Language',
+    bookmarks:'Bookmarks', bookmarksCount:'{0} saved',
+    history:'History', historyCount:'{0} articles', random:'Open random article',
+    statusReady:'Ready to read',
+    suggestNoResults:'No articles found for "{0}"',
+    suggestSearchFailed:'Search failed. Please check your connection.',
+    loadingArticle:'Fetching article…',
+    errorNotFoundTitle:'Article not found',
+    errorNotFoundDesc:'"{0}" may not exist, or the request failed.',
+    errorBackHome:'Back to home', statusFetchFailed:'Failed to fetch the article',
+    editionLabel:'{0} edition · Wikipedia', openOriginal:'Open original on Wikipedia ↗',
+    bookmarkSaved:'Saved', bookmarkAdd:'Bookmark',
+    statusViewing:'{0} — Viewing {1} edition', navGeneric:'Related topics', navPrefix:'Navigation: ',
+    tocEmpty:'This article has no table of contents', tabCloseTitle:'Close tab',
+    searchingRandom:'Finding a random article…', randomFailed:'Failed to fetch a random article',
+    bookmarksEmpty:'No bookmarks yet.<br>Add one using the "Bookmark" button in an article.',
+    aboutEmpty:'Open an article to see its overview here.',
+    aboutCardTitle:'About this article', aboutLoadingExtract:'Loading overview…',
+    aboutLangCardTitle:'Display Language',
+    aboutLangCardDesc:'Currently viewing the {0} edition. Switch editions from the globe icon in the header.',
+    aboutOtherVersionsTitle:'Other Editions',
+    aboutOtherVersionsFound:'Found {0} language editions.',
+    aboutOtherVersionsNone:'No other language editions found.',
+    aboutTocCardTitle:'Contents', aboutTocCardDesc:'This article has {0} sections. Jump to any of them from the left panel.',
+    langOtherVersionsHeading:'Other editions of this article ({0})',
+    langOtherVersionsEmpty:'No other language editions were found for this article.',
+    langNoTranslation:'No {1} edition of "{0}" was found. Try searching instead.',
+    langSwitchedDefault:'Default language switched to {0}'
   },
   zh: {
-    settingsTitle: '设置',
-    settingsDesc: '调整应用设置。随时从搜索栏打开文章。',
-    fontSize: '字体大小',
-    fontSizePercent: '当前 {0}%',
-    defaultLang: '默认语言',
-    bookmarks: '书签',
-    bookmarksCount: '已保存 {0} 项',
-    history: '浏览历史',
-    historyCount: '{0} 篇文章',
-    random: '打开随机文章'
+    brandSub:'维基百科阅读器', tocHeading:'目录', homeTooltip:'返回首页',
+    searchPlaceholder:'搜索条目…', langToggleTitle:'切换语言',
+    fontMinusTitle:'缩小字号', fontPlusTitle:'放大字号',
+    infoToggleTitle:'关于本条目 / 书签', backTitle:'后退', forwardTitle:'前进',
+    randomLabel:'随机', tabAbout:'概览', settingsTitle:'设置',
+    settingsDesc:'调整应用设置。随时从搜索栏打开文章。',
+    fontSize:'字体大小', fontSizePercent:'当前 {0}%', defaultLang:'默认语言',
+    bookmarks:'书签', bookmarksCount:'已保存 {0} 项',
+    history:'浏览历史', historyCount:'{0} 篇文章', random:'打开随机文章',
+    statusReady:'准备就绪，开始阅读吧',
+    suggestNoResults:'未找到与「{0}」匹配的条目',
+    suggestSearchFailed:'搜索失败，请检查网络连接。',
+    loadingArticle:'正在获取条目…',
+    errorNotFoundTitle:'未找到条目',
+    errorNotFoundDesc:'「{0}」可能不存在，或请求失败。',
+    errorBackHome:'返回首页', statusFetchFailed:'条目获取失败',
+    editionLabel:'{0}版 · 维基百科', openOriginal:'在新标签页打开维基百科原文 ↗',
+    bookmarkSaved:'已保存', bookmarkAdd:'书签',
+    statusViewing:'正在浏览 {0} — {1}版', navGeneric:'相关条目', navPrefix:'导航: ',
+    tocEmpty:'本条目没有目录', tabCloseTitle:'关闭标签',
+    searchingRandom:'正在寻找随机条目…', randomFailed:'获取随机条目失败',
+    bookmarksEmpty:'暂无书签。<br>可通过条目内的「书签」按钮添加。',
+    aboutEmpty:'打开条目后，这里会显示概览。',
+    aboutCardTitle:'关于本条目', aboutLoadingExtract:'正在获取概览…',
+    aboutLangCardTitle:'显示语言',
+    aboutLangCardDesc:'当前显示{0}版。可通过顶部的地球图标切换其他语言版本。',
+    aboutOtherVersionsTitle:'其他语言版本',
+    aboutOtherVersionsFound:'找到 {0} 种语言的版本。',
+    aboutOtherVersionsNone:'未找到其他语言版本。',
+    aboutTocCardTitle:'目录', aboutTocCardDesc:'本条目共有 {0} 个章节，可从左侧面板跳转。',
+    langOtherVersionsHeading:'本条目的其他语言版本 ({0})',
+    langOtherVersionsEmpty:'未找到本条目的其他语言版本。',
+    langNoTranslation:'未找到「{0}」的{1}版，请尝试搜索。',
+    langSwitchedDefault:'默认语言已切换为{0}'
   },
   ko: {
-    settingsTitle: '설정',
-    settingsDesc: '앱 설정을 조정합니다. 검색창에서 언제든 기사를 열 수 있습니다.',
-    fontSize: '글자 크기',
-    fontSizePercent: '현재 {0}%',
-    defaultLang: '기본 언어',
-    bookmarks: '북마크',
-    bookmarksCount: '{0}개 저장됨',
-    history: '조회 기록',
-    historyCount: '{0}개',
-    random: '임의 기사 열기'
+    brandSub:'위키백과 리더', tocHeading:'목차', homeTooltip:'홈으로',
+    searchPlaceholder:'문서 검색…', langToggleTitle:'언어 전환',
+    fontMinusTitle:'글자 작게', fontPlusTitle:'글자 크게',
+    infoToggleTitle:'이 문서에 대해 / 북마크', backTitle:'뒤로', forwardTitle:'앞으로',
+    randomLabel:'무작위', tabAbout:'개요', settingsTitle:'설정',
+    settingsDesc:'앱 설정을 조정합니다. 검색창에서 언제든 기사를 열 수 있습니다.',
+    fontSize:'글자 크기', fontSizePercent:'현재 {0}%', defaultLang:'기본 언어',
+    bookmarks:'북마크', bookmarksCount:'{0}개 저장됨',
+    history:'조회 기록', historyCount:'{0}개', random:'임의 기사 열기',
+    statusReady:'읽을 준비가 되었습니다',
+    suggestNoResults:'"{0}"에 일치하는 문서를 찾을 수 없습니다',
+    suggestSearchFailed:'검색에 실패했습니다. 네트워크 연결을 확인해주세요.',
+    loadingArticle:'문서를 불러오는 중…',
+    errorNotFoundTitle:'문서를 찾을 수 없습니다',
+    errorNotFoundDesc:'"{0}"이(가) 존재하지 않거나 요청이 실패했습니다.',
+    errorBackHome:'홈으로 돌아가기', statusFetchFailed:'문서를 불러오지 못했습니다',
+    editionLabel:'{0}판 · 위키백과', openOriginal:'위키백과 원문을 새 탭에서 열기 ↗',
+    bookmarkSaved:'저장됨', bookmarkAdd:'북마크',
+    statusViewing:'{0} — {1}판 표시 중', navGeneric:'관련 항목', navPrefix:'탐색: ',
+    tocEmpty:'이 문서에는 목차가 없습니다', tabCloseTitle:'탭 닫기',
+    searchingRandom:'무작위 문서를 찾는 중…', randomFailed:'무작위 문서를 가져오지 못했습니다',
+    bookmarksEmpty:'아직 북마크가 없습니다.<br>문서 안의 "북마크" 버튼으로 추가할 수 있습니다.',
+    aboutEmpty:'문서를 열면 여기에 개요가 표시됩니다.',
+    aboutCardTitle:'이 문서에 대해', aboutLoadingExtract:'개요를 불러오는 중…',
+    aboutLangCardTitle:'표시 언어',
+    aboutLangCardDesc:'현재 {0}판을 보고 있습니다. 헤더의 지구본 아이콘으로 다른 언어판으로 전환할 수 있습니다.',
+    aboutOtherVersionsTitle:'다른 언어판',
+    aboutOtherVersionsFound:'{0}개 언어의 번역판을 찾았습니다.',
+    aboutOtherVersionsNone:'다른 언어판을 찾을 수 없습니다.',
+    aboutTocCardTitle:'목차', aboutTocCardDesc:'이 문서에는 {0}개의 섹션이 있습니다. 왼쪽 패널에서 이동할 수 있습니다.',
+    langOtherVersionsHeading:'이 문서의 다른 언어판 ({0})',
+    langOtherVersionsEmpty:'이 문서의 다른 언어판을 찾을 수 없습니다.',
+    langNoTranslation:'"{0}"의 {1}판을 찾을 수 없습니다. 검색해 보세요.',
+    langSwitchedDefault:'기본 언어가 {0}(으)로 전환되었습니다'
   },
   fr: {
-    settingsTitle: 'Paramètres',
-    settingsDesc: 'Ajustez les paramètres de l\'application. Ouvrez des articles à tout moment depuis la barre de recherche.',
-    fontSize: 'Taille de police',
-    fontSizePercent: 'Actuellement {0}%',
-    defaultLang: 'Langue par défaut',
-    bookmarks: 'Marque-pages',
-    bookmarksCount: '{0} enregistrés',
-    history: 'Historique',
-    historyCount: '{0} articles',
-    random: 'Ouvrir un article aléatoire'
+    brandSub:'Lecteur Wikipédia', tocHeading:'Sommaire', homeTooltip:'Accueil',
+    searchPlaceholder:'Rechercher des articles…', langToggleTitle:'Changer de langue',
+    fontMinusTitle:'Réduire le texte', fontPlusTitle:'Agrandir le texte',
+    infoToggleTitle:'À propos de cet article / Favoris', backTitle:'Précédent', forwardTitle:'Suivant',
+    randomLabel:'Aléatoire', tabAbout:'Aperçu', settingsTitle:'Paramètres',
+    settingsDesc:'Ajustez les paramètres de l\'application. Ouvrez des articles à tout moment depuis la barre de recherche.',
+    fontSize:'Taille de police', fontSizePercent:'Actuellement {0}%', defaultLang:'Langue par défaut',
+    bookmarks:'Favoris', bookmarksCount:'{0} enregistrés',
+    history:'Historique', historyCount:'{0} articles', random:'Ouvrir un article aléatoire',
+    statusReady:'Prêt pour la lecture',
+    suggestNoResults:'Aucun article trouvé pour « {0} »',
+    suggestSearchFailed:'Échec de la recherche. Vérifiez votre connexion.',
+    loadingArticle:'Récupération de l\'article…',
+    errorNotFoundTitle:'Article introuvable',
+    errorNotFoundDesc:'« {0} » n\'existe peut-être pas, ou la requête a échoué.',
+    errorBackHome:'Retour à l\'accueil', statusFetchFailed:'Échec de la récupération de l\'article',
+    editionLabel:'Édition {0} · Wikipédia', openOriginal:'Ouvrir l\'original sur Wikipédia ↗',
+    bookmarkSaved:'Enregistré', bookmarkAdd:'Favori',
+    statusViewing:'{0} — édition {1}', navGeneric:'Articles liés', navPrefix:'Navigation : ',
+    tocEmpty:'Cet article n\'a pas de sommaire', tabCloseTitle:'Fermer l\'onglet',
+    searchingRandom:'Recherche d\'un article aléatoire…', randomFailed:'Échec de la récupération d\'un article aléatoire',
+    bookmarksEmpty:'Aucun favori pour le moment.<br>Ajoutez-en un via le bouton « Favori » d\'un article.',
+    aboutEmpty:'Ouvrez un article pour voir son aperçu ici.',
+    aboutCardTitle:'À propos de cet article', aboutLoadingExtract:'Chargement de l\'aperçu…',
+    aboutLangCardTitle:'Langue d\'affichage',
+    aboutLangCardDesc:'Vous consultez l\'édition {0}. Changez d\'édition via l\'icône du globe dans l\'en-tête.',
+    aboutOtherVersionsTitle:'Autres éditions',
+    aboutOtherVersionsFound:'{0} éditions linguistiques trouvées.',
+    aboutOtherVersionsNone:'Aucune autre édition linguistique trouvée.',
+    aboutTocCardTitle:'Sommaire', aboutTocCardDesc:'Cet article contient {0} sections, accessibles depuis le panneau de gauche.',
+    langOtherVersionsHeading:'Autres éditions de cet article ({0})',
+    langOtherVersionsEmpty:'Aucune autre édition linguistique n\'a été trouvée pour cet article.',
+    langNoTranslation:'Aucune édition {1} de « {0} » n\'a été trouvée. Essayez une recherche.',
+    langSwitchedDefault:'Langue par défaut changée pour {0}'
   },
   de: {
-    settingsTitle: 'Einstellungen',
-    settingsDesc: 'App-Einstellungen anpassen. Öffnen Sie jederzeit Artikel aus der Suchleiste.',
-    fontSize: 'Schriftgröße',
-    fontSizePercent: 'Derzeit {0}%',
-    defaultLang: 'Standardsprache',
-    bookmarks: 'Lesezeichen',
-    bookmarksCount: '{0} gespeichert',
-    history: 'Verlauf',
-    historyCount: '{0} Artikel',
-    random: 'Zufälligen Artikel öffnen'
+    brandSub:'Wikipedia-Reader', tocHeading:'Inhaltsverzeichnis', homeTooltip:'Zur Startseite',
+    searchPlaceholder:'Artikel suchen…', langToggleTitle:'Sprache wechseln',
+    fontMinusTitle:'Schrift verkleinern', fontPlusTitle:'Schrift vergrößern',
+    infoToggleTitle:'Über diesen Artikel / Lesezeichen', backTitle:'Zurück', forwardTitle:'Vor',
+    randomLabel:'Zufällig', tabAbout:'Übersicht', settingsTitle:'Einstellungen',
+    settingsDesc:'App-Einstellungen anpassen. Öffnen Sie jederzeit Artikel aus der Suchleiste.',
+    fontSize:'Schriftgröße', fontSizePercent:'Derzeit {0}%', defaultLang:'Standardsprache',
+    bookmarks:'Lesezeichen', bookmarksCount:'{0} gespeichert',
+    history:'Verlauf', historyCount:'{0} Artikel', random:'Zufälligen Artikel öffnen',
+    statusReady:'Bereit zum Lesen',
+    suggestNoResults:'Keine Artikel für „{0}“ gefunden',
+    suggestSearchFailed:'Suche fehlgeschlagen. Bitte Verbindung prüfen.',
+    loadingArticle:'Artikel wird geladen…',
+    errorNotFoundTitle:'Artikel nicht gefunden',
+    errorNotFoundDesc:'„{0}“ existiert möglicherweise nicht, oder die Anfrage ist fehlgeschlagen.',
+    errorBackHome:'Zurück zur Startseite', statusFetchFailed:'Artikel konnte nicht geladen werden',
+    editionLabel:'{0}-Ausgabe · Wikipedia', openOriginal:'Original auf Wikipedia öffnen ↗',
+    bookmarkSaved:'Gespeichert', bookmarkAdd:'Lesezeichen',
+    statusViewing:'{0} — {1}-Ausgabe wird angezeigt', navGeneric:'Verwandte Themen', navPrefix:'Navigation: ',
+    tocEmpty:'Dieser Artikel hat kein Inhaltsverzeichnis', tabCloseTitle:'Tab schließen',
+    searchingRandom:'Zufälliger Artikel wird gesucht…', randomFailed:'Zufälliger Artikel konnte nicht geladen werden',
+    bookmarksEmpty:'Noch keine Lesezeichen.<br>Fügen Sie eines über die Schaltfläche „Lesezeichen“ in einem Artikel hinzu.',
+    aboutEmpty:'Öffnen Sie einen Artikel, um hier die Übersicht zu sehen.',
+    aboutCardTitle:'Über diesen Artikel', aboutLoadingExtract:'Übersicht wird geladen…',
+    aboutLangCardTitle:'Anzeigesprache',
+    aboutLangCardDesc:'Sie sehen die {0}-Ausgabe. Wechseln Sie die Ausgabe über das Globus-Symbol im Header.',
+    aboutOtherVersionsTitle:'Andere Sprachausgaben',
+    aboutOtherVersionsFound:'{0} Sprachausgaben gefunden.',
+    aboutOtherVersionsNone:'Keine anderen Sprachausgaben gefunden.',
+    aboutTocCardTitle:'Inhaltsverzeichnis', aboutTocCardDesc:'Dieser Artikel hat {0} Abschnitte, erreichbar über das linke Panel.',
+    langOtherVersionsHeading:'Andere Sprachausgaben dieses Artikels ({0})',
+    langOtherVersionsEmpty:'Für diesen Artikel wurden keine anderen Sprachausgaben gefunden.',
+    langNoTranslation:'Keine {1}-Ausgabe von „{0}“ gefunden. Versuchen Sie eine Suche.',
+    langSwitchedDefault:'Standardsprache auf {0} umgestellt'
   },
   es: {
-    settingsTitle: 'Configuración',
-    settingsDesc: 'Ajuste la configuración de la aplicación. Abra artículos en cualquier momento desde la barra de búsqueda.',
-    fontSize: 'Tamaño de fuente',
-    fontSizePercent: 'Actualmente {0}%',
-    defaultLang: 'Idioma predeterminado',
-    bookmarks: 'Marcadores',
-    bookmarksCount: '{0} guardados',
-    history: 'Historial',
-    historyCount: '{0} artículos',
-    random: 'Abrir artículo al azar'
+    brandSub:'Lector de Wikipedia', tocHeading:'Índice', homeTooltip:'Ir al inicio',
+    searchPlaceholder:'Buscar artículos…', langToggleTitle:'Cambiar idioma',
+    fontMinusTitle:'Reducir texto', fontPlusTitle:'Aumentar texto',
+    infoToggleTitle:'Sobre este artículo / Marcadores', backTitle:'Atrás', forwardTitle:'Adelante',
+    randomLabel:'Aleatorio', tabAbout:'Resumen', settingsTitle:'Configuración',
+    settingsDesc:'Ajuste la configuración de la aplicación. Abra artículos en cualquier momento desde la barra de búsqueda.',
+    fontSize:'Tamaño de fuente', fontSizePercent:'Actualmente {0}%', defaultLang:'Idioma predeterminado',
+    bookmarks:'Marcadores', bookmarksCount:'{0} guardados',
+    history:'Historial', historyCount:'{0} artículos', random:'Abrir artículo al azar',
+    statusReady:'Listo para leer',
+    suggestNoResults:'No se encontraron artículos para «{0}»',
+    suggestSearchFailed:'Error de búsqueda. Verifique su conexión.',
+    loadingArticle:'Obteniendo artículo…',
+    errorNotFoundTitle:'Artículo no encontrado',
+    errorNotFoundDesc:'«{0}» puede no existir, o la solicitud falló.',
+    errorBackHome:'Volver al inicio', statusFetchFailed:'Error al obtener el artículo',
+    editionLabel:'Edición {0} · Wikipedia', openOriginal:'Abrir original en Wikipedia ↗',
+    bookmarkSaved:'Guardado', bookmarkAdd:'Marcador',
+    statusViewing:'{0} — viendo edición {1}', navGeneric:'Temas relacionados', navPrefix:'Navegación: ',
+    tocEmpty:'Este artículo no tiene índice', tabCloseTitle:'Cerrar pestaña',
+    searchingRandom:'Buscando un artículo aleatorio…', randomFailed:'Error al obtener un artículo aleatorio',
+    bookmarksEmpty:'Aún no hay marcadores.<br>Añada uno con el botón «Marcador» de un artículo.',
+    aboutEmpty:'Abra un artículo para ver aquí su resumen.',
+    aboutCardTitle:'Sobre este artículo', aboutLoadingExtract:'Cargando resumen…',
+    aboutLangCardTitle:'Idioma de visualización',
+    aboutLangCardDesc:'Está viendo la edición {0}. Cambie de edición con el icono del globo en el encabezado.',
+    aboutOtherVersionsTitle:'Otras ediciones',
+    aboutOtherVersionsFound:'Se encontraron {0} ediciones en otros idiomas.',
+    aboutOtherVersionsNone:'No se encontraron otras ediciones en otros idiomas.',
+    aboutTocCardTitle:'Índice', aboutTocCardDesc:'Este artículo tiene {0} secciones, accesibles desde el panel izquierdo.',
+    langOtherVersionsHeading:'Otras ediciones de este artículo ({0})',
+    langOtherVersionsEmpty:'No se encontraron otras ediciones de este artículo.',
+    langNoTranslation:'No se encontró una edición en {1} de «{0}». Intente buscarlo.',
+    langSwitchedDefault:'Idioma predeterminado cambiado a {0}'
   },
   pt: {
-    settingsTitle: 'Configurações',
-    settingsDesc: 'Ajuste as configurações do aplicativo. Abra artigos a qualquer momento na barra de pesquisa.',
-    fontSize: 'Tamanho da fonte',
-    fontSizePercent: 'Atualmente {0}%',
-    defaultLang: 'Idioma padrão',
-    bookmarks: 'Favoritos',
-    bookmarksCount: '{0} salvos',
-    history: 'Histórico',
-    historyCount: '{0} artigos',
-    random: 'Abrir artigo aleatório'
+    brandSub:'Leitor da Wikipédia', tocHeading:'Índice', homeTooltip:'Ir para o início',
+    searchPlaceholder:'Pesquisar artigos…', langToggleTitle:'Mudar idioma',
+    fontMinusTitle:'Diminuir texto', fontPlusTitle:'Aumentar texto',
+    infoToggleTitle:'Sobre este artigo / Favoritos', backTitle:'Voltar', forwardTitle:'Avançar',
+    randomLabel:'Aleatório', tabAbout:'Visão geral', settingsTitle:'Configurações',
+    settingsDesc:'Ajuste as configurações do aplicativo. Abra artigos a qualquer momento na barra de pesquisa.',
+    fontSize:'Tamanho da fonte', fontSizePercent:'Atualmente {0}%', defaultLang:'Idioma padrão',
+    bookmarks:'Favoritos', bookmarksCount:'{0} salvos',
+    history:'Histórico', historyCount:'{0} artigos', random:'Abrir artigo aleatório',
+    statusReady:'Pronto para ler',
+    suggestNoResults:'Nenhum artigo encontrado para "{0}"',
+    suggestSearchFailed:'Falha na busca. Verifique sua conexão.',
+    loadingArticle:'Obtendo artigo…',
+    errorNotFoundTitle:'Artigo não encontrado',
+    errorNotFoundDesc:'"{0}" pode não existir, ou a solicitação falhou.',
+    errorBackHome:'Voltar ao início', statusFetchFailed:'Falha ao obter o artigo',
+    editionLabel:'Edição {0} · Wikipédia', openOriginal:'Abrir original na Wikipédia ↗',
+    bookmarkSaved:'Salvo', bookmarkAdd:'Favorito',
+    statusViewing:'{0} — exibindo edição {1}', navGeneric:'Tópicos relacionados', navPrefix:'Navegação: ',
+    tocEmpty:'Este artigo não possui índice', tabCloseTitle:'Fechar aba',
+    searchingRandom:'Procurando um artigo aleatório…', randomFailed:'Falha ao obter um artigo aleatório',
+    bookmarksEmpty:'Ainda não há favoritos.<br>Adicione um pelo botão "Favorito" em um artigo.',
+    aboutEmpty:'Abra um artigo para ver a visão geral aqui.',
+    aboutCardTitle:'Sobre este artigo', aboutLoadingExtract:'Carregando visão geral…',
+    aboutLangCardTitle:'Idioma de exibição',
+    aboutLangCardDesc:'Você está vendo a edição {0}. Troque de edição pelo ícone do globo no cabeçalho.',
+    aboutOtherVersionsTitle:'Outras edições',
+    aboutOtherVersionsFound:'Encontradas {0} edições em outros idiomas.',
+    aboutOtherVersionsNone:'Nenhuma outra edição em outro idioma encontrada.',
+    aboutTocCardTitle:'Índice', aboutTocCardDesc:'Este artigo tem {0} seções, acessíveis pelo painel esquerdo.',
+    langOtherVersionsHeading:'Outras edições deste artigo ({0})',
+    langOtherVersionsEmpty:'Nenhuma outra edição deste artigo foi encontrada.',
+    langNoTranslation:'Nenhuma edição em {1} de "{0}" foi encontrada. Tente pesquisar.',
+    langSwitchedDefault:'Idioma padrão alterado para {0}'
   },
   ru: {
-    settingsTitle: 'Параметры',
-    settingsDesc: 'Настройте параметры приложения. Открывайте статьи в любое время из строки поиска.',
-    fontSize: 'Размер шрифта',
-    fontSizePercent: 'Текущий размер {0}%',
-    defaultLang: 'Язык по умолчанию',
-    bookmarks: 'Закладки',
-    bookmarksCount: 'Сохранено {0}',
-    history: 'История',
-    historyCount: '{0} статей',
-    random: 'Открыть случайную статью'
+    brandSub:'Читалка Википедии', tocHeading:'Содержание', homeTooltip:'На главную',
+    searchPlaceholder:'Поиск статей…', langToggleTitle:'Сменить язык',
+    fontMinusTitle:'Уменьшить текст', fontPlusTitle:'Увеличить текст',
+    infoToggleTitle:'Об этой статье / Закладки', backTitle:'Назад', forwardTitle:'Вперёд',
+    randomLabel:'Случайная', tabAbout:'Обзор', settingsTitle:'Параметры',
+    settingsDesc:'Настройте параметры приложения. Открывайте статьи в любое время из строки поиска.',
+    fontSize:'Размер шрифта', fontSizePercent:'Текущий размер {0}%', defaultLang:'Язык по умолчанию',
+    bookmarks:'Закладки', bookmarksCount:'Сохранено {0}',
+    history:'История', historyCount:'{0} статей', random:'Открыть случайную статью',
+    statusReady:'Готово к чтению',
+    suggestNoResults:'Статьи по запросу «{0}» не найдены',
+    suggestSearchFailed:'Ошибка поиска. Проверьте подключение.',
+    loadingArticle:'Загрузка статьи…',
+    errorNotFoundTitle:'Статья не найдена',
+    errorNotFoundDesc:'«{0}» может не существовать, либо запрос не удался.',
+    errorBackHome:'Вернуться на главную', statusFetchFailed:'Не удалось загрузить статью',
+    editionLabel:'{0} · Википедия', openOriginal:'Открыть оригинал в Википедии ↗',
+    bookmarkSaved:'Сохранено', bookmarkAdd:'Закладка',
+    statusViewing:'{0} — просмотр версии {1}', navGeneric:'Связанные темы', navPrefix:'Навигация: ',
+    tocEmpty:'В этой статье нет содержания', tabCloseTitle:'Закрыть вкладку',
+    searchingRandom:'Поиск случайной статьи…', randomFailed:'Не удалось загрузить случайную статью',
+    bookmarksEmpty:'Закладок пока нет.<br>Добавьте их кнопкой «Закладка» в статье.',
+    aboutEmpty:'Откройте статью, чтобы увидеть здесь обзор.',
+    aboutCardTitle:'Об этой статье', aboutLoadingExtract:'Загрузка обзора…',
+    aboutLangCardTitle:'Язык отображения',
+    aboutLangCardDesc:'Вы просматриваете версию {0}. Переключить версию можно значком глобуса в шапке.',
+    aboutOtherVersionsTitle:'Другие языковые версии',
+    aboutOtherVersionsFound:'Найдено {0} языковых версий.',
+    aboutOtherVersionsNone:'Другие языковые версии не найдены.',
+    aboutTocCardTitle:'Содержание', aboutTocCardDesc:'В статье {0} разделов, доступных через левую панель.',
+    langOtherVersionsHeading:'Другие версии этой статьи ({0})',
+    langOtherVersionsEmpty:'Другие языковые версии этой статьи не найдены.',
+    langNoTranslation:'Версия «{0}» на {1} не найдена. Попробуйте выполнить поиск.',
+    langSwitchedDefault:'Язык по умолчанию изменён на {0}'
   },
   it: {
-    settingsTitle: 'Impostazioni',
-    settingsDesc: 'Regola le impostazioni dell\'app. Apri articoli in qualsiasi momento dalla barra di ricerca.',
-    fontSize: 'Dimensione carattere',
-    fontSizePercent: 'Attualmente {0}%',
-    defaultLang: 'Lingua predefinita',
-    bookmarks: 'Segnalibri',
-    bookmarksCount: '{0} salvati',
-    history: 'Cronologia',
-    historyCount: '{0} articoli',
-    random: 'Apri articolo casuale'
+    brandSub:'Lettore di Wikipedia', tocHeading:'Indice', homeTooltip:'Vai alla home',
+    searchPlaceholder:'Cerca articoli…', langToggleTitle:'Cambia lingua',
+    fontMinusTitle:'Rimpicciolisci testo', fontPlusTitle:'Ingrandisci testo',
+    infoToggleTitle:'Informazioni sull\'articolo / Segnalibri', backTitle:'Indietro', forwardTitle:'Avanti',
+    randomLabel:'Casuale', tabAbout:'Panoramica', settingsTitle:'Impostazioni',
+    settingsDesc:'Regola le impostazioni dell\'app. Apri articoli in qualsiasi momento dalla barra di ricerca.',
+    fontSize:'Dimensione carattere', fontSizePercent:'Attualmente {0}%', defaultLang:'Lingua predefinita',
+    bookmarks:'Segnalibri', bookmarksCount:'{0} salvati',
+    history:'Cronologia', historyCount:'{0} articoli', random:'Apri articolo casuale',
+    statusReady:'Pronto per la lettura',
+    suggestNoResults:'Nessun articolo trovato per "{0}"',
+    suggestSearchFailed:'Ricerca non riuscita. Controlla la connessione.',
+    loadingArticle:'Recupero dell\'articolo…',
+    errorNotFoundTitle:'Articolo non trovato',
+    errorNotFoundDesc:'"{0}" potrebbe non esistere, oppure la richiesta non è riuscita.',
+    errorBackHome:'Torna alla home', statusFetchFailed:'Recupero dell\'articolo non riuscito',
+    editionLabel:'Edizione {0} · Wikipedia', openOriginal:'Apri l\'originale su Wikipedia ↗',
+    bookmarkSaved:'Salvato', bookmarkAdd:'Segnalibro',
+    statusViewing:'{0} — visualizzazione edizione {1}', navGeneric:'Argomenti correlati', navPrefix:'Navigazione: ',
+    tocEmpty:'Questo articolo non ha un indice', tabCloseTitle:'Chiudi scheda',
+    searchingRandom:'Ricerca di un articolo casuale…', randomFailed:'Recupero di un articolo casuale non riuscito',
+    bookmarksEmpty:'Ancora nessun segnalibro.<br>Aggiungine uno dal pulsante "Segnalibro" in un articolo.',
+    aboutEmpty:'Apri un articolo per vedere qui la panoramica.',
+    aboutCardTitle:'Informazioni sull\'articolo', aboutLoadingExtract:'Caricamento della panoramica…',
+    aboutLangCardTitle:'Lingua di visualizzazione',
+    aboutLangCardDesc:'Stai visualizzando l\'edizione {0}. Cambia edizione dall\'icona del globo nell\'intestazione.',
+    aboutOtherVersionsTitle:'Altre edizioni',
+    aboutOtherVersionsFound:'Trovate {0} edizioni in altre lingue.',
+    aboutOtherVersionsNone:'Nessuna altra edizione linguistica trovata.',
+    aboutTocCardTitle:'Indice', aboutTocCardDesc:'Questo articolo ha {0} sezioni, accessibili dal pannello a sinistra.',
+    langOtherVersionsHeading:'Altre edizioni di questo articolo ({0})',
+    langOtherVersionsEmpty:'Non sono state trovate altre edizioni linguistiche per questo articolo.',
+    langNoTranslation:'Nessuna edizione in {1} di "{0}" trovata. Prova a cercarla.',
+    langSwitchedDefault:'Lingua predefinita cambiata in {0}'
   },
   ar: {
-    settingsTitle: 'الإعدادات',
-    settingsDesc: 'اضبط إعدادات التطبيق. افتح المقالات في أي وقت من شريط البحث.',
-    fontSize: 'حجم الخط',
-    fontSizePercent: 'حالياً {0}%',
-    defaultLang: 'اللغة الافتراضية',
-    bookmarks: 'الإشارات المرجعية',
-    bookmarksCount: '{0} محفوظ',
-    history: 'السجل',
-    historyCount: '{0} مقالة',
-    random: 'فتح مقالة عشوائية'
+    brandSub:'قارئ ويكيبيديا', tocHeading:'المحتويات', homeTooltip:'الصفحة الرئيسية',
+    searchPlaceholder:'ابحث عن مقالات…', langToggleTitle:'تبديل اللغة',
+    fontMinusTitle:'تصغير النص', fontPlusTitle:'تكبير النص',
+    infoToggleTitle:'حول هذه المقالة / الإشارات المرجعية', backTitle:'رجوع', forwardTitle:'تقدم',
+    randomLabel:'عشوائي', tabAbout:'نظرة عامة', settingsTitle:'الإعدادات',
+    settingsDesc:'اضبط إعدادات التطبيق. افتح المقالات في أي وقت من شريط البحث.',
+    fontSize:'حجم الخط', fontSizePercent:'حالياً {0}%', defaultLang:'اللغة الافتراضية',
+    bookmarks:'الإشارات المرجعية', bookmarksCount:'{0} محفوظ',
+    history:'السجل', historyCount:'{0} مقالة', random:'فتح مقالة عشوائية',
+    statusReady:'جاهز للقراءة',
+    suggestNoResults:'لم يتم العثور على مقالات مطابقة لـ "{0}"',
+    suggestSearchFailed:'فشل البحث. يرجى التحقق من الاتصال.',
+    loadingArticle:'جارٍ جلب المقالة…',
+    errorNotFoundTitle:'المقالة غير موجودة',
+    errorNotFoundDesc:'قد لا تكون "{0}" موجودة، أو فشل الطلب.',
+    errorBackHome:'العودة إلى الرئيسية', statusFetchFailed:'فشل في جلب المقالة',
+    editionLabel:'نسخة {0} · ويكيبيديا', openOriginal:'فتح الأصل في ويكيبيديا ↗',
+    bookmarkSaved:'محفوظ', bookmarkAdd:'إشارة مرجعية',
+    statusViewing:'{0} — عرض نسخة {1}', navGeneric:'مواضيع ذات صلة', navPrefix:'تصفح: ',
+    tocEmpty:'لا يحتوي هذا المقال على فهرس', tabCloseTitle:'إغلاق علامة التبويب',
+    searchingRandom:'جارٍ البحث عن مقالة عشوائية…', randomFailed:'فشل جلب مقالة عشوائية',
+    bookmarksEmpty:'لا توجد إشارات مرجعية بعد.<br>أضف واحدة عبر زر "إشارة مرجعية" داخل المقالة.',
+    aboutEmpty:'افتح مقالة لعرض نظرة عامة هنا.',
+    aboutCardTitle:'حول هذه المقالة', aboutLoadingExtract:'جارٍ تحميل النظرة العامة…',
+    aboutLangCardTitle:'لغة العرض',
+    aboutLangCardDesc:'أنت تشاهد نسخة {0}. يمكنك تبديل النسخة عبر أيقونة الكرة الأرضية في الأعلى.',
+    aboutOtherVersionsTitle:'نسخ لغوية أخرى',
+    aboutOtherVersionsFound:'تم العثور على {0} نسخة لغوية.',
+    aboutOtherVersionsNone:'لم يتم العثور على نسخ لغوية أخرى.',
+    aboutTocCardTitle:'المحتويات', aboutTocCardDesc:'يحتوي هذا المقال على {0} قسمًا، يمكن الوصول إليها من اللوحة اليسرى.',
+    langOtherVersionsHeading:'نسخ لغوية أخرى لهذه المقالة ({0})',
+    langOtherVersionsEmpty:'لم يتم العثور على نسخ لغوية أخرى لهذه المقالة.',
+    langNoTranslation:'لم يتم العثور على نسخة {1} من "{0}". حاول البحث بدلاً من ذلك.',
+    langSwitchedDefault:'تم تغيير اللغة الافتراضية إلى {0}'
   },
   hi: {
-    settingsTitle: 'सेटिंग्स',
-    settingsDesc: 'ऐप सेटिंग्स समायोजित करें। खोज बार से किसी भी समय लेख खोलें।',
-    fontSize: 'फ़ॉन्ट आकार',
-    fontSizePercent: 'वर्तमान में {0}%',
-    defaultLang: 'डिफ़ॉल्ट भाषा',
-    bookmarks: 'बुकमार्क',
-    bookmarksCount: '{0} सहेजे गए',
-    history: 'इतिहास',
-    historyCount: '{0} लेख',
-    random: 'यादृच्छिक लेख खोलें'
+    brandSub:'विकिपीडिया रीडर', tocHeading:'अनुक्रमणिका', homeTooltip:'होम पर जाएं',
+    searchPlaceholder:'लेख खोजें…', langToggleTitle:'भाषा बदलें',
+    fontMinusTitle:'फ़ॉन्ट छोटा करें', fontPlusTitle:'फ़ॉन्ट बड़ा करें',
+    infoToggleTitle:'इस लेख के बारे में / बुकमार्क', backTitle:'पीछे', forwardTitle:'आगे',
+    randomLabel:'यादृच्छिक', tabAbout:'सारांश', settingsTitle:'सेटिंग्स',
+    settingsDesc:'ऐप सेटिंग्स समायोजित करें। खोज बार से किसी भी समय लेख खोलें।',
+    fontSize:'फ़ॉन्ट आकार', fontSizePercent:'वर्तमान में {0}%', defaultLang:'डिफ़ॉल्ट भाषा',
+    bookmarks:'बुकमार्क', bookmarksCount:'{0} सहेजे गए',
+    history:'इतिहास', historyCount:'{0} लेख', random:'यादृच्छिक लेख खोलें',
+    statusReady:'पढ़ने के लिए तैयार',
+    suggestNoResults:'"{0}" से मेल खाता कोई लेख नहीं मिला',
+    suggestSearchFailed:'खोज विफल रही। कृपया अपना कनेक्शन जांचें।',
+    loadingArticle:'लेख प्राप्त किया जा रहा है…',
+    errorNotFoundTitle:'लेख नहीं मिला',
+    errorNotFoundDesc:'"{0}" मौजूद नहीं हो सकता, या अनुरोध विफल रहा।',
+    errorBackHome:'होम पर वापस जाएं', statusFetchFailed:'लेख प्राप्त करने में विफल',
+    editionLabel:'{0} संस्करण · विकिपीडिया', openOriginal:'विकिपीडिया मूल नए टैब में खोलें ↗',
+    bookmarkSaved:'सहेजा गया', bookmarkAdd:'बुकमार्क',
+    statusViewing:'{0} — {1} संस्करण देखा जा रहा है', navGeneric:'संबंधित विषय', navPrefix:'नेविगेशन: ',
+    tocEmpty:'इस लेख में कोई अनुक्रमणिका नहीं है', tabCloseTitle:'टैब बंद करें',
+    searchingRandom:'यादृच्छिक लेख खोजा जा रहा है…', randomFailed:'यादृच्छिक लेख प्राप्त करने में विफल',
+    bookmarksEmpty:'अभी तक कोई बुकमार्क नहीं है।<br>लेख में "बुकमार्क" बटन से जोड़ें।',
+    aboutEmpty:'यहां सारांश देखने के लिए एक लेख खोलें।',
+    aboutCardTitle:'इस लेख के बारे में', aboutLoadingExtract:'सारांश लोड हो रहा है…',
+    aboutLangCardTitle:'प्रदर्शन भाषा',
+    aboutLangCardDesc:'आप {0} संस्करण देख रहे हैं। हेडर में ग्लोब आइकन से संस्करण बदलें।',
+    aboutOtherVersionsTitle:'अन्य भाषा संस्करण',
+    aboutOtherVersionsFound:'{0} भाषाओं के संस्करण मिले।',
+    aboutOtherVersionsNone:'कोई अन्य भाषा संस्करण नहीं मिला।',
+    aboutTocCardTitle:'अनुक्रमणिका', aboutTocCardDesc:'इस लेख में {0} खंड हैं, बाईं पैनल से जाएं।',
+    langOtherVersionsHeading:'इस लेख के अन्य भाषा संस्करण ({0})',
+    langOtherVersionsEmpty:'इस लेख के लिए कोई अन्य भाषा संस्करण नहीं मिला।',
+    langNoTranslation:'"{0}" का {1} संस्करण नहीं मिला। खोज कर देखें।',
+    langSwitchedDefault:'डिफ़ॉल्ट भाषा {0} में बदल दी गई'
   },
   vi: {
-    settingsTitle: 'Cài đặt',
-    settingsDesc: 'Điều chỉnh cài đặt ứng dụng. Mở bài viết bất kỳ lúc nào từ thanh tìm kiếm.',
-    fontSize: 'Kích thước phông chữ',
-    fontSizePercent: 'Hiện tại {0}%',
-    defaultLang: 'Ngôn ngữ mặc định',
-    bookmarks: 'Dấu trang',
-    bookmarksCount: '{0} đã lưu',
-    history: 'Lịch sử',
-    historyCount: '{0} bài viết',
-    random: 'Mở bài viết ngẫu nhiên'
+    brandSub:'Trình đọc Wikipedia', tocHeading:'Mục lục', homeTooltip:'Về trang chủ',
+    searchPlaceholder:'Tìm kiếm bài viết…', langToggleTitle:'Chuyển ngôn ngữ',
+    fontMinusTitle:'Thu nhỏ chữ', fontPlusTitle:'Phóng to chữ',
+    infoToggleTitle:'Về bài viết này / Dấu trang', backTitle:'Quay lại', forwardTitle:'Tiến tới',
+    randomLabel:'Ngẫu nhiên', tabAbout:'Tổng quan', settingsTitle:'Cài đặt',
+    settingsDesc:'Điều chỉnh cài đặt ứng dụng. Mở bài viết bất kỳ lúc nào từ thanh tìm kiếm.',
+    fontSize:'Kích thước phông chữ', fontSizePercent:'Hiện tại {0}%', defaultLang:'Ngôn ngữ mặc định',
+    bookmarks:'Dấu trang', bookmarksCount:'{0} đã lưu',
+    history:'Lịch sử', historyCount:'{0} bài viết', random:'Mở bài viết ngẫu nhiên',
+    statusReady:'Sẵn sàng để đọc',
+    suggestNoResults:'Không tìm thấy bài viết nào khớp với "{0}"',
+    suggestSearchFailed:'Tìm kiếm thất bại. Vui lòng kiểm tra kết nối.',
+    loadingArticle:'Đang tải bài viết…',
+    errorNotFoundTitle:'Không tìm thấy bài viết',
+    errorNotFoundDesc:'"{0}" có thể không tồn tại, hoặc yêu cầu đã thất bại.',
+    errorBackHome:'Về trang chủ', statusFetchFailed:'Không thể tải bài viết',
+    editionLabel:'Phiên bản {0} · Wikipedia', openOriginal:'Mở bản gốc trên Wikipedia ↗',
+    bookmarkSaved:'Đã lưu', bookmarkAdd:'Dấu trang',
+    statusViewing:'{0} — đang xem phiên bản {1}', navGeneric:'Chủ đề liên quan', navPrefix:'Điều hướng: ',
+    tocEmpty:'Bài viết này không có mục lục', tabCloseTitle:'Đóng tab',
+    searchingRandom:'Đang tìm một bài viết ngẫu nhiên…', randomFailed:'Không thể tải bài viết ngẫu nhiên',
+    bookmarksEmpty:'Chưa có dấu trang nào.<br>Thêm bằng nút "Dấu trang" trong bài viết.',
+    aboutEmpty:'Mở một bài viết để xem tổng quan tại đây.',
+    aboutCardTitle:'Về bài viết này', aboutLoadingExtract:'Đang tải tổng quan…',
+    aboutLangCardTitle:'Ngôn ngữ hiển thị',
+    aboutLangCardDesc:'Bạn đang xem phiên bản {0}. Chuyển phiên bản qua biểu tượng quả địa cầu trên đầu trang.',
+    aboutOtherVersionsTitle:'Phiên bản ngôn ngữ khác',
+    aboutOtherVersionsFound:'Tìm thấy {0} phiên bản ngôn ngữ.',
+    aboutOtherVersionsNone:'Không tìm thấy phiên bản ngôn ngữ khác.',
+    aboutTocCardTitle:'Mục lục', aboutTocCardDesc:'Bài viết này có {0} phần, có thể chuyển đến từ bảng bên trái.',
+    langOtherVersionsHeading:'Phiên bản ngôn ngữ khác của bài viết này ({0})',
+    langOtherVersionsEmpty:'Không tìm thấy phiên bản ngôn ngữ khác cho bài viết này.',
+    langNoTranslation:'Không tìm thấy phiên bản {1} của "{0}". Hãy thử tìm kiếm.',
+    langSwitchedDefault:'Đã chuyển ngôn ngữ mặc định sang {0}'
   },
   id: {
-    settingsTitle: 'Pengaturan',
-    settingsDesc: 'Sesuaikan pengaturan aplikasi. Buka artikel kapan saja dari bilah pencarian.',
-    fontSize: 'Ukuran Font',
-    fontSizePercent: 'Saat ini {0}%',
-    defaultLang: 'Bahasa Default',
-    bookmarks: 'Penanda',
-    bookmarksCount: '{0} tersimpan',
-    history: 'Riwayat',
-    historyCount: '{0} artikel',
-    random: 'Buka artikel acak'
+    brandSub:'Pembaca Wikipedia', tocHeading:'Daftar Isi', homeTooltip:'Ke beranda',
+    searchPlaceholder:'Cari artikel…', langToggleTitle:'Ganti bahasa',
+    fontMinusTitle:'Perkecil teks', fontPlusTitle:'Perbesar teks',
+    infoToggleTitle:'Tentang artikel ini / Penanda', backTitle:'Kembali', forwardTitle:'Maju',
+    randomLabel:'Acak', tabAbout:'Ringkasan', settingsTitle:'Pengaturan',
+    settingsDesc:'Sesuaikan pengaturan aplikasi. Buka artikel kapan saja dari bilah pencarian.',
+    fontSize:'Ukuran Font', fontSizePercent:'Saat ini {0}%', defaultLang:'Bahasa Default',
+    bookmarks:'Penanda', bookmarksCount:'{0} tersimpan',
+    history:'Riwayat', historyCount:'{0} artikel', random:'Buka artikel acak',
+    statusReady:'Siap untuk membaca',
+    suggestNoResults:'Tidak ditemukan artikel yang cocok dengan "{0}"',
+    suggestSearchFailed:'Pencarian gagal. Periksa koneksi Anda.',
+    loadingArticle:'Mengambil artikel…',
+    errorNotFoundTitle:'Artikel tidak ditemukan',
+    errorNotFoundDesc:'"{0}" mungkin tidak ada, atau permintaan gagal.',
+    errorBackHome:'Kembali ke beranda', statusFetchFailed:'Gagal mengambil artikel',
+    editionLabel:'Edisi {0} · Wikipedia', openOriginal:'Buka versi asli di Wikipedia ↗',
+    bookmarkSaved:'Tersimpan', bookmarkAdd:'Penanda',
+    statusViewing:'{0} — menampilkan edisi {1}', navGeneric:'Topik terkait', navPrefix:'Navigasi: ',
+    tocEmpty:'Artikel ini tidak memiliki daftar isi', tabCloseTitle:'Tutup tab',
+    searchingRandom:'Mencari artikel acak…', randomFailed:'Gagal mengambil artikel acak',
+    bookmarksEmpty:'Belum ada penanda.<br>Tambahkan lewat tombol "Penanda" pada artikel.',
+    aboutEmpty:'Buka artikel untuk melihat ringkasannya di sini.',
+    aboutCardTitle:'Tentang artikel ini', aboutLoadingExtract:'Memuat ringkasan…',
+    aboutLangCardTitle:'Bahasa tampilan',
+    aboutLangCardDesc:'Anda sedang melihat edisi {0}. Ganti edisi lewat ikon globe di header.',
+    aboutOtherVersionsTitle:'Edisi bahasa lain',
+    aboutOtherVersionsFound:'Ditemukan {0} edisi bahasa.',
+    aboutOtherVersionsNone:'Tidak ditemukan edisi bahasa lain.',
+    aboutTocCardTitle:'Daftar Isi', aboutTocCardDesc:'Artikel ini memiliki {0} bagian, dapat diakses dari panel kiri.',
+    langOtherVersionsHeading:'Edisi bahasa lain dari artikel ini ({0})',
+    langOtherVersionsEmpty:'Tidak ditemukan edisi bahasa lain untuk artikel ini.',
+    langNoTranslation:'Edisi {1} dari "{0}" tidak ditemukan. Coba cari secara manual.',
+    langSwitchedDefault:'Bahasa default diganti ke {0}'
   }
 };
 
 function t(key, ...args){
   const texts = UI_TEXT[state.lang] || UI_TEXT.ja;
-  let text = texts[key] || key;
+  let text = texts[key] !== undefined ? texts[key] : (UI_TEXT.ja[key] || key);
   args.forEach((arg, i) => text = text.replace(`{${i}}`, arg));
   return text;
 }
@@ -1117,6 +1453,25 @@ function applyFontByLang(){
   document.documentElement.style.setProperty('--font-body', font);
   document.documentElement.style.setProperty('--font-ui', font);
 }
+function applyStaticUIText(){
+  el('tocToggle').title = t('tocHeading');
+  el('brandHome').title = t('homeTooltip');
+  el('brandSubLabel').textContent = t('brandSub');
+  searchInput.placeholder = t('searchPlaceholder');
+  el('langToggle').title = t('langToggleTitle');
+  el('fontMinus').title = t('fontMinusTitle');
+  el('fontPlus').title = t('fontPlusTitle');
+  el('infoToggle').title = t('infoToggleTitle');
+  backBtn.title = t('backTitle');
+  fwdBtn.title = t('forwardTitle');
+  const randomLbl = document.querySelector('#randomBtn .lbl');
+  if(randomLbl) randomLbl.textContent = t('randomLabel');
+  el('infoTabAboutLabel').textContent = t('tabAbout');
+  el('infoTabBookmarksLabel').textContent = t('bookmarks');
+  el('tocHeadingLabel').textContent = t('tocHeading');
+  el('langDefaultHeading').textContent = t('defaultLang');
+  document.documentElement.setAttribute('dir', state.lang === 'ar' ? 'rtl' : 'ltr');
+}
 
 /* ============================================================
    ホーム画面
@@ -1206,7 +1561,7 @@ async function runSearch(query){
     state.suggestItems = results;
     state.suggestIndex = -1;
     if(!results.length){
-      suggestPanel.innerHTML = `<div class="suggest-empty">「${escapeHtml(query)}」に一致する記事が見つかりません</div>`;
+      suggestPanel.innerHTML = `<div class="suggest-empty">${t('suggestNoResults', escapeHtml(query))}</div>`;
     } else {
       suggestPanel.innerHTML = results.map(r => `
         <div class="suggest-item" data-title="${escapeAttr(r.title)}">
@@ -1220,7 +1575,7 @@ async function runSearch(query){
     suggestPanel.classList.add('open');
   }catch(err){
     if(seq !== state.searchSeq) return;
-    suggestPanel.innerHTML = `<div class="suggest-empty">検索に失敗しました。通信環境をご確認ください。</div>`;
+    suggestPanel.innerHTML = `<div class="suggest-empty">${t('suggestSearchFailed')}</div>`;
     suggestPanel.classList.add('open');
   }
 }
@@ -1257,7 +1612,7 @@ async function loadArticle(title, lang, opts){
 
     state.lang = lang;
     applyLangPill();
-    applyFontByLang();
+    applyFontByLang(); applyStaticUIText();
     const finalTitle = parsed.title;
     state.currentTitle = finalTitle;
     state.currentSections = parsed.sections || [];
@@ -1280,7 +1635,7 @@ async function loadArticle(title, lang, opts){
     renderLangPanel();
     contentInner.scrollTop = 0;
     el('contentPanel').scrollTop = 0;
-    statusMsg.textContent = `${finalTitle} — ${LANGS_FULL[lang]}版を表示中`;
+    statusMsg.textContent = t('statusViewing', finalTitle, LANGS_FULL[lang]);
   }catch(err){
     if(seq !== state.requestSeq) return;
     renderError(title);
@@ -1291,24 +1646,24 @@ function renderLoading(){
   contentInner.innerHTML = `
     <div class="loading-wrap">
       <div class="spinner"></div>
-      <div class="loading-txt">記事を取得しています…</div>
+      <div class="loading-txt">${t('loadingArticle')}</div>
     </div>`;
 }
 function renderError(title){
   contentInner.innerHTML = `
     <div class="error-box">
-      <h3>記事が見つかりませんでした</h3>
-      <p>「${escapeHtml(title)}」は存在しないか、通信に失敗した可能性があります。</p>
+      <h3>${t('errorNotFoundTitle')}</h3>
+      <p>${t('errorNotFoundDesc', escapeHtml(title))}</p>
       <button class="btn-primary" onclick="location.reload()" style="display:none"></button>
     </div>`;
   const retry = document.createElement('button');
   retry.className = 'btn-primary';
   retry.style.margin = '0 auto';
   retry.style.display = 'flex';
-  retry.textContent = 'ホームへ戻る';
+  retry.textContent = t('errorBackHome');
   retry.addEventListener('click', renderHome);
   contentInner.querySelector('.error-box').appendChild(retry);
-  statusMsg.textContent = '記事の取得に失敗しました';
+  statusMsg.textContent = t('statusFetchFailed');
 }
 
 function renderArticle(parsed){
@@ -1318,16 +1673,16 @@ function renderArticle(parsed){
   contentInner.innerHTML = `
     <div class="article-header">
       <div class="article-eyebrow">
-        <span>${LANGS_FULL[state.lang]}版 · Wikipedia</span>
+        <span>${t('editionLabel', LANGS_FULL[state.lang])}</span>
       </div>
       <h1 class="article-title">${escapeHtml(title)}</h1>
       <div class="article-sub">
-        <a href="https://${state.lang}.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g,'_'))}" target="_blank" rel="noopener">Wikipedia原文を新しいタブで開く ↗</a>
+        <a href="https://${state.lang}.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g,'_'))}" target="_blank" rel="noopener">${t('openOriginal')}</a>
       </div>
       <div class="article-actions">
         <button class="mini-btn ${isBookmarked ? 'saved':''}" id="bookmarkBtn">
           <svg viewBox="0 0 24 24" fill="${isBookmarked ? 'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-          ${isBookmarked ? '保存済み' : 'ブックマーク'}
+          ${isBookmarked ? t('bookmarkSaved') : t('bookmarkAdd')}
         </button>
       </div>
     </div>
@@ -1388,7 +1743,7 @@ function postProcessContent(root){
     details.className = 'navbox-wrap';
     const summary = document.createElement('summary');
     const label = nav.querySelector('.navbox-title, th');
-    summary.textContent = 'ナビゲーション: ' + (label ? label.textContent.trim().slice(0,40) : '関連項目');
+    summary.textContent = t('navPrefix') + (label ? label.textContent.trim().slice(0,40) : t('navGeneric'));
     nav.parentNode.insertBefore(details, nav);
     details.appendChild(summary);
     details.appendChild(nav);
@@ -1462,7 +1817,7 @@ function attachContentLinkHandlers(root){
    ============================================================ */
 function buildTOC(sections){
   if(!sections.length){
-    tocList.innerHTML = '<li class="toc-empty">この記事に目次はありません</li>';
+    tocList.innerHTML = `<li class="toc-empty">${t('tocEmpty')}</li>`;
     return;
   }
   tocList.innerHTML = sections.map(s => {
@@ -1494,7 +1849,7 @@ function renderHistoryBar(){
   historyBar.innerHTML = state.history.map((h,i) => `
     <div class="hist-pill ${i === state.historyIndex ? 'current':''}" data-idx="${i}">
       <span class="n">${i+1}</span><span class="hp-title">${escapeHtml(h.title)}</span>
-      <button class="hist-close" data-remove-idx="${i}" title="タブを閉じる">✕</button>
+      <button class="hist-close" data-remove-idx="${i}" title="${escapeAttr(t('tabCloseTitle'))}">✕</button>
     </div>`).join('');
   historyBar.querySelectorAll('.hist-pill').forEach(p => {
     p.querySelector('.hp-title, .n').addEventListener('click', () => jumpToHistory(parseInt(p.dataset.idx,10)));
@@ -1536,12 +1891,12 @@ fwdBtn.addEventListener('click', () => jumpToHistory(state.historyIndex + 1));
    ランダム記事
    ============================================================ */
 async function openRandom(){
-  statusMsg.textContent = 'ランダムな記事を探しています…';
+  statusMsg.textContent = t('searchingRandom');
   try{
     const title = await fetchRandomTitle(state.lang);
     if(title) loadArticle(title, state.lang);
   }catch(_e){
-    statusMsg.textContent = 'ランダム記事の取得に失敗しました';
+    statusMsg.textContent = t('randomFailed');
   }
 }
 el('randomBtn').addEventListener('click', openRandom);
@@ -1565,12 +1920,12 @@ function renderArticleBookmarkBtn(title){
   if(!btn) return;
   const isBookmarked = state.bookmarks.some(b => b.title === title && b.lang === state.lang);
   btn.classList.toggle('saved', isBookmarked);
-  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="${isBookmarked?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>${isBookmarked?'保存済み':'ブックマーク'}`;
+  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="${isBookmarked?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>${isBookmarked?t('bookmarkSaved'):t('bookmarkAdd')}`;
 }
 function renderBookmarksTab(){
   const wrap = el('tabBookmarks');
   if(!state.bookmarks.length){
-    wrap.innerHTML = '<div class="empty-note">まだブックマークがありません。<br>記事内の「ブックマーク」ボタンから追加できます。</div>';
+    wrap.innerHTML = `<div class="empty-note">${t('bookmarksEmpty')}</div>`;
     return;
   }
   wrap.innerHTML = state.bookmarks.map((b,i) => `
@@ -1605,26 +1960,26 @@ function renderBookmarksTab(){
 function renderAboutTab(title){
   const wrap = el('tabAbout');
   if(!title){
-    wrap.innerHTML = `<div class="empty-note">記事を開くと、ここに概要が表示されます。</div>`;
+    wrap.innerHTML = `<div class="empty-note">${t('aboutEmpty')}</div>`;
     return;
   }
   wrap.innerHTML = `
     <div class="card">
-      <h4>この記事について</h4>
-      <p>${escapeHtml(state.currentExtractSnippet || '概要を取得中…')}${state.currentExtractSnippet.length >= 260 ? '…' : ''}</p>
+      <h4>${t('aboutCardTitle')}</h4>
+      <p>${escapeHtml(state.currentExtractSnippet || t('aboutLoadingExtract'))}${state.currentExtractSnippet.length >= 260 ? '…' : ''}</p>
     </div>
     <div class="card">
-      <h4>表示言語</h4>
-      <p>${LANGS_FULL[state.lang]}版を表示しています。ヘッダーの地球アイコンで他言語版に切り替えられます。</p>
+      <h4>${t('aboutLangCardTitle')}</h4>
+      <p>${t('aboutLangCardDesc', LANGS_FULL[state.lang])}</p>
     </div>
     <div class="card">
-      <h4>他言語版</h4>
-      <p>${state.currentLanglinks.length ? `${state.currentLanglinks.length}言語の翻訳版が見つかりました。` : '他言語版は見つかりませんでした。'}</p>
+      <h4>${t('aboutOtherVersionsTitle')}</h4>
+      <p>${state.currentLanglinks.length ? t('aboutOtherVersionsFound', state.currentLanglinks.length) : t('aboutOtherVersionsNone')}</p>
       ${state.currentLanglinks.length ? `<div class="chip-row" style="justify-content:flex-start;margin-top:10px;">${state.currentLanglinks.slice(0,8).map(l => `<button class="chip" style="padding:5px 10px;font-size:11px;" data-lang="${escapeAttr(l.lang)}" data-title="${escapeAttr(l.title)}">${escapeHtml(l.lang.toUpperCase())}</button>`).join('')}</div>` : ''}
     </div>
     <div class="card">
-      <h4>目次</h4>
-      <p>${state.currentSections.length}個のセクションがあります。左パネルからジャンプできます。</p>
+      <h4>${t('aboutTocCardTitle')}</h4>
+      <p>${t('aboutTocCardDesc', state.currentSections.length)}</p>
     </div>
   `;
   wrap.querySelectorAll('[data-lang][data-title]').forEach(btn => {
@@ -1700,7 +2055,7 @@ function renderLangPanel(){
   const otherWrap = el('langOtherVersions');
   if(state.currentTitle && state.currentLanglinks && state.currentLanglinks.length){
     otherWrap.innerHTML = `
-      <div class="lang-dropdown-heading">この記事の他言語版 (${state.currentLanglinks.length})</div>
+      <div class="lang-dropdown-heading">${t('langOtherVersionsHeading', state.currentLanglinks.length)}</div>
       <div class="lang-version-list">
         ${state.currentLanglinks.map(l => `
           <button class="lang-version-item" data-lang="${escapeAttr(l.lang)}" data-title="${escapeAttr(l.title)}">
@@ -1720,7 +2075,7 @@ function renderLangPanel(){
       });
     });
   } else if(state.currentTitle){
-    otherWrap.innerHTML = `<div class="lang-empty-note">この記事には他言語版が見つかりませんでした。</div>`;
+    otherWrap.innerHTML = `<div class="lang-empty-note">${t('langOtherVersionsEmpty')}</div>`;
   } else {
     otherWrap.innerHTML = '';
   }
@@ -1743,11 +2098,11 @@ function switchBrowseLanguage(target){
     state.lang = target;
     localStorage.setItem('shiori_lang', target);
     applyLangPill();
-    applyFontByLang();
+    applyFontByLang(); applyStaticUIText();
     if(match){
       loadArticle(match.title, target);
     } else {
-      statusMsg.textContent = `「${state.currentTitle}」の${LANGS_FULL[target]}版は見つかりませんでした。検索してお探しください。`;
+      statusMsg.textContent = t('langNoTranslation', state.currentTitle, LANGS_FULL[target]);
       renderLangPanel();
     }
     closeLangPanel();
@@ -1756,8 +2111,9 @@ function switchBrowseLanguage(target){
   state.lang = target;
   localStorage.setItem('shiori_lang', target);
   applyLangPill();
-  applyFontByLang();
-  statusMsg.textContent = `既定の表示言語を${LANGS_FULL[target]}に切り替えました`;
+  applyFontByLang(); applyStaticUIText();
+  statusMsg.textContent = t('langSwitchedDefault', LANGS_FULL[target]);
+  if(!state.currentTitle) renderHome();
   closeLangPanel();
 }
 function closeLangPanel(){ el('langPanel').classList.remove('open'); }
@@ -1820,7 +2176,7 @@ function escapeAttr(str){ return escapeHtml(str); }
 applyTheme(state.theme);
 applyFontScale();
 applyLangPill();
-applyFontByLang();
+applyFontByLang(); applyStaticUIText();
 renderHome();
 
 })();
