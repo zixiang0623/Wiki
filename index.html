@@ -2,1621 +2,1826 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#f4f6fa">
-<title>リンクトレイル — Wikipedia路線探索</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>栞 -shiori- | Wikipediaリーダー</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+/* ============================================================
+   0. リセット & 共通トークン
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;}
+html,body{height:100%;}
+body{margin:0;overflow:hidden;}
+a{color:inherit;text-decoration:none;}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;padding:0;}
+input{font:inherit;color:inherit;}
+ul{margin:0;padding:0;list-style:none;}
+img{max-width:100%;}
+::selection{background:var(--accent);color:var(--on-accent);}
+
 :root{
-  --bg:#f4f6fa;
-  --bg2:#ffffff;
-  --glass:rgba(255,255,255,0.72);
-  --glass-strong:rgba(255,255,255,0.95);
-  --border:rgba(15,23,42,0.10);
-  --cyan:#0891b2;
-  --cyan-bright:#22d3ee;
-  --violet:#7c3aed;
-  --violet-bright:#a78bfa;
-  --amber:#b45309;
-  --amber-bright:#fbbf24;
-  --text:#1a2233;
-  --dim:#68748a;
-  --danger:#dc2626;
+  --radius-sm:8px; --radius-md:14px; --radius-lg:22px;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px; --sp-7:48px;
+  --header-h:64px;
+  --font-scale:1;
+  --transition-theme: background-color .5s ease, color .5s ease, border-color .5s ease, box-shadow .5s ease;
 }
-*{box-sizing:border-box; margin:0; padding:0;}
-html,body{height:100%; overflow:hidden;}
+
+/* ---------- THEME: paper (白基調 / 和紙エディトリアル) ---------- */
+[data-theme="paper"]{
+  --font-display:'Noto Sans';
+  --font-body:'Noto Sans';
+  --font-ui:'Noto Sans';
+  --font-mono:'DM Mono', monospace;
+  --bg:#FAF9F4;
+  --bg-image:none;
+  --surface:#FFFFFF;
+  --surface-2:#F3F1E8;
+  --surface-3:#EAE6D8;
+  --text:#211F1A;
+  --text-dim:#5E5A4E;
+  --text-faint:#94907E;
+  --accent:#2B4A6F;
+  --accent-soft:#EDF1F5;
+  --accent-2:#AE3B32;
+  --on-accent:#FFFFFF;
+  --border:#E3DFD0;
+  --border-strong:#CFC9B4;
+  --radius:6px;
+  --shadow-card:0 1px 2px rgba(30,25,10,.05), 0 1px 0 rgba(30,25,10,.03);
+  --shadow-raised:0 6px 20px rgba(30,25,10,.08);
+  --shadow-pressed:inset 0 1px 3px rgba(30,25,10,.12);
+  --blur:0px;
+  --surface-alpha:1;
+  --card-border-w:1px;
+}
+/* ---------- THEME: depth (3D / ソフトUI) ---------- */
+[data-theme="depth"]{
+  --font-display:'Noto Sans';
+  --font-body:'Noto Sans';
+  --font-ui:'Noto Sans';
+  --font-mono:'DM Mono', monospace;
+  --bg:#E8EBF1;
+  --bg-image:none;
+  --surface:#EEF1F6;
+  --surface-2:#E4E8EF;
+  --surface-3:#DBE0E9;
+  --text:#2E3542;
+  --text-dim:#606B7C;
+  --text-faint:#8B93A3;
+  --accent:#FF7A59;
+  --accent-soft:#FFE8E1;
+  --accent-2:#2FC9C4;
+  --on-accent:#FFFFFF;
+  --border:transparent;
+  --border-strong:#c9cfda;
+  --radius:20px;
+  --shadow-card:8px 8px 16px #c7cbd4, -8px -8px 16px #ffffff;
+  --shadow-raised:10px 10px 22px #c3c8d2, -10px -10px 22px #ffffff;
+  --shadow-pressed:inset 5px 5px 10px #c7cbd4, inset -5px -5px 10px #ffffff;
+  --blur:0px;
+  --surface-alpha:1;
+  --card-border-w:0px;
+}
+/* ---------- THEME: glass (レイヤーUI / グラスモーフィズム) ---------- */
+[data-theme="glass"]{
+  --font-display:'Noto Sans';
+  --font-body:'Noto Sans';
+  --font-ui:'Noto Sans';
+  --font-mono:'DM Mono', monospace;
+  --bg:#0E1120;
+  --bg-image:
+    radial-gradient(60% 50% at 15% 10%, rgba(124,156,255,.30), transparent 60%),
+    radial-gradient(50% 45% at 90% 15%, rgba(77,232,208,.22), transparent 60%),
+    radial-gradient(70% 60% at 50% 100%, rgba(157,102,255,.24), transparent 60%);
+  --surface:rgba(255,255,255,.06);
+  --surface-2:rgba(255,255,255,.045);
+  --surface-3:rgba(255,255,255,.09);
+  --text:#EDEFF7;
+  --text-dim:#AFB4CC;
+  --text-faint:#767ba0;
+  --accent:#8CA6FF;
+  --accent-soft:rgba(140,166,255,.16);
+  --accent-2:#4DE8D0;
+  --on-accent:#0E1120;
+  --border:rgba(255,255,255,.14);
+  --border-strong:rgba(255,255,255,.24);
+  --radius:18px;
+  --shadow-card:0 8px 30px rgba(0,0,0,.35);
+  --shadow-raised:0 16px 44px rgba(0,0,0,.45);
+  --shadow-pressed:inset 0 1px 8px rgba(0,0,0,.3);
+  --blur:22px;
+  --surface-alpha:1;
+  --card-border-w:1px;
+}
+
 body{
-  background:
-    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(8,145,178,0.07), transparent 60%),
-    radial-gradient(ellipse 900px 600px at 110% 10%, rgba(124,58,237,0.06), transparent 60%),
-    radial-gradient(ellipse 700px 500px at 50% 120%, rgba(180,83,9,0.05), transparent 60%),
-    var(--bg);
+  background:var(--bg);
+  background-image:var(--bg-image);
+  background-attachment:fixed;
   color:var(--text);
-  font-family:'Outfit',sans-serif;
-  height:100%;
-}
-::selection{ background:rgba(8,145,178,0.18); }
-
-.glass{
-  background:var(--glass);
-  border:1px solid var(--border);
-  backdrop-filter:blur(18px) saturate(140%);
-  -webkit-backdrop-filter:blur(18px) saturate(140%);
-  border-radius:18px;
-  box-shadow:0 4px 28px -8px rgba(15,23,42,0.10), 0 1px 0 rgba(255,255,255,0.6) inset;
+  font-family:var(--font-body);
+  transition:var(--transition-theme);
 }
 
-h1,h2,h3, .display{ font-family:'Syne',sans-serif; letter-spacing:-0.01em; }
-.mono{ font-family:'DM Mono',monospace; }
+/* ============================================================
+   1. レイアウト骨格
+   ============================================================ */
+#app{height:100vh;display:flex;flex-direction:column;}
 
-/* ================= SETUP SCREEN ================= */
-#setup-screen{
-  height:100%;
-  overflow-y:auto;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:24px;
-}
-.setup-card{
-  width:100%;
-  max-width:520px;
-  padding:36px 30px 30px;
-  position:relative;
-  overflow:hidden;
-}
-.setup-card::before{
-  content:"";
-  position:absolute; top:-40%; left:-10%;
-  width:60%; height:200%;
-  background:linear-gradient(120deg, rgba(34,211,238,0.08), transparent 60%);
-  pointer-events:none;
-  transform:rotate(12deg);
-}
-.eyebrow{
-  font-family:'DM Mono',monospace;
-  font-size:11px;
-  letter-spacing:0.22em;
-  color:var(--cyan);
-  text-transform:uppercase;
-  margin-bottom:10px;
-  display:flex; align-items:center; gap:8px;
-}
-.eyebrow::before{ content:""; width:16px; height:1px; background:var(--cyan); display:inline-block; }
-.setup-card h1{
-  font-size:28px;
-  font-weight:800;
-  line-height:1.25;
-  margin-bottom:8px;
-}
-.setup-card .sub{
-  color:var(--dim);
-  font-size:13.5px;
-  line-height:1.7;
-  margin-bottom:26px;
-}
-
-.field{ margin-bottom:16px; position:relative; }
-.field label{
-  display:block;
-  font-size:11.5px;
-  color:var(--dim);
-  margin-bottom:6px;
-  font-family:'DM Mono',monospace;
-  letter-spacing:0.04em;
-}
-.field .input-wrap{ position:relative; }
-.field input{
-  width:100%;
-  background:rgba(15,23,42,0.035);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:13px 14px;
-  color:var(--text);
-  font-size:15px;
-  font-family:'Outfit',sans-serif;
-  outline:none;
-  transition:border-color .15s, background .15s;
-}
-.field input:focus{ border-color:var(--cyan-bright); background:rgba(34,211,238,0.06); }
-.field.start .input-wrap::before{ background:var(--cyan); }
-.field.goal .input-wrap::before{ background:var(--amber); }
-.field .dot{
-  position:absolute; left:-16px; top:50%; transform:translateY(-50%);
-  width:8px; height:8px; border-radius:50%;
-}
-.field.start .dot{ background:var(--cyan-bright); box-shadow:0 0 8px var(--cyan-bright); }
-.field.goal .dot{ background:var(--amber-bright); box-shadow:0 0 8px var(--amber-bright); }
-
-.suggest-list{
-  position:absolute; top:calc(100% + 4px); left:0; right:0;
-  background:#ffffffee;
-  border:1px solid var(--border);
-  border-radius:10px;
-  max-height:200px; overflow-y:auto;
-  z-index:20;
-  display:none;
-  backdrop-filter:blur(10px);
-  box-shadow:0 8px 24px -8px rgba(15,23,42,0.18);
-}
-.suggest-list div{
-  padding:9px 13px; font-size:13.5px; cursor:pointer; color:var(--text);
-  border-bottom:1px solid rgba(15,23,42,0.05);
-}
-.suggest-list div:last-child{ border-bottom:none; }
-.suggest-list div:hover, .suggest-list div.active{ background:rgba(34,211,238,0.12); color:var(--cyan); }
-
-.link-line{
-  display:flex; align-items:center; justify-content:center; gap:10px;
-  margin:2px 0 14px; color:var(--dim);
-}
-.link-line .stem{ width:1px; height:18px; background:linear-gradient(var(--cyan),var(--amber)); opacity:.5; }
-
-.setup-actions{ display:flex; gap:10px; margin-top:22px; }
-button{ font-family:'Outfit',sans-serif; cursor:pointer; border:none; }
-.btn{
-  border-radius:12px;
-  padding:12px 18px;
-  font-size:14px;
-  font-weight:600;
-  transition:transform .12s, opacity .12s, box-shadow .12s;
-}
-.btn:active{ transform:scale(0.97); }
-.btn-primary{
-  flex:1;
-  background:linear-gradient(100deg, var(--cyan), #38bdf8);
-  color:#eafcff;
-  box-shadow:0 8px 24px -8px rgba(8,145,178,0.45);
-}
-.btn-ghost{
-  background:rgba(15,23,42,0.045);
-  border:1px solid var(--border);
-  color:var(--text);
-}
-.btn-ghost:hover{ background:rgba(15,23,42,0.08); }
-.setup-secondary{ display:flex; gap:8px; margin-top:10px; }
-.setup-secondary .btn{ flex:1; padding:9px; font-size:12.5px; }
-.setup-error{
-  color:var(--danger); font-size:12.5px; margin-top:10px; min-height:16px; font-family:'DM Mono',monospace;
-}
-
-.mode-toggle{
-  display:flex; gap:4px; padding:4px;
-  background:rgba(15,23,42,0.035);
-  border:1px solid var(--border);
-  border-radius:14px;
-  margin-bottom:24px;
-}
-.mode-btn{
-  flex:1; padding:10px 6px; border-radius:10px;
-  background:transparent; color:var(--dim);
-  font-size:13px; font-weight:500;
-  transition:background .15s, color .15s;
-}
-.mode-btn.active{
-  background:linear-gradient(100deg, rgba(34,211,238,0.16), rgba(167,139,250,0.16));
-  color:var(--text);
-  box-shadow:inset 0 0 0 1px rgba(15,23,42,0.06);
-}
-.mode-hint{ font-size:11.5px; color:var(--dim); margin:-14px 0 20px; line-height:1.6; }
-
-.lang-toggle{
-  display:flex; gap:4px; padding:4px;
-  background:rgba(15,23,42,0.035);
-  border:1px solid var(--border);
-  border-radius:14px;
-  margin-bottom:14px;
-}
-.lang-btn{
-  flex:1; padding:8px 4px; border-radius:10px;
-  background:transparent; color:var(--dim);
-  font-size:12.5px; font-weight:500;
-  transition:background .15s, color .15s;
-}
-.lang-btn.active{
-  background:linear-gradient(100deg, rgba(167,139,250,0.18), rgba(34,211,238,0.14));
-  color:var(--text);
-  box-shadow:inset 0 0 0 1px rgba(15,23,42,0.06);
-}
-
-/* ---- solve screen ---- */
-#solve-screen, #solved-screen{ display:none; height:100%; overflow-y:auto; align-items:center; justify-content:center; padding:24px; }
-.solve-card{ width:100%; max-width:480px; padding:34px 28px; text-align:center; }
-.solve-route{
-  font-family:'DM Mono',monospace; font-size:13px; color:var(--text);
-  margin:6px 0 22px; display:flex; align-items:center; justify-content:center; gap:10px;
-  flex-wrap:wrap;
-}
-.solve-route .arrow{ color:var(--violet); animation:swap 1.4s infinite; }
-@keyframes swap{ 0%,100%{ opacity:.4; } 50%{ opacity:1; } }
-.solve-stats{ display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
-.solve-stats .cell{
-  flex:1; min-width:80px; background:rgba(15,23,42,0.035); border:1px solid var(--border);
-  border-radius:12px; padding:12px 6px;
-}
-.solve-stats .cell .v{ font-family:'DM Mono',monospace; font-size:18px; font-weight:500; color:var(--cyan); }
-.solve-stats .cell .k{ font-size:9px; color:var(--dim); margin-top:4px; font-family:'DM Mono',monospace; letter-spacing:.04em;}
-.solve-log{
-  text-align:left; height:150px; overflow-y:auto;
-  background:#12182b; border:1px solid rgba(255,255,255,0.08);
-  border-radius:12px; padding:10px 12px; margin-bottom:18px;
-  font-size:11.5px; font-family:'DM Mono',monospace; color:#aab4c8; line-height:1.9;
-}
-.solve-log .fwd{ color:var(--cyan-bright); }
-.solve-log .bwd{ color:var(--amber-bright); }
-.solve-log .meet{ color:#4ade80; font-weight:600; }
-.spinner-sm{
-  width:16px; height:16px; border-radius:50%;
-  border:2px solid rgba(34,211,238,0.2); border-top-color:var(--cyan);
-  animation:spin .8s linear infinite; display:inline-block; vertical-align:-3px; margin-right:8px;
-}
-
-/* ---- playback bar ---- */
-.playback-only{ display:none; }
-.playback-bar{
-  display:none; align-items:center; gap:10px;
-  padding:12px 16px; margin:0 12px 12px;
-}
-.playback-bar .iconbtn{ flex-shrink:0; }
-.pb-step{ font-size:12px; color:var(--dim); min-width:52px; text-align:center; }
-#game-screen.playback-mode .manual-only{ display:none !important; }
-#game-screen.playback-mode .playback-only{ display:flex; }
-#game-screen.playback-mode .playback-bar{ display:flex; }
-
-.article-body a.next-hop-link{
-  color:#005a70;
-  text-decoration:none;
-  background:rgba(34,211,238,0.18);
-  font-weight:600;
-  border-radius:3px;
-  padding:0 2px;
-  animation:nexthoppulse 1.4s infinite;
-}
-@keyframes nexthoppulse{
-  0%,100%{ background:rgba(34,211,238,0.14); }
-  50%{ background:rgba(34,211,238,0.3); }
-}
-
-/* ================= GAME SCREEN ================= */
-#game-screen{ display:none; height:100%; overflow:hidden; flex-direction:column; }
 .top-bar{
-  padding:14px 16px 10px;
-  position:sticky; top:0; z-index:30;
-  background:linear-gradient(var(--bg) 70%, transparent);
+  height:var(--header-h);
+  display:flex;align-items:center;gap:var(--sp-4);
+  padding:0 var(--sp-5);
+  background:var(--surface);
+  border-bottom:var(--card-border-w) solid var(--border);
+  box-shadow:var(--shadow-card);
+  backdrop-filter:blur(var(--blur));
+  -webkit-backdrop-filter:blur(var(--blur));
+  position:relative;z-index:40;
+  flex-shrink:0;
+  transition:var(--transition-theme);
 }
-.stat-row{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:0 4px 10px;
+.brand{
+  display:flex;align-items:center;gap:var(--sp-2);
+  font-family:var(--font-display);font-weight:700;font-size:20px;letter-spacing:.02em;
+  flex-shrink:0;
+  cursor:pointer;
+  user-select:none;
 }
-.stat-group{ display:flex; gap:16px; }
-.stat{ text-align:left; }
-.stat .k{ font-size:9.5px; color:var(--dim); font-family:'DM Mono',monospace; letter-spacing:.08em; text-transform:uppercase;}
-.stat .v{ font-size:17px; font-family:'DM Mono',monospace; font-weight:500; }
-.stat.clicks .v{ color:var(--cyan); }
-.stat.timer .v{ color:var(--violet); }
-.topbtns{ display:flex; gap:8px; }
-.iconbtn{
-  width:34px; height:34px; border-radius:10px;
-  background:var(--glass); border:1px solid var(--border);
-  color:var(--dim); font-size:15px;
-  display:flex; align-items:center; justify-content:center;
+.brand .mark{
+  width:30px;height:30px;border-radius:var(--radius);
+  background:linear-gradient(145deg,var(--accent),var(--accent-2));
+  display:flex;align-items:center;justify-content:center;
+  color:var(--on-accent);font-size:15px;font-weight:800;font-family:var(--font-ui);
+  box-shadow:var(--shadow-card);
 }
-.iconbtn:hover{ color:var(--text); border-color:rgba(15,23,42,0.25); }
-.iconbtn:disabled{ opacity:.3; }
+.brand span.name{color:var(--text);}
+.brand span.sub{font-family:var(--font-ui);font-size:10px;color:var(--text-faint);font-weight:500;letter-spacing:.12em;text-transform:uppercase;display:block;margin-top:-2px;}
 
-/* route rail - subway line diagram */
-.rail-wrap{
-  border-radius:16px;
-  padding:14px 10px 16px;
-  overflow-x:auto;
-  white-space:nowrap;
-  scrollbar-width:none;
+.search-wrap{flex:1;max-width:560px;position:relative;}
+.search-box{
+  display:flex;align-items:center;gap:var(--sp-2);
+  background:var(--surface-2);
+  border:var(--card-border-w) solid var(--border);
+  border-radius:999px;
+  padding:0 var(--sp-4);
+  height:40px;
+  box-shadow:var(--shadow-pressed);
+  transition:var(--transition-theme), box-shadow .2s;
 }
-.rail-wrap::-webkit-scrollbar{ display:none; }
-.rail{
-  display:inline-flex;
-  align-items:flex-end;
-  position:relative;
-  padding:0 14px;
-  min-height:56px;
+.search-box:focus-within{
+  box-shadow:0 0 0 3px var(--accent-soft), var(--shadow-pressed);
 }
-.station{
-  display:inline-flex;
-  flex-direction:column;
-  align-items:center;
-  position:relative;
-  width:88px;
+.search-box svg{width:16px;height:16px;flex-shrink:0;color:var(--text-faint);}
+.search-box input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-family:var(--font-ui);font-size:14px;color:var(--text);
+  height:100%;
+}
+.search-box input::placeholder{color:var(--text-faint);}
+.search-lang-pill{
+  flex-shrink:0;font-family:var(--font-mono);font-size:11px;font-weight:500;
+  color:var(--text-dim);background:var(--surface-3);border-radius:999px;
+  padding:3px 9px;letter-spacing:.03em;
+}
+.suggest-panel{
+  position:absolute;top:calc(100% + 8px);left:0;right:0;
+  background:var(--surface);
+  border:var(--card-border-w) solid var(--border);
+  border-radius:var(--radius-md);
+  box-shadow:var(--shadow-raised);
+  backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));
+  overflow:hidden;
+  max-height:min(60vh,420px);overflow-y:auto;
+  display:none;
+  z-index:50;
+}
+.suggest-panel.open{display:block;}
+.suggest-item{
+  display:flex;flex-direction:column;gap:2px;
+  padding:10px var(--sp-4);cursor:pointer;
+  border-bottom:1px solid var(--border);
+}
+.suggest-item:last-child{border-bottom:none;}
+.suggest-item:hover,.suggest-item.active{background:var(--accent-soft);}
+.suggest-title{font-family:var(--font-ui);font-size:13.5px;font-weight:600;color:var(--text);}
+.suggest-title mark{background:none;color:var(--accent);font-weight:700;}
+.suggest-snippet{font-size:12px;color:var(--text-faint);font-family:var(--font-ui);line-height:1.5;
+  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;}
+.suggest-empty{padding:16px;font-size:12.5px;color:var(--text-faint);font-family:var(--font-ui);text-align:center;}
+
+/* ---------- 多言語ドロップダウン ---------- */
+.lang-dropdown-wrap{position:relative;}
+.lang-dropdown{
+  position:absolute;top:calc(100% + 8px);right:0;width:300px;
+  max-height:min(70vh,480px);overflow-y:auto;
+  background:var(--surface);
+  border:var(--card-border-w) solid var(--border);
+  border-radius:var(--radius-md);
+  box-shadow:var(--shadow-raised);
+  backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));
+  padding:var(--sp-3);
+  display:none;z-index:55;
+  transition:var(--transition-theme);
+}
+.lang-dropdown.open{display:block;}
+.lang-dropdown-heading{
+  font-family:var(--font-ui);font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--text-faint);margin:4px 4px 8px;
+}
+.lang-version-list{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.lang-version-item{
+  display:flex;align-items:center;gap:8px;width:100%;text-align:left;
+  padding:8px 10px;border-radius:var(--radius-sm);
+  background:var(--surface-2);border:var(--card-border-w) solid var(--border);
+  transition:var(--transition-theme), border-color .15s, transform .15s;
+}
+.lang-version-item:hover{border-color:var(--accent);transform:translateX(2px);}
+.lv-code{
+  font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--accent);
+  background:var(--accent-soft);padding:2px 6px;border-radius:4px;flex-shrink:0;
+}
+.lv-name{font-family:var(--font-ui);font-size:12px;font-weight:600;color:var(--text);flex-shrink:0;white-space:nowrap;}
+.lv-title{
+  font-family:var(--font-ui);font-size:11px;color:var(--text-faint);flex:1;text-align:right;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.lang-chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.lang-chip{
+  display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+  padding:8px 10px;border-radius:var(--radius-sm);text-align:left;
+  background:var(--surface-2);border:var(--card-border-w) solid var(--border);
+  transition:var(--transition-theme), border-color .15s;
+}
+.lang-chip:hover{border-color:var(--accent);}
+.lang-chip.active{background:var(--accent);border-color:transparent;}
+.lang-chip.active .lc-code,.lang-chip.active .lc-name{color:var(--on-accent);}
+.lc-code{font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--accent);}
+.lc-name{font-family:var(--font-ui);font-size:11.5px;font-weight:600;color:var(--text);}
+.lang-empty-note{font-family:var(--font-ui);font-size:11.5px;color:var(--text-faint);padding:4px;margin-bottom:10px;line-height:1.6;}
+
+.top-controls{display:flex;align-items:center;gap:var(--sp-2);flex-shrink:0;}
+.icon-btn{
+  width:36px;height:36px;border-radius:var(--radius-sm);
+  display:flex;align-items:center;justify-content:center;
+  background:var(--surface-2);
+  border:var(--card-border-w) solid var(--border);
+  box-shadow:var(--shadow-card);
+  color:var(--text-dim);
+  transition:var(--transition-theme), transform .15s, color .15s;
+}
+.icon-btn svg{width:16px;height:16px;}
+.icon-btn:hover{color:var(--accent);transform:translateY(-1px);}
+.icon-btn:active{box-shadow:var(--shadow-pressed);transform:translateY(0);}
+.icon-btn:disabled{opacity:.35;pointer-events:none;}
+.icon-btn.on{color:var(--on-accent);background:var(--accent);}
+
+.font-ctrl{display:flex;align-items:center;background:var(--surface-2);border:var(--card-border-w) solid var(--border);border-radius:var(--radius-sm);box-shadow:var(--shadow-card);overflow:hidden;}
+.font-ctrl button{width:32px;height:36px;font-family:var(--font-ui);font-weight:700;color:var(--text-dim);font-size:12px;}
+.font-ctrl button:hover{color:var(--accent);}
+.font-ctrl button:first-child{font-size:10px;}
+.font-ctrl button:last-child{font-size:15px;}
+
+.theme-picker{display:flex;gap:6px;}
+.theme-swatch{
+  width:30px;height:30px;border-radius:50%;position:relative;cursor:pointer;
+  border:2px solid transparent;
+  transition:transform .2s, border-color .2s;
   flex-shrink:0;
 }
-.station .seg{
-  position:absolute; left:-44px; top:22px; width:88px; height:3px;
-  background:linear-gradient(90deg, var(--cyan), var(--cyan));
-  z-index:0;
-}
-.station:first-child .seg{ display:none; }
-.station .node{
-  width:14px; height:14px; border-radius:50%;
-  background:var(--bg2);
-  border:3px solid var(--cyan);
-  z-index:1;
-  margin-top:16px;
-  transition:transform .2s;
-}
-.station.current .node{
-  border-color:var(--cyan);
-  background:var(--cyan);
-  box-shadow:0 0 0 4px rgba(34,211,238,0.22), 0 0 14px rgba(34,211,238,0.7);
-  animation:pulse 1.6s infinite;
-}
-.station.start .node{ border-color:var(--cyan); }
-.station.goal .node{
-  border-color:var(--amber);
-  background:var(--amber);
-  box-shadow:0 0 0 5px rgba(251,191,36,0.2), 0 0 16px rgba(251,191,36,0.8);
-}
-.station.goal .seg{ background:linear-gradient(90deg, var(--cyan), var(--amber)); }
-@keyframes pulse{
-  0%,100%{ box-shadow:0 0 0 4px rgba(34,211,238,0.22), 0 0 14px rgba(34,211,238,0.7); }
-  50%{ box-shadow:0 0 0 8px rgba(34,211,238,0.05), 0 0 20px rgba(34,211,238,0.9); }
-}
-.station .label{
-  font-size:10.5px;
-  color:var(--dim);
-  margin-top:8px;
-  max-width:86px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-  font-family:'DM Mono',monospace;
-}
-.station.current .label{ color:var(--cyan); font-weight:500; }
-.station.goal .label{ color:var(--amber); font-weight:500; }
+.theme-swatch:hover{transform:translateY(-2px) scale(1.06);}
+.theme-swatch.active{border-color:var(--text);}
+.theme-swatch[data-t="paper"]{background:linear-gradient(135deg,#FAF9F4 50%,#2B4A6F 50%);}
+.theme-swatch[data-t="depth"]{background:linear-gradient(135deg,#EEF1F6 50%,#FF7A59 50%);box-shadow:2px 2px 5px rgba(0,0,0,.15), -1px -1px 3px rgba(255,255,255,.6);}
+.theme-swatch[data-t="glass"]{background:linear-gradient(135deg,#0E1120 45%,#8CA6FF 100%);}
 
-/* goal ghost terminus */
-.terminus{
-  display:inline-flex; flex-direction:column; align-items:center; width:88px; flex-shrink:0; position:relative;
+/* ---------- 履歴タブ ---------- */
+.history-bar{
+  display:flex;align-items:center;gap:6px;
+  padding:8px var(--sp-5);
+  overflow-x:auto;
+  background:var(--surface-2);
+  border-bottom:var(--card-border-w) solid var(--border);
+  flex-shrink:0;
+  scrollbar-width:thin;
+  transition:var(--transition-theme);
 }
-.terminus .seg{
-  position:absolute; left:-44px; top:22px; width:88px; height:3px;
-  background:repeating-linear-gradient(90deg, rgba(251,191,36,0.35) 0 6px, transparent 6px 12px);
+.history-bar::-webkit-scrollbar{height:4px;}
+.history-bar::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:2px;}
+.history-bar.empty{display:none;}
+.hist-pill{
+  flex-shrink:0;
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--font-ui);font-size:12px;font-weight:500;
+  padding:6px 12px 6px 12px;border-radius:999px;
+  background:var(--surface);border:var(--card-border-w) solid var(--border);
+  color:var(--text-dim);
+  cursor:pointer;white-space:nowrap;
+  box-shadow:var(--shadow-card);
+  transition:transform .15s;
 }
-.terminus .node{
-  width:16px; height:16px; border-radius:50%;
-  border:2px dashed rgba(251,191,36,0.5);
-  margin-top:15px;
+.hist-pill:hover{transform:translateY(-1px);box-shadow:8px 8px 16px #c7cbd4, -8px -8px 16px #ffffff;}
+.hist-pill.current{color:var(--on-accent);background:var(--accent);font-weight:700;}
+.hist-pill .n{font-family:var(--font-mono);font-size:9px;opacity:.6;}
+.hist-pill .hp-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;}
+.hist-close{
+  flex-shrink:0;width:18px;height:18px;
+  display:flex;align-items:center;justify-content:center;
+  background:transparent;border:none;cursor:pointer;
+  color:var(--text-faint);font-size:12px;font-weight:700;
+  padding:0;margin-left:2px;
+  border-radius:4px;
+  transition:color .15s, background .15s;
 }
-.terminus .label{ font-size:10.5px; color:rgba(251,191,36,0.7); margin-top:8px; max-width:86px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:'DM Mono',monospace; }
+.hist-close:hover{color:var(--accent-2);background:var(--accent-soft);}
+.hist-pill.current .hist-close{color:rgba(255,255,255,.7);}
+.hist-pill.current .hist-close:hover{background:rgba(0,0,0,.15);}
 
-/* article content */
-.article-wrap{
-  flex:1;
-  margin:6px 12px 12px;
-  border-radius:18px;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-  position:relative;
-  background:#ffffff;
-  border:1px solid rgba(15,23,42,0.09);
-  box-shadow:0 4px 28px -10px rgba(15,23,42,0.12);
-  backdrop-filter:none;
+
+/* ---------- メインレイアウト ---------- */
+.layout{flex:1;display:flex;overflow:hidden;min-height:0;}
+
+.panel{
+  background:var(--surface);
+  transition:var(--transition-theme);
 }
-.article-head{
-  padding:16px 20px 12px;
-  border-bottom:1px solid rgba(15,23,42,0.09);
-}
-.article-head h2{
-  font-size:20px;
-  font-weight:700;
-  font-family:'Syne',sans-serif;
-  color:var(--text);
-}
-.hint-badge{
-  display:inline-flex; align-items:center; gap:5px;
-  margin-top:8px;
-  font-size:11px;
-  color:var(--amber);
-  background:rgba(251,191,36,0.12);
-  border:1px solid rgba(251,191,36,0.35);
-  padding:4px 9px;
-  border-radius:99px;
-  font-family:'DM Mono',monospace;
-  animation:glow 1.5s infinite alternate;
-}
-@keyframes glow{ from{ opacity:.75; } to{ opacity:1; } }
-.article-body{
-  flex:1;
+
+.toc-panel{
+  width:250px;flex-shrink:0;
+  border-right:var(--card-border-w) solid var(--border);
   overflow-y:auto;
-  padding:16px 20px 60px;
-  font-size:15px;
-  line-height:1.8;
-  color:#202122;
-  font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
+  padding:var(--sp-5) var(--sp-4);
+  transition:width .25s ease, padding .25s ease, var(--transition-theme);
 }
-.article-body p{ margin-bottom:14px; }
-.article-body a{
-  color:#3366cc;
-  text-decoration:none;
+.toc-panel.collapsed{width:0;padding-left:0;padding-right:0;overflow:hidden;border-right:none;}
+.toc-heading{
+  font-family:var(--font-ui);font-size:11px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--text-faint);margin-bottom:var(--sp-3);
+  padding-left:var(--sp-2);
 }
-.article-body a:visited{ color:#795cb2; }
-.article-body a:hover{ text-decoration:underline; color:#447ff5; }
-.article-body a.goal-link{
-  color:#7a4a00;
-  text-decoration:none;
-  background:rgba(251,191,36,0.22);
-  font-weight:600;
-  border-radius:3px;
-  padding:0 2px;
-  animation:goalpulse 1.4s infinite;
+.toc-list a{
+  display:block;padding:6px var(--sp-2) 6px calc(var(--sp-2) + (var(--lvl,1) - 1) * 12px);
+  font-family:var(--font-ui);font-size:12.5px;color:var(--text-dim);
+  border-radius:var(--radius-sm);
+  line-height:1.4;
+  border-left:2px solid transparent;
 }
-@keyframes goalpulse{
-  0%,100%{ background:rgba(251,191,36,0.16); }
-  50%{ background:rgba(251,191,36,0.34); }
-}
-.article-body a.disabled-link{ color:var(--dim); cursor:not-allowed; }
-.article-body table{ max-width:100%; overflow-x:auto; display:block; margin-bottom:14px; }
-.article-body img{ max-width:100%; height:auto; margin:8px 0; }
-.article-body .infobox, .article-body table.infobox{ float:none; max-width:100%; margin:0 auto 16px; }
-.article-body .navbox, .article-body .catlinks, .article-body .mw-editsection{ display:none; }
-.article-body h2, .article-body h3{ margin:22px 0 10px; font-size:17px; font-family:'Syne',sans-serif; color:var(--text); border-bottom:1px solid #a2a9b1; padding-bottom:6px; }
+.toc-list a:hover{color:var(--accent);background:var(--accent-soft);}
+.toc-list a.active{color:var(--accent);font-weight:700;border-left-color:var(--accent);background:var(--accent-soft);}
+.toc-empty{font-family:var(--font-ui);font-size:12px;color:var(--text-faint);padding:var(--sp-2);}
 
-.loading-veil{
-  position:absolute; inset:0;
-  background:rgba(255,255,255,0.8);
-  backdrop-filter:blur(4px);
-  display:none;
-  align-items:center; justify-content:center;
-  flex-direction:column; gap:12px;
-  z-index:10;
+.content-panel{
+  flex:1;overflow-y:auto;overflow-x:hidden;min-width:0;
+  scroll-behavior:smooth;
 }
+.content-inner{
+  max-width:760px;margin:0 auto;
+  padding:var(--sp-7) var(--sp-6) 120px;
+}
+
+.info-panel{
+  width:300px;flex-shrink:0;
+  border-left:var(--card-border-w) solid var(--border);
+  overflow-y:auto;
+  display:flex;flex-direction:column;
+  transition:width .25s ease, var(--transition-theme);
+}
+.info-panel.collapsed{width:0;overflow:hidden;border-left:none;}
+.info-tabs{display:flex;border-bottom:var(--card-border-w) solid var(--border);flex-shrink:0;}
+.info-tab{
+  flex:1;padding:12px 0;text-align:center;
+  font-family:var(--font-ui);font-size:12px;font-weight:700;
+  color:var(--text-faint);
+  border-bottom:2px solid transparent;
+}
+.info-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.info-body{flex:1;overflow-y:auto;padding:var(--sp-4);}
+.info-section{display:none;}
+.info-section.active{display:block;}
+
+.card{
+  background:var(--surface-2);
+  border:var(--card-border-w) solid var(--border);
+  border-radius:var(--radius-md);
+  padding:var(--sp-4);
+  box-shadow:var(--shadow-card);
+  margin-bottom:var(--sp-3);
+  transition:var(--transition-theme);
+}
+.card h4{margin:0 0 var(--sp-2);font-family:var(--font-ui);font-size:11px;font-weight:700;color:var(--text-faint);letter-spacing:.08em;text-transform:uppercase;}
+.card p{margin:0;font-size:12.5px;line-height:1.7;color:var(--text-dim);font-family:var(--font-ui);}
+
+.bm-item{
+  display:flex;align-items:flex-start;gap:8px;
+  padding:var(--sp-3);border-radius:var(--radius-sm);
+  border:var(--card-border-w) solid var(--border);
+  background:var(--surface-2);
+  margin-bottom:8px;cursor:pointer;
+  transition:var(--transition-theme), transform .15s;
+}
+.bm-item:hover{transform:translateX(2px);border-color:var(--border-strong);}
+.bm-item .bt{font-family:var(--font-ui);font-size:13px;font-weight:600;color:var(--text);flex:1;}
+.bm-item .bd{font-family:var(--font-mono);font-size:10px;color:var(--text-faint);}
+.bm-remove{flex-shrink:0;color:var(--text-faint);font-size:16px;line-height:1;padding:2px;}
+.bm-remove:hover{color:var(--accent-2);}
+.empty-note{font-family:var(--font-ui);font-size:12px;color:var(--text-faint);text-align:center;padding:var(--sp-6) var(--sp-3);line-height:1.7;}
+
+/* ---------- ステータスバー ---------- */
+.status-bar{
+  height:44px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 var(--sp-5);
+  background:var(--surface);
+  border-top:var(--card-border-w) solid var(--border);
+  font-family:var(--font-mono);font-size:11px;color:var(--text-faint);
+  transition:var(--transition-theme);
+}
+.status-left,.status-right{display:flex;align-items:center;gap:var(--sp-3);}
+.status-btn{color:var(--text-dim);font-family:var(--font-ui);font-weight:600;font-size:11.5px;display:flex;align-items:center;gap:4px;}
+.status-btn:hover{color:var(--accent);}
+.status-btn svg{width:13px;height:13px;}
+
+/* ============================================================
+   2. ホーム画面
+   ============================================================ */
+.home-screen{padding:var(--sp-7) 0;}
+.home-hero{text-align:center;margin-bottom:var(--sp-7);}
+.home-mark{
+  width:64px;height:64px;border-radius:var(--radius-lg);margin:0 auto var(--sp-4);
+  background:linear-gradient(145deg,var(--accent),var(--accent-2));
+  display:flex;align-items:center;justify-content:center;
+  color:var(--on-accent);font-family:var(--font-display);font-size:30px;font-weight:700;
+  box-shadow:var(--shadow-raised);
+}
+.home-title{font-family:var(--font-display);font-size:32px;font-weight:700;margin:0 0 var(--sp-2);letter-spacing:.01em;}
+.home-desc{font-family:var(--font-ui);font-size:14px;color:var(--text-dim);max-width:420px;margin:0 auto;line-height:1.8;}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:var(--sp-5);}
+.chip{
+  font-family:var(--font-ui);font-size:12.5px;font-weight:600;
+  padding:9px 16px;border-radius:999px;
+  background:var(--surface-2);border:var(--card-border-w) solid var(--border);
+  color:var(--text-dim);box-shadow:var(--shadow-card);
+  transition:var(--transition-theme), transform .15s, color .15s;
+}
+.chip:hover{color:var(--accent);transform:translateY(-2px);border-color:var(--accent);}
+.chip .em{margin-right:6px;}
+
+.home-random{display:flex;justify-content:center;margin-top:var(--sp-6);}
+.settings-list{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:10px;}
+.settings-row{
+  display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);
+  padding:var(--sp-4);border-radius:var(--radius-md);
+  background:var(--surface-2);border:var(--card-border-w) solid var(--border);
+  box-shadow:var(--shadow-card);
+}
+.settings-label h4{margin:0 0 4px;font-family:var(--font-ui);font-size:13px;font-weight:700;color:var(--text);}
+.settings-label p{margin:0;font-family:var(--font-ui);font-size:12px;color:var(--text-faint);}
+.settings-fontctrl{flex-shrink:0;}
+.btn-primary{
+  font-family:var(--font-ui);font-size:13.5px;font-weight:700;
+  padding:12px 26px;border-radius:999px;
+  background:var(--accent);color:var(--on-accent);
+  box-shadow:var(--shadow-card);
+  display:flex;align-items:center;gap:8px;
+  transition:transform .15s, box-shadow .15s;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-raised);}
+.btn-primary svg{width:15px;height:15px;}
+
+/* ============================================================
+   3. ローディング / エラー
+   ============================================================ */
+.loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 0;gap:var(--sp-4);}
 .spinner{
-  width:34px; height:34px; border-radius:50%;
-  border:3px solid rgba(8,145,178,0.15);
-  border-top-color:var(--cyan);
-  animation:spin .8s linear infinite;
+  width:38px;height:38px;border-radius:50%;
+  border:3px solid var(--surface-3);border-top-color:var(--accent);
+  animation:spin 0.85s linear infinite;
 }
-@keyframes spin{ to{ transform:rotate(360deg); } }
-.loading-veil .msg{ font-size:12.5px; color:var(--dim); font-family:'DM Mono',monospace; }
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-txt{font-family:var(--font-ui);font-size:12.5px;color:var(--text-faint);letter-spacing:.04em;}
+.error-box{
+  text-align:center;padding:80px var(--sp-5);
+}
+.error-box h3{font-family:var(--font-display);font-size:22px;margin:0 0 var(--sp-2);}
+.error-box p{font-family:var(--font-ui);font-size:13px;color:var(--text-faint);margin:0 0 var(--sp-4);}
 
-.toast{
-  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
-  background:#1a2233ee; border:1px solid rgba(255,255,255,0.08);
-  padding:11px 18px; border-radius:12px;
-  font-size:13px; color:#f5f7fa;
-  opacity:0; pointer-events:none;
-  transition:opacity .25s, transform .25s;
-  z-index:100; backdrop-filter:blur(10px);
-  max-width:80vw; text-align:center;
+/* ============================================================
+   4. 記事本文 (.wiki-content) — Wikipedia由来HTMLの正規化
+   ============================================================ */
+.article-header{margin-bottom:var(--sp-5);position:relative;}
+.article-eyebrow{
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--font-mono);font-size:11px;color:var(--text-faint);
+  letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;
 }
-.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+.article-title{
+  font-family:var(--font-display);
+  font-size:calc(34px * var(--font-scale));
+  font-weight:700;line-height:1.3;margin:0 0 6px;letter-spacing:.01em;
+}
+.article-sub{font-family:var(--font-ui);font-size:12.5px;color:var(--text-faint);}
+.article-sub a{color:var(--accent);}
+.article-sub a:hover{text-decoration:underline;}
+.article-actions{display:flex;gap:8px;margin-top:var(--sp-4);}
+.mini-btn{
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--font-ui);font-size:12px;font-weight:600;
+  padding:7px 13px;border-radius:999px;
+  background:var(--surface-2);border:var(--card-border-w) solid var(--border);
+  color:var(--text-dim);box-shadow:var(--shadow-card);
+}
+.mini-btn:hover{color:var(--accent);}
+.mini-btn.saved{color:var(--on-accent);background:var(--accent-2);border-color:transparent;}
+.mini-btn svg{width:13px;height:13px;}
 
-/* ---- ghost pointer (auto-play "someone is operating this" cursor) ---- */
-.ghost-pointer{
-  position:fixed; left:50%; top:88%;
-  width:30px; height:30px;
-  border-radius:50%;
-  background:radial-gradient(circle at 35% 30%, rgba(140,148,165,0.65), rgba(90,98,115,0.4) 55%, rgba(90,98,115,0.18) 100%);
-  border:1px solid rgba(255,255,255,0.55);
-  box-shadow:0 3px 12px rgba(15,23,42,0.28), inset 0 0 6px rgba(255,255,255,0.45);
-  pointer-events:none;
-  z-index:200;
-  opacity:0;
-  transform:translate(-50%,-50%) scale(1);
-  transition:left .85s cubic-bezier(.4,0,.2,1), top .85s cubic-bezier(.4,0,.2,1), opacity .35s ease, transform .2s ease;
+.wiki-content{
+  font-family:var(--font-body);
+  font-size:calc(16px * var(--font-scale));
+  line-height:1.95;
+  color:var(--text);
+  word-break:break-word;
 }
-.ghost-pointer.visible{ opacity:1; }
-.ghost-pointer.clicking{ transform:translate(-50%,-50%) scale(0.68); }
-.ghost-pointer::after{
-  content:"";
-  position:absolute; inset:-9px;
-  border-radius:50%;
-  border:2px solid rgba(100,108,125,0.55);
-  opacity:0;
+.wiki-content > p{margin:0 0 1.3em;}
+.wiki-content b,.wiki-content strong{font-weight:700;}
+.wiki-content h2{
+  font-family:var(--font-display);font-weight:700;
+  font-size:calc(23px * var(--font-scale));
+  margin:2.2em 0 .9em;padding-bottom:.4em;
+  border-bottom:var(--card-border-w) solid var(--border);
+  scroll-margin-top:20px;
 }
-.ghost-pointer.ripple::after{ animation:pointerRipple .55s ease-out; }
-@keyframes pointerRipple{
-  0%{ opacity:.85; transform:scale(0.5); }
-  100%{ opacity:0; transform:scale(2); }
+.wiki-content h3{
+  font-family:var(--font-display);font-weight:600;
+  font-size:calc(18px * var(--font-scale));
+  margin:1.8em 0 .7em;scroll-margin-top:20px;
+}
+.wiki-content h4{
+  font-family:var(--font-ui);font-weight:700;
+  font-size:calc(14.5px * var(--font-scale));
+  margin:1.5em 0 .6em;color:var(--text-dim);scroll-margin-top:20px;
+}
+.wiki-content h2:first-child,.wiki-content h3:first-child{margin-top:0;}
+.wiki-content a{color:var(--accent);border-bottom:1px solid var(--accent-soft);}
+.wiki-content a:hover{border-bottom-color:var(--accent);}
+.wiki-content a.new{color:var(--accent-2);}
+.wiki-content a.ext-link{color:var(--text-dim);border-bottom-style:dashed;}
+.wiki-content ul,.wiki-content ol{margin:0 0 1.3em;padding-left:1.5em;}
+.wiki-content li{margin-bottom:.4em;}
+.wiki-content .mw-editsection{display:none !important;}
+.wiki-content sup.reference{font-size:.72em;}
+.wiki-content sup.reference a{
+  background:var(--surface-2);border-bottom:none;
+  padding:1px 4px;border-radius:4px;font-weight:700;color:var(--accent);
+}
+.wiki-content .hatnote,.wiki-content .dablink{
+  font-family:var(--font-ui);font-size:12.5px;font-style:italic;color:var(--text-faint);
+  padding:8px 12px;background:var(--surface-2);border-radius:var(--radius-sm);
+  margin-bottom:1.2em;border-left:3px solid var(--accent-2);
+}
+.wiki-content .ambox{
+  font-family:var(--font-ui);font-size:12.5px;color:var(--text-dim);
+  padding:10px 14px;background:var(--surface-2);border-radius:var(--radius-sm);
+  margin-bottom:1.2em;border-left:3px solid var(--accent-2);
 }
 
-/* ================= WIN SCREEN ================= */
-#win-screen{
-  display:none; height:100%; overflow-y:auto; align-items:center; justify-content:center; padding:24px;
+/* テーブル・インフォボックス */
+.wiki-content table{
+  border-collapse:collapse;font-size:.86em;background:var(--surface-2)!important;
+  color:var(--text)!important;max-width:100%;
 }
-.win-card{
-  width:100%; max-width:480px; padding:38px 30px; text-align:center; position:relative; overflow:hidden;
+.wiki-content table th,.wiki-content table td{
+  border:1px solid var(--border)!important;padding:6px 10px;background:transparent!important;
 }
-.win-card::before{
-  content:""; position:absolute; inset:0;
-  background:radial-gradient(circle at 50% 0%, rgba(251,191,36,0.14), transparent 55%);
-  pointer-events:none;
+.wiki-content .infobox-wrap{
+  float:right;clear:right;width:min(300px,100%);max-width:100%;
+  margin:0 0 var(--sp-4) var(--sp-5);
+  border-radius:var(--radius-md);
+  overflow:hidden;
+  box-shadow:var(--shadow-card);
 }
-.win-badge{
-  width:60px; height:60px; border-radius:50%;
-  background:linear-gradient(135deg, var(--amber), #f59e0b);
-  display:flex; align-items:center; justify-content:center;
-  font-size:26px; margin:0 auto 18px;
-  box-shadow:0 0 30px rgba(251,191,36,0.5);
+.wiki-content .infobox-wrap.nested{
+  float:none;width:100%;max-width:100%;margin:10px 0;
+  box-shadow:none;border:var(--card-border-w) solid var(--border);
 }
-.win-card h2{ font-size:24px; margin-bottom:6px; }
-.win-card .sub{ color:var(--dim); font-size:13px; margin-bottom:24px; }
-.win-stats{ display:flex; gap:10px; margin-bottom:22px; }
-.win-stats .cell{
-  flex:1; background:rgba(15,23,42,0.035); border:1px solid var(--border);
-  border-radius:12px; padding:14px 8px;
+.wiki-content .infobox{
+  width:100%!important;max-width:100%!important;float:none!important;
+  margin:0!important;font-size:.82em;
+  table-layout:fixed;
 }
-.win-stats .cell .v{ font-family:'DM Mono',monospace; font-size:22px; font-weight:500; color:var(--amber); }
-.win-stats .cell .k{ font-size:10px; color:var(--dim); margin-top:4px; font-family:'DM Mono',monospace; letter-spacing:.05em;}
-.win-path{
-  text-align:left; max-height:160px; overflow-y:auto;
-  background:rgba(15,23,42,0.03); border:1px solid var(--border);
-  border-radius:12px; padding:12px 14px; margin-bottom:22px;
-  font-size:12.5px; font-family:'DM Mono',monospace; color:var(--dim); line-height:1.9;
+.wiki-content .infobox caption{
+  font-family:var(--font-display);font-weight:700;font-size:1.15em;
+  padding:10px;background:var(--accent);color:var(--on-accent)!important;
+  word-break:break-word;overflow-wrap:anywhere;
 }
-.win-path b{ color:var(--cyan); }
-.win-actions{ display:flex; gap:10px; }
+.wiki-content .infobox caption a,
+.wiki-content .infobox caption a:visited{
+  color:var(--on-accent)!important;
+  border-bottom-color:rgba(255,255,255,.45)!important;
+}
+.wiki-content .infobox img{width:auto;max-width:100%;height:auto;display:block;margin:0 auto;}
+.wiki-content .infobox th,.wiki-content .infobox td{
+  word-break:break-word;overflow-wrap:anywhere;white-space:normal!important;
+}
+.wiki-content .infobox th{text-align:left;font-family:var(--font-ui);font-weight:700;color:var(--text-dim)!important;}
 
-@media (max-width:480px){
-  .setup-card{ padding:28px 20px 22px; }
-  .article-body{ font-size:14.5px; padding:14px 16px 60px; }
-  .article-wrap{ margin:6px 8px 8px; }
+.table-scroll{overflow-x:auto;margin-bottom:1.3em;border-radius:var(--radius-sm);}
+.table-scroll table{width:max-content;min-width:100%;margin:0;}
+.table-scroll::-webkit-scrollbar{height:6px;}
+.table-scroll::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px;}
+
+/* 画像 / サムネイル */
+.wiki-content .thumb{
+  background:transparent;border:none;
+  max-width:min(280px,100%)!important;width:auto!important;
+  margin:0 0 var(--sp-4) var(--sp-5);
+}
+.wiki-content .thumb.tleft{float:left;margin:0 var(--sp-5) var(--sp-4) 0;}
+.wiki-content .thumb.tright,.wiki-content .thumb:not(.tleft){float:right;}
+.wiki-content .thumbinner{
+  background:var(--surface-2)!important;border:var(--card-border-w) solid var(--border)!important;
+  border-radius:var(--radius-md);padding:6px;box-shadow:var(--shadow-card);
+}
+.wiki-content .thumbinner img{border-radius:calc(var(--radius-md) - 4px);width:100%;height:auto;}
+.wiki-content .thumbcaption{
+  font-family:var(--font-ui);font-size:11.5px;color:var(--text-faint);
+  padding:8px 4px 2px;line-height:1.6;
+}
+.wiki-content .magnify{display:none;}
+figure{margin:0;}
+
+/* navbox は details に変換して折りたたみ */
+.wiki-content details.navbox-wrap{
+  margin:1.6em 0;background:var(--surface-2);border-radius:var(--radius-md);
+  border:var(--card-border-w) solid var(--border);overflow:hidden;
+}
+.wiki-content details.navbox-wrap summary{
+  font-family:var(--font-ui);font-size:12px;font-weight:700;color:var(--text-dim);
+  padding:10px 14px;cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;
+}
+.wiki-content details.navbox-wrap summary::-webkit-details-marker{display:none;}
+.wiki-content details.navbox-wrap summary::before{content:"▸";color:var(--accent);transition:transform .2s;}
+.wiki-content details.navbox-wrap[open] summary::before{transform:rotate(90deg);}
+.wiki-content details.navbox-wrap .navbox{font-size:11px;padding:0 14px 12px;}
+
+.wiki-content .reflist{font-size:.82em;color:var(--text-dim);}
+.wiki-content .catlinks{display:none;}
+.wiki-content .noprint,.wiki-content .mw-empty-elt{display:none;}
+.wiki-content p:empty{display:none;}
+
+/* 数式画像 */
+.wiki-content .mwe-math-fallback-image-inline,.wiki-content img.mwe-math-fallback-image-display{
+  filter:none;
+}
+[data-theme="glass"] .wiki-content img.mwe-math-fallback-image-inline,
+[data-theme="glass"] .wiki-content img.mwe-math-fallback-image-display{filter:invert(.9);}
+
+/* ============================================================
+   5. モバイル / レスポンシブ
+   ============================================================ */
+.drawer-scrim{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:60;display:none;
+  backdrop-filter:blur(2px);
+}
+.drawer-scrim.show{display:block;}
+
+@media (max-width:900px){
+  .top-bar{padding:0 var(--sp-3);gap:var(--sp-2);}
+  .brand span.sub{display:none;}
+  .theme-picker{display:none;}
+  .font-ctrl{display:none;}
+  .lang-dropdown{position:fixed;top:var(--header-h);left:8px;right:8px;width:auto;}
+  .toc-panel,.info-panel{
+    position:fixed;top:var(--header-h);bottom:0;z-index:70;
+    box-shadow:var(--shadow-raised);
+  }
+  .toc-panel{left:0;transform:translateX(-100%);transition:transform .25s ease;width:78vw!important;max-width:300px;padding:var(--sp-5) var(--sp-4)!important;}
+  .toc-panel.mobile-open{transform:translateX(0);}
+  .info-panel{right:0;transform:translateX(100%);transition:transform .25s ease;width:82vw!important;max-width:340px;}
+  .info-panel.mobile-open{transform:translateX(0);}
+  .toc-panel.collapsed,.info-panel.collapsed{width:78vw!important;overflow:visible;}
+  .info-panel.collapsed{width:82vw!important;}
+  .content-inner{padding:var(--sp-5) var(--sp-4) 100px;}
+  .article-title{font-size:calc(26px * var(--font-scale));}
+  .wiki-content .thumb,.wiki-content .infobox-wrap{float:none!important;width:100%!important;max-width:100%!important;margin:0 0 var(--sp-4)!important;}
+  .home-title{font-size:26px;}
+  .status-left .status-btn span.lbl{display:none;}
+}
+@media (max-width:560px){
+  .search-lang-pill{display:none;}
+  .status-bar{padding:0 var(--sp-3);}
+}
+
+/* フォーカス可視化 & モーション削減 */
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;transition-duration:.001ms!important;}
 }
 </style>
 </head>
 <body>
+<div id="app" data-theme="depth">
 
-<!-- ============ SETUP SCREEN ============ -->
-<div id="setup-screen">
-  <div class="setup-card glass">
-    <div class="eyebrow">WIKIPEDIA LINK TRAIL</div>
-    <h1>リンクトレイル</h1>
-    <p class="sub">2つの記事を、リンクだけを辿って結ぶ路線を作ろう。スタート記事からゴール記事まで、最短何駅で着けるか?</p>
+  <!-- ============ ヘッダー ============ -->
+  <header class="top-bar">
+    <button class="icon-btn" id="tocToggle" title="目次">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+    </button>
 
-    <div class="lang-toggle" id="lang-toggle">
-      <button class="lang-btn active" type="button" data-lang="ja">🇯🇵 日本語</button>
-      <button class="lang-btn" type="button" data-lang="en">🇬🇧 English</button>
-      <button class="lang-btn" type="button" data-lang="zh">🇨🇳 中文</button>
-    </div>
-
-    <div class="mode-toggle" id="mode-toggle">
-      <button class="mode-btn active" type="button" data-mode="manual">🚶 自分で歩く</button>
-      <button class="mode-btn" type="button" data-mode="auto">🤖 勝手に探索する</button>
-    </div>
-
-    <div class="field start">
-      <span class="dot"></span>
-      <label>スタート駅（記事）</label>
-      <div class="input-wrap">
-        <input type="text" id="start-input" placeholder="例: 名古屋市" autocomplete="off">
-        <div class="suggest-list" id="start-suggest"></div>
+    <div class="brand" id="brandHome" title="ホームへ">
+      <div class="mark">栞</div>
+      <div>
+        <span class="name">shiori</span>
+        <span class="sub">Wikipedia Reader</span>
       </div>
     </div>
 
-    <div class="link-line"><div class="stem"></div></div>
-
-    <div class="field goal">
-      <span class="dot"></span>
-      <label>ゴール駅（記事）</label>
-      <div class="input-wrap">
-        <input type="text" id="goal-input" placeholder="例: ラプラス変換" autocomplete="off">
-        <div class="suggest-list" id="goal-suggest"></div>
+    <div class="search-wrap">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" type="text" placeholder="記事を検索…" autocomplete="off" />
+        <span class="search-lang-pill" id="langPill">JA</span>
       </div>
+      <div class="suggest-panel" id="suggestPanel"></div>
     </div>
 
-    <div class="setup-secondary">
-      <button class="btn btn-ghost" id="btn-random-both">🎲 両方ランダム</button>
-      <button class="btn btn-ghost" id="btn-swap">⇅ 入れ替え</button>
-    </div>
-
-    <div class="setup-actions">
-      <button class="btn btn-primary" id="btn-start">出発する →</button>
-    </div>
-    <div class="setup-error" id="setup-error"></div>
-  </div>
-</div>
-
-<!-- ============ AUTO SOLVE (SEARCHING) SCREEN ============ -->
-<div id="solve-screen">
-  <div class="solve-card glass">
-    <div class="eyebrow">AUTO PATHFINDER</div>
-    <h2 id="solve-heading"><span class="spinner-sm"></span>経路を探索中…</h2>
-    <div class="solve-route">
-      <span id="solve-start-label">—</span>
-      <span class="arrow">⇄</span>
-      <span id="solve-goal-label">—</span>
-    </div>
-    <div class="solve-stats">
-      <div class="cell"><div class="v" id="solve-fetches">0</div><div class="k">API呼び出し</div></div>
-      <div class="cell"><div class="v" id="solve-nodes">0</div><div class="k">探索ページ</div></div>
-      <div class="cell"><div class="v" id="solve-depth">0 / 0</div><div class="k">深さ 前/後</div></div>
-      <div class="cell"><div class="v" id="solve-elapsed">0:00</div><div class="k">経過</div></div>
-    </div>
-    <div class="solve-log" id="solve-log"></div>
-    <button class="btn btn-ghost" id="btn-cancel-solve" style="width:100%">キャンセルして戻る</button>
-  </div>
-</div>
-
-<!-- ============ AUTO SOLVE RESULT SCREEN ============ -->
-<div id="solved-screen">
-  <div class="win-card glass" id="solved-success" style="display:none">
-    <div class="win-badge">🧭</div>
-    <h2>経路を発見！</h2>
-    <p class="sub" id="solved-sub"></p>
-    <div class="win-stats">
-      <div class="cell"><div class="v" id="solved-hops">0</div><div class="k">HOPS</div></div>
-      <div class="cell"><div class="v" id="solved-nodes">0</div><div class="k">探索ページ</div></div>
-      <div class="cell"><div class="v" id="solved-time">0:00</div><div class="k">TIME</div></div>
-    </div>
-    <div class="win-path" id="solved-path"></div>
-    <div class="win-actions">
-      <button class="btn btn-ghost" id="btn-solved-newgame" style="flex:1">新しい旅へ</button>
-      <button class="btn btn-primary" id="btn-solved-playback" style="flex:1">▶ 記事で再生する</button>
-    </div>
-  </div>
-  <div class="win-card glass" id="solved-fail" style="display:none">
-    <div class="win-badge" style="background:linear-gradient(135deg,#f87171,#b91c1c); box-shadow:0 0 30px rgba(248,113,113,0.4);">💤</div>
-    <h2>見つかりませんでした</h2>
-    <p class="sub">探索の上限（API呼び出し数・深さ・時間）に達しました。もっと深いところで繋がっている可能性はありますが、今回は見つけられませんでした。</p>
-    <div class="win-actions">
-      <button class="btn btn-ghost" id="btn-fail-manual" style="flex:1">自分で歩いてみる</button>
-      <button class="btn btn-primary" id="btn-fail-newgame" style="flex:1">新しい旅へ</button>
-    </div>
-  </div>
-</div>
-
-<!-- ============ GAME SCREEN ============ -->
-<div id="game-screen">
-  <div class="top-bar">
-    <div class="stat-row">
-      <div class="stat-group manual-only">
-        <div class="stat clicks"><div class="k">CLICKS</div><div class="v" id="stat-clicks">0</div></div>
-        <div class="stat timer"><div class="k">TIME</div><div class="v" id="stat-timer">0:00</div></div>
+    <div class="top-controls">
+      <div class="lang-dropdown-wrap">
+        <button class="icon-btn" id="langToggle" title="多言語切替">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </button>
+        <div class="lang-dropdown" id="langPanel">
+          <div id="langOtherVersions"></div>
+          <div class="lang-dropdown-heading">既定の表示言語</div>
+          <div class="lang-chip-grid" id="langChipGrid"></div>
+        </div>
       </div>
-      <div class="stat-group playback-only">
-        <div class="stat clicks"><div class="k">MODE</div><div class="v" style="color:var(--violet); font-size:14px;">🤖 再生中</div></div>
+      <div class="font-ctrl">
+        <button id="fontMinus" title="文字を小さく">A</button>
+        <button id="fontPlus" title="文字を大きく">A</button>
       </div>
-      <div class="topbtns">
-        <button class="iconbtn manual-only" id="btn-undo" title="1駅戻る">↺</button>
-        <button class="iconbtn manual-only" id="btn-giveup" title="最初からやり直す">✕</button>
-        <button class="iconbtn playback-only" id="btn-pb-free" title="ここから自由に操作する">🖐</button>
-        <button class="iconbtn playback-only" id="btn-pb-exit" title="終了して新しい旅へ">✕</button>
+      <button class="icon-btn" id="infoToggle" title="この記事について / ブックマーク">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="15" y1="4" x2="15" y2="20"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ 履歴タブ ============ -->
+  <div class="history-bar empty" id="historyBar"></div>
+
+  <!-- ============ メイン ============ -->
+  <div class="layout">
+    <div class="drawer-scrim" id="drawerScrim"></div>
+
+    <aside class="panel toc-panel collapsed" id="tocPanel">
+      <div class="toc-heading">目次</div>
+      <ul class="toc-list" id="tocList"></ul>
+    </aside>
+
+    <main class="content-panel" id="contentPanel">
+      <div class="content-inner" id="contentInner">
+        <!-- ホーム / 記事 / ローディング がここに描画される -->
       </div>
-    </div>
-    <div class="rail-wrap glass">
-      <div class="rail" id="rail"></div>
-    </div>
+    </main>
+
+    <aside class="panel info-panel collapsed" id="infoPanel">
+      <div class="info-tabs">
+        <div class="info-tab active" data-tab="about">概要</div>
+        <div class="info-tab" data-tab="bookmarks">ブックマーク</div>
+      </div>
+      <div class="info-body">
+        <div class="info-section active" id="tabAbout"></div>
+        <div class="info-section" id="tabBookmarks"></div>
+      </div>
+    </aside>
   </div>
 
-  <div class="article-wrap glass">
-    <div class="loading-veil" id="loading-veil">
-      <div class="spinner"></div>
-      <div class="msg">記事を読み込み中…</div>
+  <!-- ============ ステータスバー ============ -->
+  <footer class="status-bar">
+    <div class="status-left">
+      <button class="status-btn icon-btn" id="backBtn" disabled title="戻る">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="status-btn icon-btn" id="fwdBtn" disabled title="進む">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="status-btn" id="randomBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg><span class="lbl">ランダム</span></button>
     </div>
-    <div class="article-head">
-      <h2 id="article-title">—</h2>
-      <div id="hint-slot"></div>
+    <div class="status-right">
+      <span id="statusMsg">読書の準備ができました</span>
     </div>
-    <div class="article-body" id="article-body"></div>
-  </div>
+  </footer>
 
-  <div class="playback-bar glass" id="playback-bar">
-    <button class="iconbtn" id="pb-prev" title="前へ">◀</button>
-    <button class="btn btn-ghost" id="pb-auto" style="flex:1">▶ 自動再生</button>
-    <button class="iconbtn" id="pb-next" title="次へ">▶</button>
-    <div class="pb-step mono" id="pb-step">1 / 1</div>
-  </div>
 </div>
-
-<!-- ============ WIN SCREEN ============ -->
-<div id="win-screen">
-  <div class="win-card glass">
-    <div class="win-badge">🏆</div>
-    <h2>到着！</h2>
-    <p class="sub" id="win-sub">ゴール駅に到達しました</p>
-    <div class="win-stats">
-      <div class="cell"><div class="v" id="win-clicks">0</div><div class="k">CLICKS</div></div>
-      <div class="cell"><div class="v" id="win-time">0:00</div><div class="k">TIME</div></div>
-    </div>
-    <div class="win-path" id="win-path"></div>
-    <div class="win-actions">
-      <button class="btn btn-ghost" id="btn-again" style="flex:1">同じ経路でもう一度</button>
-      <button class="btn btn-primary" id="btn-newgame" style="flex:1">新しい旅へ</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-<div class="ghost-pointer" id="ghost-pointer"></div>
 
 <script>
 (function(){
-  "use strict";
+"use strict";
 
-  let currentLang = 'ja';
-  let API = "https://ja.wikipedia.org/w/api.php";
-  const NS_BLOCK = /^(ファイル|画像|Category|カテゴリ|Help|ヘルプ|Wikipedia|ウィキペディア|Template|テンプレート|Portal|ポータル|特別|Special|利用者|User|ノート|Talk|MediaWiki|モジュール|Module|TimedText|Draft|草案|文件|檔案|分类|分類|帮助|幫助|维基百科|維基百科|模板|範本|门户|門戶|用户|使用者|讨论|討論|模块|模組|草稿):/i;
+/* ============================================================
+   状態管理
+   ============================================================ */
+const LANGS_FULL = {
+  ja:'日本語', en:'English', zh:'中文', ko:'한국어', fr:'Français',
+  de:'Deutsch', es:'Español', pt:'Português', ru:'Русский', it:'Italiano',
+  ar:'العربية', hi:'हिन्दी', vi:'Tiếng Việt', id:'Bahasa Indonesia'
+};
+const LANG_ORDER = Object.keys(LANGS_FULL);
 
-  const el = (id) => document.getElementById(id);
-  const setupScreen = el('setup-screen');
-  const gameScreen = el('game-screen');
-  const winScreen = el('win-screen');
-  const startInput = el('start-input');
-  const goalInput = el('goal-input');
-  const toastEl = el('toast');
-  const solveScreen = el('solve-screen');
-  const solvedScreen = el('solved-screen');
+const UI_TEXT = {
+  ja: {
+    settingsTitle: '設定',
+    settingsDesc: 'アプリの動作を調整します。検索バーからいつでも記事を開けます。',
+    fontSize: '文字サイズ',
+    fontSizePercent: '現在 {0}%',
+    defaultLang: '既定の表示言語',
+    bookmarks: 'ブックマーク',
+    bookmarksCount: '{0}件 保存されています',
+    history: '閲覧履歴',
+    historyCount: '{0}件',
+    random: 'ランダムな記事を開く'
+  },
+  en: {
+    settingsTitle: 'Settings',
+    settingsDesc: 'Adjust app settings. Open articles anytime from the search bar.',
+    fontSize: 'Font Size',
+    fontSizePercent: 'Currently {0}%',
+    defaultLang: 'Default Language',
+    bookmarks: 'Bookmarks',
+    bookmarksCount: '{0} saved',
+    history: 'History',
+    historyCount: '{0} articles',
+    random: 'Open random article'
+  },
+  zh: {
+    settingsTitle: '设置',
+    settingsDesc: '调整应用设置。随时从搜索栏打开文章。',
+    fontSize: '字体大小',
+    fontSizePercent: '当前 {0}%',
+    defaultLang: '默认语言',
+    bookmarks: '书签',
+    bookmarksCount: '已保存 {0} 项',
+    history: '浏览历史',
+    historyCount: '{0} 篇文章',
+    random: '打开随机文章'
+  },
+  ko: {
+    settingsTitle: '설정',
+    settingsDesc: '앱 설정을 조정합니다. 검색창에서 언제든 기사를 열 수 있습니다.',
+    fontSize: '글자 크기',
+    fontSizePercent: '현재 {0}%',
+    defaultLang: '기본 언어',
+    bookmarks: '북마크',
+    bookmarksCount: '{0}개 저장됨',
+    history: '조회 기록',
+    historyCount: '{0}개',
+    random: '임의 기사 열기'
+  },
+  fr: {
+    settingsTitle: 'Paramètres',
+    settingsDesc: 'Ajustez les paramètres de l\'application. Ouvrez des articles à tout moment depuis la barre de recherche.',
+    fontSize: 'Taille de police',
+    fontSizePercent: 'Actuellement {0}%',
+    defaultLang: 'Langue par défaut',
+    bookmarks: 'Marque-pages',
+    bookmarksCount: '{0} enregistrés',
+    history: 'Historique',
+    historyCount: '{0} articles',
+    random: 'Ouvrir un article aléatoire'
+  },
+  de: {
+    settingsTitle: 'Einstellungen',
+    settingsDesc: 'App-Einstellungen anpassen. Öffnen Sie jederzeit Artikel aus der Suchleiste.',
+    fontSize: 'Schriftgröße',
+    fontSizePercent: 'Derzeit {0}%',
+    defaultLang: 'Standardsprache',
+    bookmarks: 'Lesezeichen',
+    bookmarksCount: '{0} gespeichert',
+    history: 'Verlauf',
+    historyCount: '{0} Artikel',
+    random: 'Zufälligen Artikel öffnen'
+  },
+  es: {
+    settingsTitle: 'Configuración',
+    settingsDesc: 'Ajuste la configuración de la aplicación. Abra artículos en cualquier momento desde la barra de búsqueda.',
+    fontSize: 'Tamaño de fuente',
+    fontSizePercent: 'Actualmente {0}%',
+    defaultLang: 'Idioma predeterminado',
+    bookmarks: 'Marcadores',
+    bookmarksCount: '{0} guardados',
+    history: 'Historial',
+    historyCount: '{0} artículos',
+    random: 'Abrir artículo al azar'
+  },
+  pt: {
+    settingsTitle: 'Configurações',
+    settingsDesc: 'Ajuste as configurações do aplicativo. Abra artigos a qualquer momento na barra de pesquisa.',
+    fontSize: 'Tamanho da fonte',
+    fontSizePercent: 'Atualmente {0}%',
+    defaultLang: 'Idioma padrão',
+    bookmarks: 'Favoritos',
+    bookmarksCount: '{0} salvos',
+    history: 'Histórico',
+    historyCount: '{0} artigos',
+    random: 'Abrir artigo aleatório'
+  },
+  ru: {
+    settingsTitle: 'Параметры',
+    settingsDesc: 'Настройте параметры приложения. Открывайте статьи в любое время из строки поиска.',
+    fontSize: 'Размер шрифта',
+    fontSizePercent: 'Текущий размер {0}%',
+    defaultLang: 'Язык по умолчанию',
+    bookmarks: 'Закладки',
+    bookmarksCount: 'Сохранено {0}',
+    history: 'История',
+    historyCount: '{0} статей',
+    random: 'Открыть случайную статью'
+  },
+  it: {
+    settingsTitle: 'Impostazioni',
+    settingsDesc: 'Regola le impostazioni dell\'app. Apri articoli in qualsiasi momento dalla barra di ricerca.',
+    fontSize: 'Dimensione carattere',
+    fontSizePercent: 'Attualmente {0}%',
+    defaultLang: 'Lingua predefinita',
+    bookmarks: 'Segnalibri',
+    bookmarksCount: '{0} salvati',
+    history: 'Cronologia',
+    historyCount: '{0} articoli',
+    random: 'Apri articolo casuale'
+  },
+  ar: {
+    settingsTitle: 'الإعدادات',
+    settingsDesc: 'اضبط إعدادات التطبيق. افتح المقالات في أي وقت من شريط البحث.',
+    fontSize: 'حجم الخط',
+    fontSizePercent: 'حالياً {0}%',
+    defaultLang: 'اللغة الافتراضية',
+    bookmarks: 'الإشارات المرجعية',
+    bookmarksCount: '{0} محفوظ',
+    history: 'السجل',
+    historyCount: '{0} مقالة',
+    random: 'فتح مقالة عشوائية'
+  },
+  hi: {
+    settingsTitle: 'सेटिंग्स',
+    settingsDesc: 'ऐप सेटिंग्स समायोजित करें। खोज बार से किसी भी समय लेख खोलें।',
+    fontSize: 'फ़ॉन्ट आकार',
+    fontSizePercent: 'वर्तमान में {0}%',
+    defaultLang: 'डिफ़ॉल्ट भाषा',
+    bookmarks: 'बुकमार्क',
+    bookmarksCount: '{0} सहेजे गए',
+    history: 'इतिहास',
+    historyCount: '{0} लेख',
+    random: 'यादृच्छिक लेख खोलें'
+  },
+  vi: {
+    settingsTitle: 'Cài đặt',
+    settingsDesc: 'Điều chỉnh cài đặt ứng dụng. Mở bài viết bất kỳ lúc nào từ thanh tìm kiếm.',
+    fontSize: 'Kích thước phông chữ',
+    fontSizePercent: 'Hiện tại {0}%',
+    defaultLang: 'Ngôn ngữ mặc định',
+    bookmarks: 'Dấu trang',
+    bookmarksCount: '{0} đã lưu',
+    history: 'Lịch sử',
+    historyCount: '{0} bài viết',
+    random: 'Mở bài viết ngẫu nhiên'
+  },
+  id: {
+    settingsTitle: 'Pengaturan',
+    settingsDesc: 'Sesuaikan pengaturan aplikasi. Buka artikel kapan saja dari bilah pencarian.',
+    fontSize: 'Ukuran Font',
+    fontSizePercent: 'Saat ini {0}%',
+    defaultLang: 'Bahasa Default',
+    bookmarks: 'Penanda',
+    bookmarksCount: '{0} tersimpan',
+    history: 'Riwayat',
+    historyCount: '{0} artikel',
+    random: 'Buka artikel acak'
+  }
+};
 
-  let uiMode = 'manual'; // 'manual' | 'auto' -- which mode the setup screen will launch
-  let solveCancelled = false;
-  let pbPlaying = false; // true while the cinematic auto-playback loop is running
+function t(key, ...args){
+  const texts = UI_TEXT[state.lang] || UI_TEXT.ja;
+  let text = texts[key] || key;
+  args.forEach((arg, i) => text = text.replace(`{${i}}`, arg));
+  return text;
+}
 
-  let state = {
-    startTitle: null,
-    goalTitle: null,
-    path: [],        // array of title strings, normalized display titles
-    clicks: 0,
-    timerHandle: null,
-    startTime: null,
-    won: false,
-    mode: 'manual',   // 'manual' | 'playback'
-    pbIndex: 0
+const state = {
+  lang: localStorage.getItem('shiori_lang') || 'ja',
+  theme: 'depth',
+  fontScale: parseFloat(localStorage.getItem('shiori_font') || '1'),
+  history: [],       // {title, lang}
+  historyIndex: -1,
+  bookmarks: JSON.parse(localStorage.getItem('shiori_bookmarks') || '[]'),
+  currentSections: [],
+  currentTitle: null,
+  currentExtractSnippet: '',
+  currentLanglinks: [],
+  suggestIndex: -1,
+  searchSeq: 0,
+  suggestItems: [],
+  requestSeq: 0
+};
+
+const el = (id) => document.getElementById(id);
+const app = el('app');
+const contentInner = el('contentInner');
+const tocPanel = el('tocPanel');
+const tocList = el('tocList');
+const infoPanel = el('infoPanel');
+const historyBar = el('historyBar');
+const searchInput = el('searchInput');
+const suggestPanel = el('suggestPanel');
+const langPill = el('langPill');
+const drawerScrim = el('drawerScrim');
+const statusMsg = el('statusMsg');
+const backBtn = el('backBtn');
+const fwdBtn = el('fwdBtn');
+
+const QUICK_TOPICS = [
+  {emoji:'🚇', title:'名古屋市営地下鉄'},
+  {emoji:'🍓', title:'Raspberry Pi'},
+  {emoji:'🖨️', title:'3Dプリンティング'},
+  {emoji:'🪟', title:'グラスモーフィズム'},
+  {emoji:'📡', title:'マイクロPython'},
+  {emoji:'🎲', title:'多面体'}
+];
+
+/* ============================================================
+   API ヘルパー
+   ============================================================ */
+function apiUrl(lang){ return `https://${lang}.wikipedia.org/w/api.php`; }
+
+async function apiGet(lang, params){
+  const url = new URL(apiUrl(lang));
+  params.format = 'json';
+  params.formatversion = '2';
+  params.origin = '*';
+  Object.keys(params).forEach(k => url.searchParams.set(k, params[k]));
+  const res = await fetch(url.toString());
+  if(!res.ok) throw new Error('network');
+  return res.json();
+}
+
+async function searchWiki(lang, query, limit=8){
+  const data = await apiGet(lang, {action:'query', list:'search', srsearch:query, srlimit:limit, srprop:'snippet'});
+  return (data.query && data.query.search) ? data.query.search : [];
+}
+
+async function fetchArticle(lang, title){
+  const data = await apiGet(lang, {action:'parse', page:title, prop:'text|sections|displaytitle|langlinks', redirects:'true'});
+  return data.parse;
+}
+
+async function fetchRandomTitle(lang){
+  const data = await apiGet(lang, {action:'query', list:'random', rnnamespace:0, rnlimit:1});
+  return (data.query && data.query.random && data.query.random[0]) ? data.query.random[0].title : null;
+}
+
+/* ============================================================
+   テーマ / フォント / 言語 の適用
+   ============================================================ */
+function applyTheme(name){
+  state.theme = name;
+  app.setAttribute('data-theme', name);
+  localStorage.setItem('shiori_theme', name);
+  document.querySelectorAll('.theme-swatch').forEach(s => s.classList.toggle('active', s.dataset.t === name));
+}
+function applyFontScale(){
+  document.documentElement.style.setProperty('--font-scale', state.fontScale.toFixed(2));
+  localStorage.setItem('shiori_font', state.fontScale);
+}
+function applyLangPill(){
+  langPill.textContent = state.lang.toUpperCase();
+}
+function applyFontByLang(){
+  const fontMap = {
+    ja: "'Noto Sans JP'",
+    en: "'Noto Sans'",
+    zh: "'Noto Sans SC'",
+    ko: "'Noto Sans KR'",
+    fr: "'Noto Sans'",
+    de: "'Noto Sans'",
+    es: "'Noto Sans'",
+    pt: "'Noto Sans'",
+    ru: "'Noto Sans'",
+    it: "'Noto Sans'",
+    ar: "'Noto Sans Arabic'",
+    hi: "'Noto Sans Devanagari'",
+    vi: "'Noto Sans'",
+    id: "'Noto Sans'"
   };
+  const font = fontMap[state.lang] || "'Noto Sans'";
+  document.documentElement.style.setProperty('--font-display', font);
+  document.documentElement.style.setProperty('--font-body', font);
+  document.documentElement.style.setProperty('--font-ui', font);
+}
 
-  function showToast(msg, ms){
-    toastEl.textContent = msg;
-    toastEl.classList.add('show');
-    clearTimeout(showToast._t);
-    showToast._t = setTimeout(()=> toastEl.classList.remove('show'), ms || 2200);
+/* ============================================================
+   ホーム画面
+   ============================================================ */
+function renderHome(){
+  state.currentTitle = null;
+  state.currentLanglinks = [];
+  tocList.innerHTML = '';
+  tocPanel.classList.add('collapsed');
+  contentInner.innerHTML = `
+    <div class="home-screen">
+      <div class="home-hero">
+        <div class="home-mark">栞</div>
+        <h1 class="home-title">${escapeHtml(t('settingsTitle'))}</h1>
+        <p class="home-desc">${escapeHtml(t('settingsDesc'))}</p>
+      </div>
+      <div class="settings-list">
+        <div class="settings-row">
+          <div class="settings-label"><h4>${escapeHtml(t('fontSize'))}</h4><p>${escapeHtml(t('fontSizePercent', Math.round(state.fontScale*100)))}</p></div>
+          <div class="font-ctrl settings-fontctrl">
+            <button id="settingsFontMinus" title="${escapeAttr(t('fontSize'))}">A</button>
+            <button id="settingsFontPlus" title="${escapeAttr(t('fontSize'))}">A</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-label"><h4>${escapeHtml(t('defaultLang'))}</h4><p>${LANGS_FULL[state.lang]}（${t('defaultLang')}）</p></div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-label"><h4>${escapeHtml(t('bookmarks'))}</h4><p>${escapeHtml(t('bookmarksCount', state.bookmarks.length))}</p></div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-label"><h4>${escapeHtml(t('history'))}</h4><p>${escapeHtml(t('historyCount', state.history.length))}</p></div>
+        </div>
+        <div class="home-random"><button class="btn-primary" id="homeRandomBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>${escapeHtml(t('random'))}</button></div>
+      </div>
+    </div>`;
+  el('homeRandomBtn').addEventListener('click', openRandom);
+  el('settingsFontMinus').addEventListener('click', () => { state.fontScale = Math.max(0.8, +(state.fontScale - 0.1).toFixed(2)); applyFontScale(); renderHome(); });
+  el('settingsFontPlus').addEventListener('click', () => { state.fontScale = Math.min(1.5, +(state.fontScale + 0.1).toFixed(2)); applyFontScale(); renderHome(); });
+  renderAboutTab(null);
+  renderLangPanel();
+  statusMsg.textContent = '読書の準備ができました';
+}
+
+/* ============================================================
+   検索
+   ============================================================ */
+let searchDebounce = null;
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim();
+  clearTimeout(searchDebounce);
+  if(!q){ closeSuggest(); return; }
+  searchDebounce = setTimeout(() => runSearch(q), 260);
+});
+searchInput.addEventListener('keydown', (e) => {
+  const items = suggestPanel.querySelectorAll('.suggest-item');
+  if(e.key === 'ArrowDown'){ e.preventDefault(); moveSuggest(1, items); }
+  else if(e.key === 'ArrowUp'){ e.preventDefault(); moveSuggest(-1, items); }
+  else if(e.key === 'Enter'){
+    e.preventDefault();
+    if(state.suggestIndex >= 0 && state.suggestItems[state.suggestIndex]){
+      const title = state.suggestItems[state.suggestIndex].title;
+      closeSuggest();
+      loadArticle(title, state.lang);
+    } else if(searchInput.value.trim()){
+      const q = searchInput.value.trim();
+      closeSuggest();
+      loadArticle(q, state.lang);
+    } else {
+      closeSuggest();
+    }
+  } else if(e.key === 'Escape'){
+    closeSuggest(); searchInput.blur();
   }
-
-  function norm(t){
-    return (t||'').trim().replace(/_/g,' ').toLowerCase();
+});
+function moveSuggest(dir, items){
+  if(!items.length) return;
+  state.suggestIndex = (state.suggestIndex + dir + items.length) % items.length;
+  items.forEach((it,i) => it.classList.toggle('active', i === state.suggestIndex));
+  items[state.suggestIndex].scrollIntoView({block:'nearest'});
+}
+async function runSearch(query){
+  const seq = ++state.searchSeq;
+  try{
+    const results = await searchWiki(state.lang, query, 8);
+    if(seq !== state.searchSeq) return; // 選択済み/新しい検索により無効化された結果は破棄
+    state.suggestItems = results;
+    state.suggestIndex = -1;
+    if(!results.length){
+      suggestPanel.innerHTML = `<div class="suggest-empty">「${escapeHtml(query)}」に一致する記事が見つかりません</div>`;
+    } else {
+      suggestPanel.innerHTML = results.map(r => `
+        <div class="suggest-item" data-title="${escapeAttr(r.title)}">
+          <div class="suggest-title">${escapeHtml(r.title)}</div>
+          <div class="suggest-snippet">${sanitizeSnippet(r.snippet)}</div>
+        </div>`).join('');
+      suggestPanel.querySelectorAll('.suggest-item').forEach(item => {
+        item.addEventListener('click', () => { closeSuggest(); loadArticle(item.dataset.title, state.lang); });
+      });
+    }
+    suggestPanel.classList.add('open');
+  }catch(err){
+    if(seq !== state.searchSeq) return;
+    suggestPanel.innerHTML = `<div class="suggest-empty">検索に失敗しました。通信環境をご確認ください。</div>`;
+    suggestPanel.classList.add('open');
   }
+}
+function closeSuggest(){
+  clearTimeout(searchDebounce); // 保留中の遅延検索も確実にキャンセルし、閉じた後の再表示を防ぐ
+  state.searchSeq++; // 進行中の検索結果を無効化し、後から再表示されるのを防ぐ
+  suggestPanel.classList.remove('open'); suggestPanel.innerHTML=''; state.suggestIndex=-1;
+}
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('.search-wrap')) closeSuggest();
+});
+function sanitizeSnippet(html){
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.textContent.length > 90 ? tmp.textContent.slice(0,90) + '…' : tmp.textContent;
+}
 
-  // ---------- Autocomplete ----------
-  function wireSuggest(inputEl, listEl){
-    let timer = null, activeIdx = -1, items = [];
-    inputEl.addEventListener('input', ()=>{
-      clearTimeout(timer);
-      const q = inputEl.value.trim();
-      activeIdx = -1;
-      if(!q){ listEl.style.display='none'; return; }
-      timer = setTimeout(async ()=>{
-        try{
-          const url = `${API}?action=opensearch&search=${encodeURIComponent(q)}&limit=7&namespace=0&format=json&origin=*`;
-          const res = await fetch(url);
-          const data = await res.json();
-          items = data[1] || [];
-          if(!items.length){ listEl.style.display='none'; return; }
-          listEl.innerHTML = items.map((t,i)=>`<div data-i="${i}">${escapeHtml(t)}</div>`).join('');
-          listEl.style.display = 'block';
-        }catch(e){ listEl.style.display='none'; }
-      }, 220);
-    });
-    listEl.addEventListener('mousedown', (e)=>{
-      const d = e.target.closest('div[data-i]');
-      if(!d) return;
-      inputEl.value = items[+d.dataset.i];
-      listEl.style.display = 'none';
-    });
-    inputEl.addEventListener('keydown', (e)=>{
-      const kids = [...listEl.children];
-      if(listEl.style.display !== 'block' || !kids.length) return;
-      if(e.key === 'ArrowDown'){ e.preventDefault(); activeIdx = Math.min(activeIdx+1, kids.length-1); }
-      else if(e.key === 'ArrowUp'){ e.preventDefault(); activeIdx = Math.max(activeIdx-1, 0); }
-      else if(e.key === 'Enter'){
-        if(activeIdx >= 0){ e.preventDefault(); inputEl.value = items[activeIdx]; listEl.style.display='none'; }
+/* ============================================================
+   記事読み込み & 描画
+   ============================================================ */
+async function loadArticle(title, lang, opts){
+  opts = opts || {};
+  const pushHistory = opts.pushHistory !== false;
+  const seq = ++state.requestSeq;
+  searchInput.value = '';
+  closeSuggest();
+  renderLoading();
+  closeMobileDrawers();
+
+  try{
+    const parsed = await fetchArticle(lang, title);
+    if(seq !== state.requestSeq) return; // 新しいリクエストで上書き済み
+    if(!parsed){ throw new Error('not-found'); }
+
+    state.lang = lang;
+    applyLangPill();
+    applyFontByLang();
+    const finalTitle = parsed.title;
+    state.currentTitle = finalTitle;
+    state.currentSections = parsed.sections || [];
+    state.currentLanglinks = (parsed.langlinks || []).slice().sort((a,b) => (a.autonym||a.langname||a.lang).localeCompare(b.autonym||b.langname||b.lang));
+
+    renderArticle(parsed);
+    buildTOC(parsed.sections || []);
+
+    if(opts.replaceCurrent && state.historyIndex >= 0){
+      // Shift+D: 新しいタブを開かず、今のタブの中身を差し替える
+      state.history[state.historyIndex] = {title: finalTitle, lang};
+    } else if(pushHistory){
+      // 進む方向の履歴を切り捨てて追加
+      state.history = state.history.slice(0, state.historyIndex + 1);
+      state.history.push({title: finalTitle, lang});
+      state.historyIndex = state.history.length - 1;
+    }
+    renderHistoryBar();
+    updateNavButtons();
+    renderLangPanel();
+    contentInner.scrollTop = 0;
+    el('contentPanel').scrollTop = 0;
+    statusMsg.textContent = `${finalTitle} — ${LANGS_FULL[lang]}版を表示中`;
+  }catch(err){
+    if(seq !== state.requestSeq) return;
+    renderError(title);
+  }
+}
+
+function renderLoading(){
+  contentInner.innerHTML = `
+    <div class="loading-wrap">
+      <div class="spinner"></div>
+      <div class="loading-txt">記事を取得しています…</div>
+    </div>`;
+}
+function renderError(title){
+  contentInner.innerHTML = `
+    <div class="error-box">
+      <h3>記事が見つかりませんでした</h3>
+      <p>「${escapeHtml(title)}」は存在しないか、通信に失敗した可能性があります。</p>
+      <button class="btn-primary" onclick="location.reload()" style="display:none"></button>
+    </div>`;
+  const retry = document.createElement('button');
+  retry.className = 'btn-primary';
+  retry.style.margin = '0 auto';
+  retry.style.display = 'flex';
+  retry.textContent = 'ホームへ戻る';
+  retry.addEventListener('click', renderHome);
+  contentInner.querySelector('.error-box').appendChild(retry);
+  statusMsg.textContent = '記事の取得に失敗しました';
+}
+
+function renderArticle(parsed){
+  const title = parsed.title;
+  const isBookmarked = state.bookmarks.some(b => b.title === title && b.lang === state.lang);
+
+  contentInner.innerHTML = `
+    <div class="article-header">
+      <div class="article-eyebrow">
+        <span>${LANGS_FULL[state.lang]}版 · Wikipedia</span>
+      </div>
+      <h1 class="article-title">${escapeHtml(title)}</h1>
+      <div class="article-sub">
+        <a href="https://${state.lang}.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g,'_'))}" target="_blank" rel="noopener">Wikipedia原文を新しいタブで開く ↗</a>
+      </div>
+      <div class="article-actions">
+        <button class="mini-btn ${isBookmarked ? 'saved':''}" id="bookmarkBtn">
+          <svg viewBox="0 0 24 24" fill="${isBookmarked ? 'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          ${isBookmarked ? '保存済み' : 'ブックマーク'}
+        </button>
+      </div>
+    </div>
+    <div class="wiki-content" id="wikiContent">${parsed.text}</div>
+  `;
+
+  const contentEl = el('wikiContent');
+  postProcessContent(contentEl);
+  attachContentLinkHandlers(contentEl);
+
+  el('bookmarkBtn').addEventListener('click', () => toggleBookmark(title));
+
+  // 概要スニペット (infoパネル用) を先頭段落から抽出
+  const firstP = contentEl.querySelector('p');
+  state.currentExtractSnippet = firstP ? firstP.textContent.trim().slice(0, 260) : '';
+  renderAboutTab(title);
+}
+
+/* ---- Wikipedia HTML の後処理: 崩れ対策 ---- */
+function postProcessContent(root){
+  // script は完全除去（安全対策）
+  root.querySelectorAll('script,style').forEach(n => n.remove());
+
+  // 画像のプロトコル相対URLを補正 + lazy load
+  root.querySelectorAll('img').forEach(img => {
+    const src = img.getAttribute('src') || '';
+    if(src.startsWith('//')) img.src = 'https:' + src;
+    img.loading = 'lazy';
+    img.removeAttribute('srcset');
+    img.removeAttribute('width');
+    img.removeAttribute('height');
+  });
+
+  // infobox は div でラップして角丸クリップを一箇所に統一（caption/内側テーブルの角丸・直角混在を防止）
+  root.querySelectorAll('table.infobox').forEach(tbl => {
+    if(tbl.parentElement && tbl.parentElement.classList.contains('infobox-wrap')) return;
+    const isNested = !!tbl.parentElement.closest('table.infobox');
+    const wrap = document.createElement('div');
+    wrap.className = 'infobox-wrap' + (isNested ? ' nested' : '');
+    tbl.parentNode.insertBefore(wrap, tbl);
+    wrap.appendChild(tbl);
+  });
+
+  // 大きな一般テーブル (wikitable等) は横スクロールできるようラップ
+  root.querySelectorAll('table.wikitable, table.sortable, table:not(.infobox):not(.navbox)').forEach(tbl => {
+    if(tbl.closest('.infobox') || tbl.closest('.navbox')) return;
+    if(tbl.parentElement && tbl.parentElement.classList.contains('table-scroll')) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'table-scroll';
+    tbl.parentNode.insertBefore(wrap, tbl);
+    wrap.appendChild(tbl);
+  });
+
+  // navbox は details に格納して折りたたむ（表示崩れ・巨大化防止）
+  root.querySelectorAll('table.navbox, div.navbox').forEach(nav => {
+    if(nav.closest('details.navbox-wrap')) return;
+    const details = document.createElement('details');
+    details.className = 'navbox-wrap';
+    const summary = document.createElement('summary');
+    const label = nav.querySelector('.navbox-title, th');
+    summary.textContent = 'ナビゲーション: ' + (label ? label.textContent.trim().slice(0,40) : '関連項目');
+    nav.parentNode.insertBefore(details, nav);
+    details.appendChild(summary);
+    details.appendChild(nav);
+  });
+
+  // 不要な編集リンク・空要素・座標プラグイン等を除去
+  root.querySelectorAll('.mw-editsection, .mw-indicators, sup.noprint, .error').forEach(n => n.remove());
+
+  // 相対 / プロトコル相対リンクを正規化
+  root.querySelectorAll('a[href]').forEach(a => {
+    let href = a.getAttribute('href');
+    if(!href) return;
+    if(href.startsWith('//')) a.setAttribute('href', 'https:' + href);
+    if(href.startsWith('#')) return; // 同一ページアンカーはそのまま
+  });
+}
+
+/* ---- 記事内リンクのクリックをインターセプトして SPA 的に遷移 ---- */
+function attachContentLinkHandlers(root){
+  root.addEventListener('click', (e) => {
+    const a = e.target.closest('a');
+    if(!a) return;
+    const href = a.getAttribute('href') || '';
+
+    // 同一記事内アンカー
+    if(href.startsWith('#')){
+      e.preventDefault();
+      const targetId = decodeURIComponent(href.slice(1));
+      const targetEl = root.querySelector(`#${CSS.escape(targetId)}`) || document.getElementById(targetId);
+      if(targetEl) targetEl.scrollIntoView({behavior:'smooth', block:'start'});
+      return;
+    }
+
+    // 内部 wiki リンク /wiki/Title
+    const m = href.match(/^\/wiki\/([^#?]+)/);
+    if(m){
+      e.preventDefault();
+      const rawTitle = decodeURIComponent(m[1].replace(/_/g, ' '));
+      if(/^(File|ファイル|Category|カテゴリ|Special|特別|Help|ヘルプ|Wikipedia|Portal|ポータル|Template|テンプレート):/i.test(rawTitle)){
+        window.open(`https://${state.lang}.wikipedia.org${href}`, '_blank', 'noopener');
         return;
-      } else return;
-      kids.forEach((k,i)=> k.classList.toggle('active', i===activeIdx));
-    });
-    document.addEventListener('click', (e)=>{
-      if(!listEl.contains(e.target) && e.target !== inputEl) listEl.style.display='none';
-    });
-  }
-  wireSuggest(startInput, el('start-suggest'));
-  wireSuggest(goalInput, el('goal-suggest'));
-
-  function escapeHtml(s){
-    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  }
-
-  // ---------- Random / swap ----------
-  async function randomTitle(){
-    const url = `${API}?action=query&list=random&rnnamespace=0&rnlimit=1&format=json&origin=*`;
-    const res = await fetch(url);
-    const data = await res.json();
-    return data.query.random[0].title;
-  }
-
-  el('btn-random-both').addEventListener('click', async ()=>{
-    el('btn-random-both').textContent = '読み込み中…';
-    try{
-      const [a,b] = await Promise.all([randomTitle(), randomTitle()]);
-      startInput.value = a; goalInput.value = b;
-    }catch(e){ showToast('ランダム記事の取得に失敗しました'); }
-    el('btn-random-both').textContent = '🎲 両方ランダム';
-  });
-
-  el('btn-swap').addEventListener('click', ()=>{
-    const t = startInput.value; startInput.value = goalInput.value; goalInput.value = t;
-  });
-
-  // ---------- Language toggle ----------
-  const LANG_EXAMPLES = {
-    ja: { start:'例: 名古屋市', goal:'例: ラプラス変換' },
-    en: { start:'e.g. Nagoya',  goal:'e.g. Laplace transform' },
-    zh: { start:'例如：名古屋市', goal:'例如：拉普拉斯变换' }
-  };
-  function applyLangPlaceholders(){
-    const ex = LANG_EXAMPLES[currentLang] || LANG_EXAMPLES.ja;
-    startInput.placeholder = ex.start;
-    goalInput.placeholder = ex.goal;
-  }
-  el('lang-toggle').addEventListener('click', (e)=>{
-    const b = e.target.closest('.lang-btn');
-    if(!b) return;
-    currentLang = b.dataset.lang;
-    API = `https://${currentLang}.wikipedia.org/w/api.php`;
-    [...el('lang-toggle').children].forEach(c=> c.classList.toggle('active', c===b));
-    applyLangPlaceholders();
-    startInput.value = ''; goalInput.value = '';
-    el('start-suggest').style.display = 'none';
-    el('goal-suggest').style.display = 'none';
-  });
-  applyLangPlaceholders();
-
-  // ---------- Mode toggle ----------
-  el('mode-toggle').addEventListener('click', (e)=>{
-    const b = e.target.closest('.mode-btn');
-    if(!b) return;
-    uiMode = b.dataset.mode;
-    [...el('mode-toggle').children].forEach(c=> c.classList.toggle('active', c===b));
-    el('btn-start').textContent = uiMode === 'auto' ? '🤖 探索を開始する' : '出発する →';
-  });
-
-  // ---------- Start game / start solve ----------
-  el('btn-start').addEventListener('click', ()=>{
-    if(uiMode === 'auto') startAutoSolve();
-    else startGame();
-  });
-  [startInput, goalInput].forEach(inp => inp.addEventListener('keydown', e=>{
-    if(e.key === 'Enter'){
-      el('start-suggest').style.display='none'; el('goal-suggest').style.display='none';
-      if(uiMode === 'auto') startAutoSolve(); else startGame();
-    }
-  }));
-
-  async function startGame(){
-    const s = startInput.value.trim();
-    const g = goalInput.value.trim();
-    const errEl = el('setup-error');
-    errEl.textContent = '';
-    if(!s || !g){ errEl.textContent = 'スタートとゴールの両方を入力してください。'; return; }
-    if(norm(s) === norm(g)){ errEl.textContent = 'スタートとゴールが同じです。別の記事を選んでください。'; return; }
-
-    el('btn-start').textContent = '記事を確認中…';
-    el('btn-start').disabled = true;
-    try{
-      const [sData, gData] = await Promise.all([fetchArticle(s), fetchArticle(g)]);
-      state = {
-        startTitle: sData.title,
-        goalTitle: gData.title,
-        path: [sData.title],
-        clicks: 0,
-        timerHandle: null,
-        startTime: Date.now(),
-        won: false,
-        mode: 'manual',
-        pbIndex: 0
-      };
-      setupScreen.style.display = 'none';
-      winScreen.style.display = 'none';
-      solveScreen.style.display = 'none';
-      solvedScreen.style.display = 'none';
-      gameScreen.classList.remove('playback-mode');
-      gameScreen.style.display = 'flex';
-      renderArticle(sData);
-      renderRail();
-      startTimer();
-    }catch(e){
-      errEl.textContent = '記事が見つかりませんでした。タイトルを確認してください。';
-    }
-    el('btn-start').textContent = '出発する →';
-    el('btn-start').disabled = false;
-  }
-
-  // ---------- Fetch / render article ----------
-  async function fetchArticle(title){
-    const url = `${API}?action=parse&page=${encodeURIComponent(title)}&prop=text&format=json&formatversion=2&redirects=1&origin=*&disabletoc=1`;
-    const res = await fetch(url);
-    const data = await res.json();
-    if(data.error) throw new Error(data.error.info || 'not found');
-    return { title: data.parse.title, html: data.parse.text };
-  }
-
-  function setLoading(on){
-    el('loading-veil').style.display = on ? 'flex' : 'none';
-  }
-
-  function fixProtocolRelativeUrls(container){
-    container.querySelectorAll('img[src^="//"]').forEach(img=>{
-      img.src = 'https:' + img.getAttribute('src');
-    });
-    container.querySelectorAll('img[srcset]').forEach(img=>{
-      const fixed = img.getAttribute('srcset').split(',').map(part=>{
-        const trimmed = part.trim();
-        return trimmed.startsWith('//') ? 'https:' + trimmed : trimmed;
-      }).join(', ');
-      img.setAttribute('srcset', fixed);
-    });
-    container.querySelectorAll('source[srcset]').forEach(s=>{
-      const fixed = s.getAttribute('srcset').split(',').map(part=>{
-        const trimmed = part.trim();
-        return trimmed.startsWith('//') ? 'https:' + trimmed : trimmed;
-      }).join(', ');
-      s.setAttribute('srcset', fixed);
-    });
-  }
-
-  function renderArticle(data){
-    el('article-title').textContent = data.title;
-    const body = el('article-body');
-    body.innerHTML = data.html;
-
-    // strip dangerous / noisy elements
-    body.querySelectorAll('script,.mw-editsection,.navbox,.catlinks').forEach(n=>n.remove());
-    fixProtocolRelativeUrls(body);
-
-    let goalFound = false;
-    body.querySelectorAll('a[href]').forEach(a=>{
-      const href = a.getAttribute('href') || '';
-      if(href.startsWith('#')){ a.classList.add('disabled-link'); return; }
-      if(href.startsWith('/wiki/')){
-        let t = decodeURIComponent(href.replace('/wiki/','').split('#')[0]).replace(/_/g,' ');
-        if(NS_BLOCK.test(t)){
-          a.classList.add('disabled-link');
-        } else {
-          a.dataset.wikiTitle = t;
-          if(norm(t) === norm(state.goalTitle)){
-            a.classList.add('goal-link');
-            goalFound = true;
-          }
-        }
-      } else if(href.startsWith('http') || href.startsWith('//')){
-        a.setAttribute('target', '_blank');
-        a.setAttribute('rel', 'noopener noreferrer');
-      } else {
-        a.classList.add('disabled-link');
       }
+      loadArticle(rawTitle, state.lang, {replaceCurrent: isSameTabModifierActive()});
+      return;
+    }
+
+    // 絶対URLでも同言語版wikiへのリンクなら内部遷移
+    try{
+      const u = new URL(href, `https://${state.lang}.wikipedia.org`);
+      if(u.hostname.endsWith('.wikipedia.org') && u.pathname.startsWith('/wiki/')){
+        const lg = u.hostname.split('.')[0];
+        const t = decodeURIComponent(u.pathname.replace('/wiki/','').replace(/_/g,' '));
+        if(!/^(File|ファイル|Category|カテゴリ|Special|特別):/i.test(t)){
+          e.preventDefault();
+          loadArticle(t, LANG_ORDER.includes(lg) ? lg : state.lang, {replaceCurrent: isSameTabModifierActive()});
+          return;
+        }
+      }
+    }catch(_e){ /* 相対でない普通の外部リンクはそのまま新規タブ推奨 */ }
+
+    // 外部リンクは新しいタブ
+    if(/^https?:\/\//.test(href)){
+      a.target = '_blank';
+      a.rel = 'noopener';
+    }
+  });
+}
+
+/* ============================================================
+   目次 (TOC)
+   ============================================================ */
+function buildTOC(sections){
+  if(!sections.length){
+    tocList.innerHTML = '<li class="toc-empty">この記事に目次はありません</li>';
+    return;
+  }
+  tocList.innerHTML = sections.map(s => {
+    const lvl = Math.min(parseInt(s.toclevel,10) || 1, 4);
+    return `<li><a href="#" data-anchor="${escapeAttr(s.anchor)}" style="--lvl:${lvl}">${escapeHtml(s.line.replace(/<[^>]+>/g,''))}</a></li>`;
+  }).join('');
+  tocList.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.getElementById(a.dataset.anchor);
+      if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+      tocList.querySelectorAll('a').forEach(x => x.classList.remove('active'));
+      a.classList.add('active');
+      if(window.innerWidth <= 900) closeMobileDrawers();
     });
+  });
+}
 
-    const hintSlot = el('hint-slot');
-    hintSlot.innerHTML = goalFound
-      ? `<span class="hint-badge">🎯 このページからゴールへ直通できます</span>`
-      : '';
+/* ============================================================
+   履歴バー
+   ============================================================ */
+function renderHistoryBar(){
+  if(state.history.length <= 1){
+    historyBar.classList.add('empty');
+    historyBar.innerHTML = '';
+    return;
+  }
+  historyBar.classList.remove('empty');
+  historyBar.innerHTML = state.history.map((h,i) => `
+    <div class="hist-pill ${i === state.historyIndex ? 'current':''}" data-idx="${i}">
+      <span class="n">${i+1}</span><span class="hp-title">${escapeHtml(h.title)}</span>
+      <button class="hist-close" data-remove-idx="${i}" title="タブを閉じる">✕</button>
+    </div>`).join('');
+  historyBar.querySelectorAll('.hist-pill').forEach(p => {
+    p.querySelector('.hp-title, .n').addEventListener('click', () => jumpToHistory(parseInt(p.dataset.idx,10)));
+    p.querySelector('.hist-close').addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeHistoryTab(parseInt(e.target.dataset.removeIdx,10));
+    });
+  });
+  const current = historyBar.querySelector('.hist-pill.current');
+  if(current) current.scrollIntoView({inline:'center', block:'nearest'});
+}
+function jumpToHistory(idx){
+  if(idx < 0 || idx >= state.history.length || idx === state.historyIndex) return;
+  state.historyIndex = idx;
+  const h = state.history[idx];
+  loadArticle(h.title, h.lang, {pushHistory:false});
+}
+function removeHistoryTab(idx){
+  if(idx < 0 || idx >= state.history.length) return;
+  state.history.splice(idx, 1);
+  if(state.historyIndex >= state.history.length) state.historyIndex = state.history.length - 1;
+  if(state.historyIndex < 0){
+    renderHome();
+  } else {
+    const h = state.history[state.historyIndex];
+    loadArticle(h.title, h.lang, {pushHistory:false});
+  }
+  renderHistoryBar();
+  updateNavButtons();
+}
+function updateNavButtons(){
+  backBtn.disabled = state.historyIndex <= 0;
+  fwdBtn.disabled = state.historyIndex >= state.history.length - 1;
+}
+backBtn.addEventListener('click', () => jumpToHistory(state.historyIndex - 1));
+fwdBtn.addEventListener('click', () => jumpToHistory(state.historyIndex + 1));
 
-    body.scrollTop = 0;
+/* ============================================================
+   ランダム記事
+   ============================================================ */
+async function openRandom(){
+  statusMsg.textContent = 'ランダムな記事を探しています…';
+  try{
+    const title = await fetchRandomTitle(state.lang);
+    if(title) loadArticle(title, state.lang);
+  }catch(_e){
+    statusMsg.textContent = 'ランダム記事の取得に失敗しました';
+  }
+}
+el('randomBtn').addEventListener('click', openRandom);
+
+/* ============================================================
+   ブックマーク
+   ============================================================ */
+function toggleBookmark(title){
+  const idx = state.bookmarks.findIndex(b => b.title === title && b.lang === state.lang);
+  if(idx >= 0){
+    state.bookmarks.splice(idx,1);
+  } else {
+    state.bookmarks.unshift({title, lang: state.lang, ts: Date.now(), snippet: state.currentExtractSnippet});
+  }
+  localStorage.setItem('shiori_bookmarks', JSON.stringify(state.bookmarks));
+  if(state.currentTitle === title) renderArticleBookmarkBtn(title);
+  renderBookmarksTab();
+}
+function renderArticleBookmarkBtn(title){
+  const btn = el('bookmarkBtn');
+  if(!btn) return;
+  const isBookmarked = state.bookmarks.some(b => b.title === title && b.lang === state.lang);
+  btn.classList.toggle('saved', isBookmarked);
+  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="${isBookmarked?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>${isBookmarked?'保存済み':'ブックマーク'}`;
+}
+function renderBookmarksTab(){
+  const wrap = el('tabBookmarks');
+  if(!state.bookmarks.length){
+    wrap.innerHTML = '<div class="empty-note">まだブックマークがありません。<br>記事内の「ブックマーク」ボタンから追加できます。</div>';
+    return;
+  }
+  wrap.innerHTML = state.bookmarks.map((b,i) => `
+    <div class="bm-item" data-idx="${i}">
+      <div style="flex:1">
+        <div class="bt">${escapeHtml(b.title)}</div>
+        <div class="bd">${LANGS_FULL[b.lang] || b.lang} · ${new Date(b.ts).toLocaleDateString('ja-JP')}</div>
+      </div>
+      <div class="bm-remove" data-remove="${i}">✕</div>
+    </div>`).join('');
+  wrap.querySelectorAll('.bm-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      if(e.target.closest('[data-remove]')) return;
+      const b = state.bookmarks[parseInt(item.dataset.idx,10)];
+      loadArticle(b.title, b.lang);
+    });
+  });
+  wrap.querySelectorAll('[data-remove]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.bookmarks.splice(parseInt(btn.dataset.remove,10),1);
+      localStorage.setItem('shiori_bookmarks', JSON.stringify(state.bookmarks));
+      renderBookmarksTab();
+      if(state.currentTitle) renderArticleBookmarkBtn(state.currentTitle);
+    });
+  });
+}
+
+/* ============================================================
+   情報パネル: 概要タブ
+   ============================================================ */
+function renderAboutTab(title){
+  const wrap = el('tabAbout');
+  if(!title){
+    wrap.innerHTML = `<div class="empty-note">記事を開くと、ここに概要が表示されます。</div>`;
+    return;
+  }
+  wrap.innerHTML = `
+    <div class="card">
+      <h4>この記事について</h4>
+      <p>${escapeHtml(state.currentExtractSnippet || '概要を取得中…')}${state.currentExtractSnippet.length >= 260 ? '…' : ''}</p>
+    </div>
+    <div class="card">
+      <h4>表示言語</h4>
+      <p>${LANGS_FULL[state.lang]}版を表示しています。ヘッダーの地球アイコンで他言語版に切り替えられます。</p>
+    </div>
+    <div class="card">
+      <h4>他言語版</h4>
+      <p>${state.currentLanglinks.length ? `${state.currentLanglinks.length}言語の翻訳版が見つかりました。` : '他言語版は見つかりませんでした。'}</p>
+      ${state.currentLanglinks.length ? `<div class="chip-row" style="justify-content:flex-start;margin-top:10px;">${state.currentLanglinks.slice(0,8).map(l => `<button class="chip" style="padding:5px 10px;font-size:11px;" data-lang="${escapeAttr(l.lang)}" data-title="${escapeAttr(l.title)}">${escapeHtml(l.lang.toUpperCase())}</button>`).join('')}</div>` : ''}
+    </div>
+    <div class="card">
+      <h4>目次</h4>
+      <p>${state.currentSections.length}個のセクションがあります。左パネルからジャンプできます。</p>
+    </div>
+  `;
+  wrap.querySelectorAll('[data-lang][data-title]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetLang = btn.dataset.lang;
+      state.lang = targetLang;
+      localStorage.setItem('shiori_lang', targetLang);
+      applyLangPill();
+      loadArticle(btn.dataset.title, targetLang);
+    });
+  });
+  renderBookmarksTab();
+}
+
+/* ============================================================
+   タブ切替 (概要 / ブックマーク)
+   ============================================================ */
+document.querySelectorAll('.info-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.info-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.info-section').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    el('tab' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1)).classList.add('active');
+  });
+});
+
+/* ============================================================
+   パネル開閉 (TOC / Info) — デスクトップ & モバイル
+   ============================================================ */
+function isMobile(){ return window.innerWidth <= 900; }
+
+el('tocToggle').addEventListener('click', () => {
+  if(isMobile()){
+    tocPanel.classList.toggle('mobile-open');
+    infoPanel.classList.remove('mobile-open');
+    drawerScrim.classList.toggle('show', tocPanel.classList.contains('mobile-open'));
+  } else {
+    tocPanel.classList.toggle('collapsed');
+  }
+});
+el('infoToggle').addEventListener('click', () => {
+  if(isMobile()){
+    infoPanel.classList.toggle('mobile-open');
+    tocPanel.classList.remove('mobile-open');
+    drawerScrim.classList.toggle('show', infoPanel.classList.contains('mobile-open'));
+  } else {
+    infoPanel.classList.toggle('collapsed');
+  }
+});
+drawerScrim.addEventListener('click', closeMobileDrawers);
+function closeMobileDrawers(){
+  tocPanel.classList.remove('mobile-open');
+  infoPanel.classList.remove('mobile-open');
+  drawerScrim.classList.remove('show');
+}
+
+/* ============================================================
+   テーマ / フォント / 言語 UI
+   ============================================================ */
+document.querySelectorAll('.theme-swatch').forEach(sw => {
+  sw.addEventListener('click', () => applyTheme(sw.dataset.t));
+});
+el('fontMinus').addEventListener('click', () => {
+  state.fontScale = Math.max(0.8, +(state.fontScale - 0.1).toFixed(2));
+  applyFontScale();
+});
+el('fontPlus').addEventListener('click', () => {
+  state.fontScale = Math.min(1.5, +(state.fontScale + 0.1).toFixed(2));
+  applyFontScale();
+});
+/* ---- 多言語ドロップダウン ---- */
+function renderLangPanel(){
+  const otherWrap = el('langOtherVersions');
+  if(state.currentTitle && state.currentLanglinks && state.currentLanglinks.length){
+    otherWrap.innerHTML = `
+      <div class="lang-dropdown-heading">この記事の他言語版 (${state.currentLanglinks.length})</div>
+      <div class="lang-version-list">
+        ${state.currentLanglinks.map(l => `
+          <button class="lang-version-item" data-lang="${escapeAttr(l.lang)}" data-title="${escapeAttr(l.title)}">
+            <span class="lv-code">${escapeHtml(l.lang.toUpperCase())}</span>
+            <span class="lv-name">${escapeHtml(l.autonym || l.langname || l.lang)}</span>
+            <span class="lv-title">${escapeHtml(l.title)}</span>
+          </button>`).join('')}
+      </div>`;
+    otherWrap.querySelectorAll('.lang-version-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetLang = btn.dataset.lang;
+        state.lang = targetLang;
+        localStorage.setItem('shiori_lang', targetLang);
+        applyLangPill();
+        loadArticle(btn.dataset.title, targetLang);
+        closeLangPanel();
+      });
+    });
+  } else if(state.currentTitle){
+    otherWrap.innerHTML = `<div class="lang-empty-note">この記事には他言語版が見つかりませんでした。</div>`;
+  } else {
+    otherWrap.innerHTML = '';
   }
 
-  el('article-body').addEventListener('click', (e)=>{
-    if(state.mode !== 'manual') return;
-    const a = e.target.closest('a');
-    if(!a) return;
+  const grid = el('langChipGrid');
+  grid.innerHTML = LANG_ORDER.map(code => `
+    <button class="lang-chip ${code === state.lang ? 'active' : ''}" data-lang="${code}">
+      <span class="lc-code">${code.toUpperCase()}</span>
+      <span class="lc-name">${escapeHtml(LANGS_FULL[code])}</span>
+    </button>`).join('');
+  grid.querySelectorAll('.lang-chip').forEach(btn => {
+    btn.addEventListener('click', () => switchBrowseLanguage(btn.dataset.lang));
+  });
+}
+function switchBrowseLanguage(target){
+  if(target === state.lang){ closeLangPanel(); return; }
+  // 開いている記事があれば、実際の他言語版タイトルへ直接ジャンプを試みる
+  if(state.currentTitle && state.currentLanglinks){
+    const match = state.currentLanglinks.find(l => l.lang === target);
+    state.lang = target;
+    localStorage.setItem('shiori_lang', target);
+    applyLangPill();
+    applyFontByLang();
+    if(match){
+      loadArticle(match.title, target);
+    } else {
+      statusMsg.textContent = `「${state.currentTitle}」の${LANGS_FULL[target]}版は見つかりませんでした。検索してお探しください。`;
+      renderLangPanel();
+    }
+    closeLangPanel();
+    return;
+  }
+  state.lang = target;
+  localStorage.setItem('shiori_lang', target);
+  applyLangPill();
+  applyFontByLang();
+  statusMsg.textContent = `既定の表示言語を${LANGS_FULL[target]}に切り替えました`;
+  closeLangPanel();
+}
+function closeLangPanel(){ el('langPanel').classList.remove('open'); }
+el('langToggle').addEventListener('click', (e) => {
+  e.stopPropagation();
+  const panel = el('langPanel');
+  const willOpen = !panel.classList.contains('open');
+  closeSuggest();
+  if(willOpen){ renderLangPanel(); panel.classList.add('open'); }
+  else{ panel.classList.remove('open'); }
+});
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('.lang-dropdown-wrap')) closeLangPanel();
+});
+el('brandHome').addEventListener('click', renderHome);
+
+/* ============================================================
+   キーボードショートカット
+   ============================================================ */
+let shiftHeld = false;
+let dHeld = false;
+function isSameTabModifierActive(){ return shiftHeld && dHeld; }
+function isTypingTarget(target){
+  return target === searchInput || (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable));
+}
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Shift') shiftHeld = true;
+  if(e.code === 'KeyD') dHeld = true;
+
+  if(e.key === '/' && document.activeElement !== searchInput){
     e.preventDefault();
-    if(a.classList.contains('disabled-link')) {
-      showToast('このページへは移動できません（記事本文ではありません）');
-      return;
-    }
-    const t = a.dataset.wikiTitle;
-    if(!t) return;
-    navigateTo(t);
-  });
-
-  async function navigateTo(title){
-    setLoading(true);
-    try{
-      const data = await fetchArticle(title);
-      state.clicks += 1;
-      state.path.push(data.title);
-      renderArticle(data);
-      renderRail();
-      el('stat-clicks').textContent = state.clicks;
-
-      if(norm(data.title) === norm(state.goalTitle)){
-        onWin();
-      }
-    }catch(e){
-      showToast('このページは読み込めませんでした。');
-    }
-    setLoading(false);
+    searchInput.focus();
   }
+  if(e.altKey && e.key === 'ArrowLeft'){ e.preventDefault(); jumpToHistory(state.historyIndex - 1); }
+  if(e.altKey && e.key === 'ArrowRight'){ e.preventDefault(); jumpToHistory(state.historyIndex + 1); }
 
-  // ---------- Undo / restart ----------
-  el('btn-undo').addEventListener('click', async ()=>{
-    if(state.path.length <= 1) return;
-    state.path.pop();
-    const prevTitle = state.path[state.path.length - 1];
-    setLoading(true);
-    try{
-      const data = await fetchArticle(prevTitle);
-      renderArticle(data);
-      renderRail();
-    }catch(e){ showToast('戻れませんでした。'); }
-    setLoading(false);
-  });
-
-  el('btn-giveup').addEventListener('click', ()=>{
-    stopTimer();
-    gameScreen.style.display = 'none';
-    setupScreen.style.display = 'flex';
-  });
-
-  // ---------- Rail (route diagram) ----------
-  function renderRail(){
-    const rail = el('rail');
-    const frag = document.createElement('div');
-    let html = '';
-    state.path.forEach((title, i)=>{
-      const isFirst = i === 0;
-      const isLast = i === state.path.length - 1;
-      const isGoal = state.won && norm(title) === norm(state.goalTitle);
-      let cls = 'station';
-      if(isFirst) cls += ' start';
-      if(isLast && !state.won) cls += ' current';
-      if(isGoal) cls += ' goal';
-      html += `<div class="${cls}"><div class="seg"></div><div class="node"></div><div class="label" title="${escapeHtml(title)}">${escapeHtml(title)}</div></div>`;
-    });
-    if(!state.won){
-      html += `<div class="terminus"><div class="seg"></div><div class="node"></div><div class="label" title="${escapeHtml(state.goalTitle)}">${escapeHtml(state.goalTitle)}</div></div>`;
-    }
-    rail.innerHTML = html;
-    const wrap = rail.parentElement;
-    requestAnimationFrame(()=>{ wrap.scrollLeft = wrap.scrollWidth; });
-  }
-
-  // ---------- Timer ----------
-  function startTimer(){
-    stopTimer();
-    state.timerHandle = setInterval(()=>{
-      const secs = Math.floor((Date.now() - state.startTime)/1000);
-      el('stat-timer').textContent = fmtTime(secs);
-    }, 1000);
-  }
-  function stopTimer(){ if(state.timerHandle) clearInterval(state.timerHandle); }
-  function fmtTime(secs){
-    const m = Math.floor(secs/60), s = secs%60;
-    return `${m}:${String(s).padStart(2,'0')}`;
-  }
-
-  // ---------- Win ----------
-  function onWin(){
-    state.won = true;
-    stopTimer();
-    const secs = Math.floor((Date.now() - state.startTime)/1000);
-    renderRail();
-    setTimeout(()=>{
-      gameScreen.style.display = 'none';
-      winScreen.style.display = 'flex';
-      el('win-sub').textContent = `${state.startTitle} → ${state.goalTitle} に到達しました`;
-      el('win-clicks').textContent = state.clicks;
-      el('win-time').textContent = fmtTime(secs);
-      el('win-path').innerHTML = state.path.map((t,i)=> `${i+1}. ${i===0||i===state.path.length-1 ? `<b>${escapeHtml(t)}</b>` : escapeHtml(t)}`).join('<br>');
-    }, 550);
-  }
-
-  el('btn-again').addEventListener('click', ()=>{
-    startInput.value = state.startTitle;
-    goalInput.value = state.goalTitle;
-    winScreen.style.display = 'none';
-    startGame();
-  });
-  el('btn-newgame').addEventListener('click', ()=>{
-    winScreen.style.display = 'none';
-    setupScreen.style.display = 'flex';
-    startInput.value = ''; goalInput.value = '';
-  });
-
-  // ================= AUTO SOLVE (bidirectional BFS over Wikipedia link graph) =================
-  const SOLVE_MAX_DEPTH = 4;         // per side
-  const SOLVE_LINKS_PER_PAGE = 350;  // cap outgoing/incoming links fetched per page
-  const SOLVE_MAX_FETCHES = 650;     // hard cap on API calls
-  const SOLVE_CONCURRENCY = 8;
-  const SOLVE_TIME_LIMIT_MS = 55000;
-
-  function logLine(cls, text){
-    const logEl = el('solve-log');
-    const line = document.createElement('div');
-    line.className = cls;
-    line.textContent = text;
-    logEl.appendChild(line);
-    while(logEl.children.length > 60) logEl.removeChild(logEl.firstChild);
-    logEl.scrollTop = logEl.scrollHeight;
-  }
-
-  async function mapLimit(items, limit, fn){
-    const ret = new Array(items.length);
-    let i = 0;
-    async function worker(){
-      while(i < items.length){
-        const idx = i++;
-        ret[idx] = await fn(items[idx], idx);
-      }
-    }
-    await Promise.all(Array.from({length: Math.min(limit, items.length)}, worker));
-    return ret;
-  }
-
-  async function fetchLinkNeighbors(title, direction){
-    const prop = direction === 'out' ? 'links' : 'linkshere';
-    const limitParam = direction === 'out' ? `plnamespace=0&pllimit=${SOLVE_LINKS_PER_PAGE}` : `lhnamespace=0&lhlimit=${SOLVE_LINKS_PER_PAGE}&lhshow=!redirect`;
-    const url = `${API}?action=query&titles=${encodeURIComponent(title)}&prop=${prop}&${limitParam}&format=json&origin=*`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const pages = data.query && data.query.pages;
-    if(!pages) return [];
-    const page = Object.values(pages)[0];
-    const arr = direction === 'out' ? page.links : page.linkshere;
-    if(!arr) return [];
-    return arr.map(x => x.title);
-  }
-
-  async function biDirectionalSearch(startTitle, goalTitle, onProgress, isCancelled){
-    let fetches = 0;
-    if(norm(startTitle) === norm(goalTitle)){
-      return { path:[startTitle], fetches:0, nodes:1 };
-    }
-    const forwardVisited = new Map();
-    const backwardVisited = new Map();
-    forwardVisited.set(norm(startTitle), { title:startTitle, parent:null });
-    backwardVisited.set(norm(goalTitle), { title:goalTitle, parent:null });
-
-    let forwardFrontier = [startTitle];
-    let backwardFrontier = [goalTitle];
-    let forwardDepth = 0, backwardDepth = 0;
-    const t0 = Date.now();
-
-    function reconstruct(meetKey){
-      const fSeq = [];
-      let node = forwardVisited.get(meetKey);
-      while(node){
-        fSeq.unshift(node.title);
-        node = node.parent ? forwardVisited.get(norm(node.parent)) : null;
-      }
-      const bSeq = [];
-      node = backwardVisited.get(meetKey);
-      while(node){
-        bSeq.push(node.title);
-        node = node.parent ? backwardVisited.get(norm(node.parent)) : null;
-      }
-      return fSeq.concat(bSeq.slice(1));
-    }
-
-    while(true){
-      if(isCancelled()) return { path:null, cancelled:true, fetches };
-      if(fetches >= SOLVE_MAX_FETCHES) break;
-      if(Date.now() - t0 > SOLVE_TIME_LIMIT_MS) break;
-
-      const fwdAvail = forwardDepth < SOLVE_MAX_DEPTH && forwardFrontier.length > 0;
-      const bwdAvail = backwardDepth < SOLVE_MAX_DEPTH && backwardFrontier.length > 0;
-      if(!fwdAvail && !bwdAvail) break;
-      const goForward = fwdAvail && bwdAvail
-        ? forwardFrontier.length <= backwardFrontier.length
-        : fwdAvail;
-      const frontier = goForward ? forwardFrontier : backwardFrontier;
-      const visited = goForward ? forwardVisited : backwardVisited;
-      const otherVisited = goForward ? backwardVisited : forwardVisited;
-
-      const capped = frontier.slice(0, Math.max(1, Math.floor((SOLVE_MAX_FETCHES - fetches))));
-      const linksResults = await mapLimit(capped, SOLVE_CONCURRENCY, async (title) => {
-        fetches++;
-        try{ return await fetchLinkNeighbors(title, goForward ? 'out' : 'in'); }
-        catch(e){ return []; }
-      });
-
-      const nextFrontier = [];
-      let meetKey = null;
-      for(let fi = 0; fi < capped.length; fi++){
-        const parentTitle = capped[fi];
-        const links = linksResults[fi] || [];
-        for(const lt of links){
-          const key = norm(lt);
-          if(NS_BLOCK.test(lt)) continue;
-          if(!visited.has(key)){
-            visited.set(key, { title: lt, parent: parentTitle });
-            nextFrontier.push(lt);
-          }
-          if(otherVisited.has(key) && !meetKey){
-            meetKey = key;
-          }
-        }
-        if(meetKey) break;
-      }
-
-      if(goForward){ forwardFrontier = nextFrontier; forwardDepth++; }
-      else { backwardFrontier = nextFrontier; backwardDepth++; }
-
-      const sample = capped.slice(0, 3);
-      onProgress && onProgress({
-        fetches, forwardDepth, backwardDepth,
-        nodes: forwardVisited.size + backwardVisited.size,
-        direction: goForward ? 'fwd' : 'bwd',
-        sample
-      });
-
-      if(meetKey){
-        const path = reconstruct(meetKey);
-        return { path, fetches, nodes: forwardVisited.size + backwardVisited.size };
-      }
-    }
-    return { path:null, fetches, nodes: forwardVisited.size + backwardVisited.size };
-  }
-
-  el('btn-cancel-solve').addEventListener('click', ()=>{
-    solveCancelled = true;
-  });
-
-  // Resolve every node in a found path to its canonical (post-redirect) title in one batch
-  // call, then collapse consecutive duplicates. This fixes the common case where a BFS hop
-  // lands on a redirect page whose real link text on the rendered article differs from the
-  // raw graph title — without this, the "next hop" link can fail to match on playback.
-  async function canonicalizePath(path){
-    if(path.length < 2) return path;
-    try{
-      const url = `${API}?action=query&titles=${encodeURIComponent(path.join('|'))}&redirects=1&format=json&origin=*`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const map = {};
-      if(data.query && data.query.redirects){
-        data.query.redirects.forEach(r => { map[norm(r.from)] = r.to; });
-      }
-      const resolved = path.map(t => map[norm(t)] || t);
-      const deduped = [];
-      resolved.forEach(t => {
-        if(deduped.length === 0 || norm(deduped[deduped.length-1]) !== norm(t)) deduped.push(t);
-      });
-      return deduped.length >= 1 ? deduped : path;
-    }catch(e){
-      return path;
-    }
-  }
-
-  async function startAutoSolve(){
-    const s = startInput.value.trim();
-    const g = goalInput.value.trim();
-    const errEl = el('setup-error');
-    errEl.textContent = '';
-    if(!s || !g){ errEl.textContent = 'スタートとゴールの両方を入力してください。'; return; }
-    if(norm(s) === norm(g)){ errEl.textContent = 'スタートとゴールが同じです。別の記事を選んでください。'; return; }
-
-    el('btn-start').disabled = true;
-    let sData, gData;
-    try{
-      [sData, gData] = await Promise.all([fetchArticle(s), fetchArticle(g)]);
-    }catch(e){
-      errEl.textContent = '記事が見つかりませんでした。タイトルを確認してください。';
-      el('btn-start').disabled = false;
-      return;
-    }
-    el('btn-start').disabled = false;
-
-    solveCancelled = false;
-    setupScreen.style.display = 'none';
-    solveScreen.style.display = 'flex';
-    el('solve-log').innerHTML = '';
-    el('solve-start-label').textContent = sData.title;
-    el('solve-goal-label').textContent = gData.title;
-    el('solve-fetches').textContent = '0';
-    el('solve-nodes').textContent = '0';
-    el('solve-depth').textContent = '0 / 0';
-    el('solve-elapsed').textContent = '0:00';
-
-    const t0 = Date.now();
-    const elapsedHandle = setInterval(()=>{
-      el('solve-elapsed').textContent = fmtTime(Math.floor((Date.now()-t0)/1000));
-    }, 1000);
-
-    const result = await biDirectionalSearch(
-      sData.title, gData.title,
-      (p)=>{
-        el('solve-fetches').textContent = p.fetches;
-        el('solve-nodes').textContent = p.nodes;
-        el('solve-depth').textContent = `${p.forwardDepth} / ${p.backwardDepth}`;
-        p.sample.forEach(t => logLine(p.direction === 'fwd' ? 'fwd' : 'bwd', (p.direction === 'fwd' ? '→ ' : '← ') + t));
-      },
-      ()=> solveCancelled
-    );
-    clearInterval(elapsedHandle);
-
-    if(solveCancelled){
-      solveScreen.style.display = 'none';
-      setupScreen.style.display = 'flex';
-      return;
-    }
-
-    solveScreen.style.display = 'none';
-    solvedScreen.style.display = 'flex';
-
-    if(result.path){
-      const canonicalPath = await canonicalizePath(result.path);
-      logLine('meet', `✓ 経路が見つかりました (${canonicalPath.length - 1} ホップ)`);
-      state.startTitle = sData.title;
-      state.goalTitle = gData.title;
-      state.solvedPath = canonicalPath;
-      el('solved-success').style.display = 'block';
-      el('solved-fail').style.display = 'none';
-      el('solved-sub').textContent = `${sData.title} → ${gData.title}`;
-      el('solved-hops').textContent = canonicalPath.length - 1;
-      el('solved-nodes').textContent = result.nodes;
-      el('solved-time').textContent = fmtTime(Math.floor((Date.now()-t0)/1000));
-      el('solved-path').innerHTML = canonicalPath.map((t,i)=> `${i+1}. ${i===0||i===canonicalPath.length-1 ? `<b>${escapeHtml(t)}</b>` : escapeHtml(t)}`).join('<br>');
-    } else {
-      state.startTitle = sData.title;
-      state.goalTitle = gData.title;
-      state.solvedPath = null;
-      el('solved-success').style.display = 'none';
-      el('solved-fail').style.display = 'block';
-    }
-  }
-
-  el('btn-solved-newgame').addEventListener('click', ()=>{
-    solvedScreen.style.display = 'none';
-    setupScreen.style.display = 'flex';
-    startInput.value = ''; goalInput.value = '';
-  });
-  el('btn-fail-newgame').addEventListener('click', ()=>{
-    solvedScreen.style.display = 'none';
-    setupScreen.style.display = 'flex';
-    startInput.value = ''; goalInput.value = '';
-  });
-  el('btn-fail-manual').addEventListener('click', ()=>{
-    solvedScreen.style.display = 'none';
-    uiMode = 'manual';
-    [...el('mode-toggle').children].forEach(c=> c.classList.toggle('active', c.dataset.mode==='manual'));
-    el('btn-start').textContent = '出発する →';
-    startInput.value = state.startTitle || '';
-    goalInput.value = state.goalTitle || '';
-    setupScreen.style.display = 'flex';
-  });
-
-  // ---------- Playback mode ----------
-  el('btn-solved-playback').addEventListener('click', ()=>{
-    if(!state.solvedPath) return;
-    solvedScreen.style.display = 'none';
-    beginPlayback(state.solvedPath, state.startTitle, state.goalTitle);
-  });
-
-  function beginPlayback(path, startT, goalT){
-    state.mode = 'playback';
-    state.path = path.slice();
-    state.pbIndex = 0;
-    state.startTitle = startT;
-    state.goalTitle = goalT;
-    state.won = true;
-    gameScreen.classList.add('playback-mode');
-    gameScreen.style.display = 'flex';
-    pbPlaying = false;
-    hidePointer();
-    showPlaybackStep(0).then(()=> runCinematicLoop());
-  }
-
-  async function showPlaybackStep(idx, opts){
-    opts = opts || {};
-    idx = Math.max(0, Math.min(idx, state.path.length - 1));
-    state.pbIndex = idx;
-    el('pb-step').textContent = `${idx+1} / ${state.path.length}`;
-    el('pb-prev').disabled = idx === 0;
-    el('pb-next').disabled = idx === state.path.length - 1;
-
-    setLoading(true);
-    try{
-      const data = await fetchArticle(state.path[idx]);
-      const nextTitle = idx < state.path.length - 1 ? state.path[idx+1] : null;
-      renderPlaybackArticle(data, nextTitle, idx === state.path.length - 1, !opts.keepScroll);
-    }catch(e){
-      showToast('記事の読み込みに失敗しました。');
-    }
-    setLoading(false);
-    renderRailPlayback(idx);
-
-    if(idx === state.path.length - 1) stopPbAuto();
-  }
-
-  function renderPlaybackArticle(data, nextTitle, isLastHop, resetScroll){
-    el('article-title').textContent = data.title;
-    const body = el('article-body');
-    body.innerHTML = data.html;
-    body.querySelectorAll('script,.mw-editsection,.navbox,.catlinks').forEach(n=>n.remove());
-    fixProtocolRelativeUrls(body);
-
-    body.querySelectorAll('a[href]').forEach(a=>{
-      const href = a.getAttribute('href') || '';
-      if(href.startsWith('/wiki/')){
-        let t = decodeURIComponent(href.replace('/wiki/','').split('#')[0]).replace(/_/g,' ');
-        if(!NS_BLOCK.test(t)){
-          a.dataset.wikiTitle = t;
-          if(nextTitle && norm(t) === norm(nextTitle)) a.classList.add('next-hop-link');
-        }
-      } else if(href.startsWith('http') || href.startsWith('//')){
-        a.setAttribute('target', '_blank');
-        a.setAttribute('rel', 'noopener noreferrer');
-      }
-    });
-
-    const hintSlot = el('hint-slot');
-    hintSlot.innerHTML = isLastHop
-      ? `<span class="hint-badge">🏁 ゴールに到着しました</span>`
-      : `<span class="hint-badge">▶ 次の駅: ${escapeHtml(nextTitle)}</span>`;
-    if(resetScroll !== false) body.scrollTop = 0;
-  }
-
-  function renderRailPlayback(currentIdx){
-    const rail = el('rail');
-    let html = '';
-    state.path.forEach((title, i)=>{
-      let cls = 'station';
-      if(i === 0) cls += ' start';
-      if(i === currentIdx) cls += ' current';
-      if(i === state.path.length - 1) cls += ' goal';
-      html += `<div class="${cls}"><div class="seg"></div><div class="node"></div><div class="label" title="${escapeHtml(title)}">${escapeHtml(title)}</div></div>`;
-    });
-    rail.innerHTML = html;
-    const wrap = rail.parentElement;
-    requestAnimationFrame(()=>{
-      const node = rail.children[currentIdx];
-      if(node) wrap.scrollLeft = node.offsetLeft - wrap.clientWidth/2 + 44;
-    });
-  }
-
-  // playback mode: only the highlighted "next hop" link advances; everything else is inert
-  el('article-body').addEventListener('click', (e)=>{
-    if(state.mode !== 'playback') return;
-    const a = e.target.closest('a');
-    if(!a) return;
+  // Shift+W: 現在開いているタブを閉じる
+  if(e.shiftKey && e.code === 'KeyW' && !isTypingTarget(e.target)){
     e.preventDefault();
-    if(a.classList.contains('next-hop-link')){
-      stopPbAuto();
-      showPlaybackStep(state.pbIndex + 1);
-    } else {
-      showToast('プレイバック中です。「▶ 自動再生」または🖐で自由操作に切り替えてください');
-    }
-  });
-
-  el('pb-prev').addEventListener('click', ()=>{ stopPbAuto(); showPlaybackStep(state.pbIndex - 1); });
-  el('pb-next').addEventListener('click', ()=>{ stopPbAuto(); showPlaybackStep(state.pbIndex + 1); });
-
-  // ---------- Ghost pointer: makes autoplay look like someone is really clicking ----------
-  const pointerEl = el('ghost-pointer');
-  function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
-  function showPointer(){ pointerEl.classList.add('visible'); }
-  function hidePointer(){ pointerEl.classList.remove('visible', 'clicking', 'ripple'); }
-  function movePointerTo(x, y){
-    pointerEl.style.left = x + 'px';
-    pointerEl.style.top = y + 'px';
+    if(state.historyIndex >= 0) removeHistoryTab(state.historyIndex);
   }
-  function retriggerRipple(){
-    pointerEl.classList.remove('ripple');
-    void pointerEl.offsetWidth; // force reflow so the animation restarts
-    pointerEl.classList.add('ripple');
-  }
+});
+document.addEventListener('keyup', (e) => {
+  if(e.key === 'Shift') shiftHeld = false;
+  if(e.code === 'KeyD') dHeld = false;
+});
+window.addEventListener('blur', () => { shiftHeld = false; dHeld = false; });
 
-  // performs one "human-like" hop: scroll back to top, scroll to the next-hop link,
-  // glide the pointer to it, click it, then load the next article (keeping scroll
-  // position so the *next* hop can visibly scroll back to top again).
-  // Returns false if the loop should stop.
-  async function cinematicStep(){
-    const body = el('article-body');
+/* ============================================================
+   ユーティリティ
+   ============================================================ */
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(str){ return escapeHtml(str); }
 
-    // always start each new page from the top, with a visible scroll if needed
-    if(body.scrollTop > 4){
-      body.scrollTo({ top:0, behavior:'smooth' });
-      await sleep(900);
-    } else {
-      body.scrollTop = 0;
-    }
-    if(!pbPlaying) return false;
-    await sleep(600);
-
-    // prefer the real "next hop" link; if it can't be matched (e.g. the article links to
-    // a redirect whose text differs from our resolved title), fall back to any visible
-    // article link nearby so the pointer still has something natural to click on.
-    let link = body.querySelector('a.next-hop-link');
-    if(!link) link = body.querySelector('a[data-wiki-title]');
-
-    if(!link){
-      // no clickable article links at all in this page — mime a click in place and move on
-      showPointer();
-      const bodyRect = body.getBoundingClientRect();
-      movePointerTo(bodyRect.left + bodyRect.width/2, bodyRect.top + 160);
-      await sleep(650);
-      if(pbPlaying){
-        retriggerRipple();
-        pointerEl.classList.add('clicking');
-        await sleep(180);
-        pointerEl.classList.remove('clicking');
-        await sleep(400);
-      }
-      hidePointer();
-      await showPlaybackStep(state.pbIndex + 1, { keepScroll:true });
-      return pbPlaying;
-    }
-
-    link.scrollIntoView({ behavior:'smooth', block:'center', inline:'center' });
-    await sleep(950);
-    if(!pbPlaying) return false;
-
-    const rect = link.getBoundingClientRect();
-    showPointer();
-    movePointerTo(rect.left + rect.width/2, rect.top + rect.height/2);
-    await sleep(900);
-    if(!pbPlaying) return false;
-
-    retriggerRipple();
-    pointerEl.classList.add('clicking');
-    await sleep(180);
-    pointerEl.classList.remove('clicking');
-    await sleep(400);
-    if(!pbPlaying) return false;
-
-    hidePointer();
-    await showPlaybackStep(state.pbIndex + 1, { keepScroll:true });
-    return pbPlaying;
-  }
-
-  async function runCinematicLoop(){
-    if(pbPlaying) return;
-    pbPlaying = true;
-    el('pb-auto').textContent = '⏸ 停止';
-    while(pbPlaying && state.pbIndex < state.path.length - 1){
-      const shouldContinue = await cinematicStep();
-      if(!shouldContinue) break;
-      if(!pbPlaying) break;
-      await sleep(900);
-    }
-    pbPlaying = false;
-    hidePointer();
-    el('pb-auto').textContent = '▶ 自動再生';
-  }
-
-  function stopPbAuto(){
-    pbPlaying = false;
-    hidePointer();
-    el('pb-auto').textContent = '▶ 自動再生';
-  }
-
-  el('pb-auto').addEventListener('click', ()=>{
-    if(pbPlaying){ stopPbAuto(); return; }
-    runCinematicLoop();
-  });
-
-  el('btn-pb-exit').addEventListener('click', ()=>{
-    stopPbAuto();
-    gameScreen.classList.remove('playback-mode');
-    gameScreen.style.display = 'none';
-    setupScreen.style.display = 'flex';
-  });
-
-  el('btn-pb-free').addEventListener('click', async ()=>{
-    stopPbAuto();
-    state.mode = 'manual';
-    state.won = false;
-    state.path = state.path.slice(0, state.pbIndex + 1);
-    state.clicks = state.pbIndex;
-    state.startTime = Date.now();
-    gameScreen.classList.remove('playback-mode');
-    el('stat-clicks').textContent = state.clicks;
-    startTimer();
-    setLoading(true);
-    try{
-      const data = await fetchArticle(state.path[state.path.length - 1]);
-      renderArticle(data);
-      renderRail();
-    }catch(e){ showToast('読み込みに失敗しました。'); }
-    setLoading(false);
-    showToast('ここから自由に操作できます。リンクをクリックして進みましょう。');
-  });
+/* ============================================================
+   初期化
+   ============================================================ */
+applyTheme(state.theme);
+applyFontScale();
+applyLangPill();
+applyFontByLang();
+renderHome();
 
 })();
 </script>
