@@ -381,6 +381,7 @@ body{
   max-width:760px;margin:0 auto;
   padding:var(--sp-7) var(--sp-6) 120px;
 }
+.content-inner.is-home{padding-bottom:var(--sp-7);}
 
 .info-panel{
   width:300px;flex-shrink:0;
@@ -692,26 +693,49 @@ figure{margin:0;}
   .brand span.sub{display:none;}
   .theme-picker{display:none;}
   .font-ctrl{display:none;}
-  .lang-dropdown{position:fixed;top:var(--header-h);left:8px;right:8px;width:auto;}
+  .font-ctrl.settings-fontctrl{display:flex!important;}
+  .lang-dropdown{position:fixed;top:var(--header-h);left:8px;right:8px;width:auto;max-height:min(70vh,70dvh);}
   .toc-panel,.info-panel{
     position:fixed;top:var(--header-h);bottom:0;z-index:70;
     box-shadow:var(--shadow-raised);
   }
-  .toc-panel{left:0;transform:translateX(-100%);transition:transform .25s ease;width:78vw!important;max-width:300px;padding:var(--sp-5) var(--sp-4)!important;}
+  .toc-panel{left:0;transform:translateX(-100%);transition:transform .25s ease;width:78vw!important;max-width:300px;padding:var(--sp-5) var(--sp-4)!important;padding-bottom:calc(var(--sp-5) + env(safe-area-inset-bottom))!important;}
   .toc-panel.mobile-open{transform:translateX(0);}
-  .info-panel{right:0;transform:translateX(100%);transition:transform .25s ease;width:82vw!important;max-width:340px;}
+  .info-panel{right:0;transform:translateX(100%);transition:transform .25s ease;width:82vw!important;max-width:340px;padding-bottom:env(safe-area-inset-bottom);}
   .info-panel.mobile-open{transform:translateX(0);}
   .toc-panel.collapsed,.info-panel.collapsed{width:78vw!important;overflow:visible;}
   .info-panel.collapsed{width:82vw!important;}
-  .content-inner{padding:var(--sp-5) var(--sp-4) 100px;}
+  .content-inner{padding:var(--sp-5) var(--sp-4) calc(100px + env(safe-area-inset-bottom));}
+  .content-inner.is-home{padding-bottom:calc(var(--sp-5) + env(safe-area-inset-bottom));}
   .article-title{font-size:calc(26px * var(--font-scale));}
   .wiki-content .thumb,.wiki-content .infobox-wrap{float:none!important;width:100%!important;max-width:100%!important;margin:0 0 var(--sp-4)!important;}
   .home-title{font-size:26px;}
+  .settings-row{flex-wrap:wrap;gap:10px;}
   .status-left .status-btn span.lbl{display:none;}
+  .status-bar{padding-bottom:env(safe-area-inset-bottom);height:calc(44px + env(safe-area-inset-bottom));}
+  .top-bar{padding-top:env(safe-area-inset-top);height:calc(var(--header-h) + env(safe-area-inset-top));}
 }
 @media (max-width:560px){
   .search-lang-pill{display:none;}
-  .status-bar{padding:0 var(--sp-3);}
+  .status-bar{padding-left:var(--sp-3);padding-right:var(--sp-3);}
+  .brand .mark{width:26px;height:26px;font-size:13px;}
+  .hist-pill{padding:5px 9px;font-size:11px;}
+}
+@media (max-width:400px){
+  .icon-btn{width:32px;height:32px;}
+  .top-controls{gap:6px;}
+  .search-box{padding:0 var(--sp-3);}
+  .home-mark{width:52px;height:52px;font-size:24px;}
+  .home-title{font-size:22px;}
+  .settings-row{padding:var(--sp-3);}
+}
+@media (max-height:480px) and (orientation:landscape){
+  :root{--header-h:52px;}
+  .home-screen{padding:var(--sp-5) 0;}
+  .home-hero{margin-bottom:var(--sp-4);}
+  .home-mark{width:44px;height:44px;font-size:20px;margin-bottom:var(--sp-2);}
+  .content-inner{padding-top:var(--sp-4);}
+  .status-bar{height:38px;}
 }
 
 /* フォーカス可視化 & モーション削減 */
@@ -837,6 +861,7 @@ const UI_TEXT = {
     infoToggleTitle:'この記事について / ブックマーク', backTitle:'戻る', forwardTitle:'進む',
     randomLabel:'ランダム', tabAbout:'概要', settingsTitle:'設定',
     settingsDesc:'アプリの動作を調整します。検索バーからいつでも記事を開けます。',
+    welcomeTitle:'ようこそ', welcomeDesc:'栞へようこそ。検索バーからいつでも記事を開けます。',
     fontSize:'文字サイズ', fontSizePercent:'現在 {0}%', defaultLang:'既定の表示言語',
     bookmarks:'ブックマーク', bookmarksCount:'{0}件 保存されています',
     history:'閲覧履歴', historyCount:'{0}件', random:'ランダムな記事を開く',
@@ -873,6 +898,7 @@ const UI_TEXT = {
     infoToggleTitle:'About this article / Bookmarks', backTitle:'Back', forwardTitle:'Forward',
     randomLabel:'Random', tabAbout:'Overview', settingsTitle:'Settings',
     settingsDesc:'Adjust app settings. Open articles anytime from the search bar.',
+    welcomeTitle:'Welcome', welcomeDesc:'Welcome to shiori. Open articles anytime from the search bar.',
     fontSize:'Font Size', fontSizePercent:'Currently {0}%', defaultLang:'Default Language',
     bookmarks:'Bookmarks', bookmarksCount:'{0} saved',
     history:'History', historyCount:'{0} articles', random:'Open random article',
@@ -909,6 +935,7 @@ const UI_TEXT = {
     infoToggleTitle:'关于本条目 / 书签', backTitle:'后退', forwardTitle:'前进',
     randomLabel:'随机', tabAbout:'概览', settingsTitle:'设置',
     settingsDesc:'调整应用设置。随时从搜索栏打开文章。',
+    welcomeTitle:'欢迎', welcomeDesc:'欢迎使用栞。随时从搜索栏打开文章。',
     fontSize:'字体大小', fontSizePercent:'当前 {0}%', defaultLang:'默认语言',
     bookmarks:'书签', bookmarksCount:'已保存 {0} 项',
     history:'浏览历史', historyCount:'{0} 篇文章', random:'打开随机文章',
@@ -945,6 +972,7 @@ const UI_TEXT = {
     infoToggleTitle:'이 문서에 대해 / 북마크', backTitle:'뒤로', forwardTitle:'앞으로',
     randomLabel:'무작위', tabAbout:'개요', settingsTitle:'설정',
     settingsDesc:'앱 설정을 조정합니다. 검색창에서 언제든 기사를 열 수 있습니다.',
+    welcomeTitle:'환영합니다', welcomeDesc:'栞(시오리)에 오신 것을 환영합니다. 검색창에서 언제든 기사를 열 수 있습니다.',
     fontSize:'글자 크기', fontSizePercent:'현재 {0}%', defaultLang:'기본 언어',
     bookmarks:'북마크', bookmarksCount:'{0}개 저장됨',
     history:'조회 기록', historyCount:'{0}개', random:'임의 기사 열기',
@@ -981,6 +1009,7 @@ const UI_TEXT = {
     infoToggleTitle:'À propos de cet article / Favoris', backTitle:'Précédent', forwardTitle:'Suivant',
     randomLabel:'Aléatoire', tabAbout:'Aperçu', settingsTitle:'Paramètres',
     settingsDesc:'Ajustez les paramètres de l\'application. Ouvrez des articles à tout moment depuis la barre de recherche.',
+    welcomeTitle:'Bienvenue', welcomeDesc:'Bienvenue sur shiori. Ouvrez des articles à tout moment depuis la barre de recherche.',
     fontSize:'Taille de police', fontSizePercent:'Actuellement {0}%', defaultLang:'Langue par défaut',
     bookmarks:'Favoris', bookmarksCount:'{0} enregistrés',
     history:'Historique', historyCount:'{0} articles', random:'Ouvrir un article aléatoire',
@@ -1017,6 +1046,7 @@ const UI_TEXT = {
     infoToggleTitle:'Über diesen Artikel / Lesezeichen', backTitle:'Zurück', forwardTitle:'Vor',
     randomLabel:'Zufällig', tabAbout:'Übersicht', settingsTitle:'Einstellungen',
     settingsDesc:'App-Einstellungen anpassen. Öffnen Sie jederzeit Artikel aus der Suchleiste.',
+    welcomeTitle:'Willkommen', welcomeDesc:'Willkommen bei shiori. Öffnen Sie jederzeit Artikel aus der Suchleiste.',
     fontSize:'Schriftgröße', fontSizePercent:'Derzeit {0}%', defaultLang:'Standardsprache',
     bookmarks:'Lesezeichen', bookmarksCount:'{0} gespeichert',
     history:'Verlauf', historyCount:'{0} Artikel', random:'Zufälligen Artikel öffnen',
@@ -1053,6 +1083,7 @@ const UI_TEXT = {
     infoToggleTitle:'Sobre este artículo / Marcadores', backTitle:'Atrás', forwardTitle:'Adelante',
     randomLabel:'Aleatorio', tabAbout:'Resumen', settingsTitle:'Configuración',
     settingsDesc:'Ajuste la configuración de la aplicación. Abra artículos en cualquier momento desde la barra de búsqueda.',
+    welcomeTitle:'Bienvenido', welcomeDesc:'Bienvenido a shiori. Abra artículos en cualquier momento desde la barra de búsqueda.',
     fontSize:'Tamaño de fuente', fontSizePercent:'Actualmente {0}%', defaultLang:'Idioma predeterminado',
     bookmarks:'Marcadores', bookmarksCount:'{0} guardados',
     history:'Historial', historyCount:'{0} artículos', random:'Abrir artículo al azar',
@@ -1089,6 +1120,7 @@ const UI_TEXT = {
     infoToggleTitle:'Sobre este artigo / Favoritos', backTitle:'Voltar', forwardTitle:'Avançar',
     randomLabel:'Aleatório', tabAbout:'Visão geral', settingsTitle:'Configurações',
     settingsDesc:'Ajuste as configurações do aplicativo. Abra artigos a qualquer momento na barra de pesquisa.',
+    welcomeTitle:'Bem-vindo', welcomeDesc:'Bem-vindo ao shiori. Abra artigos a qualquer momento na barra de pesquisa.',
     fontSize:'Tamanho da fonte', fontSizePercent:'Atualmente {0}%', defaultLang:'Idioma padrão',
     bookmarks:'Favoritos', bookmarksCount:'{0} salvos',
     history:'Histórico', historyCount:'{0} artigos', random:'Abrir artigo aleatório',
@@ -1125,6 +1157,7 @@ const UI_TEXT = {
     infoToggleTitle:'Об этой статье / Закладки', backTitle:'Назад', forwardTitle:'Вперёд',
     randomLabel:'Случайная', tabAbout:'Обзор', settingsTitle:'Параметры',
     settingsDesc:'Настройте параметры приложения. Открывайте статьи в любое время из строки поиска.',
+    welcomeTitle:'Добро пожаловать', welcomeDesc:'Добро пожаловать в shiori. Открывайте статьи в любое время из строки поиска.',
     fontSize:'Размер шрифта', fontSizePercent:'Текущий размер {0}%', defaultLang:'Язык по умолчанию',
     bookmarks:'Закладки', bookmarksCount:'Сохранено {0}',
     history:'История', historyCount:'{0} статей', random:'Открыть случайную статью',
@@ -1161,6 +1194,7 @@ const UI_TEXT = {
     infoToggleTitle:'Informazioni sull\'articolo / Segnalibri', backTitle:'Indietro', forwardTitle:'Avanti',
     randomLabel:'Casuale', tabAbout:'Panoramica', settingsTitle:'Impostazioni',
     settingsDesc:'Regola le impostazioni dell\'app. Apri articoli in qualsiasi momento dalla barra di ricerca.',
+    welcomeTitle:'Benvenuto', welcomeDesc:'Benvenuto su shiori. Apri articoli in qualsiasi momento dalla barra di ricerca.',
     fontSize:'Dimensione carattere', fontSizePercent:'Attualmente {0}%', defaultLang:'Lingua predefinita',
     bookmarks:'Segnalibri', bookmarksCount:'{0} salvati',
     history:'Cronologia', historyCount:'{0} articoli', random:'Apri articolo casuale',
@@ -1197,6 +1231,7 @@ const UI_TEXT = {
     infoToggleTitle:'حول هذه المقالة / الإشارات المرجعية', backTitle:'رجوع', forwardTitle:'تقدم',
     randomLabel:'عشوائي', tabAbout:'نظرة عامة', settingsTitle:'الإعدادات',
     settingsDesc:'اضبط إعدادات التطبيق. افتح المقالات في أي وقت من شريط البحث.',
+    welcomeTitle:'مرحباً', welcomeDesc:'مرحباً بك في شيوري. افتح المقالات في أي وقت من شريط البحث.',
     fontSize:'حجم الخط', fontSizePercent:'حالياً {0}%', defaultLang:'اللغة الافتراضية',
     bookmarks:'الإشارات المرجعية', bookmarksCount:'{0} محفوظ',
     history:'السجل', historyCount:'{0} مقالة', random:'فتح مقالة عشوائية',
@@ -1233,6 +1268,7 @@ const UI_TEXT = {
     infoToggleTitle:'इस लेख के बारे में / बुकमार्क', backTitle:'पीछे', forwardTitle:'आगे',
     randomLabel:'यादृच्छिक', tabAbout:'सारांश', settingsTitle:'सेटिंग्स',
     settingsDesc:'ऐप सेटिंग्स समायोजित करें। खोज बार से किसी भी समय लेख खोलें।',
+    welcomeTitle:'स्वागत है', welcomeDesc:'शियोरी में आपका स्वागत है। खोज बार से किसी भी समय लेख खोलें।',
     fontSize:'फ़ॉन्ट आकार', fontSizePercent:'वर्तमान में {0}%', defaultLang:'डिफ़ॉल्ट भाषा',
     bookmarks:'बुकमार्क', bookmarksCount:'{0} सहेजे गए',
     history:'इतिहास', historyCount:'{0} लेख', random:'यादृच्छिक लेख खोलें',
@@ -1269,6 +1305,7 @@ const UI_TEXT = {
     infoToggleTitle:'Về bài viết này / Dấu trang', backTitle:'Quay lại', forwardTitle:'Tiến tới',
     randomLabel:'Ngẫu nhiên', tabAbout:'Tổng quan', settingsTitle:'Cài đặt',
     settingsDesc:'Điều chỉnh cài đặt ứng dụng. Mở bài viết bất kỳ lúc nào từ thanh tìm kiếm.',
+    welcomeTitle:'Chào mừng', welcomeDesc:'Chào mừng đến với shiori. Mở bài viết bất kỳ lúc nào từ thanh tìm kiếm.',
     fontSize:'Kích thước phông chữ', fontSizePercent:'Hiện tại {0}%', defaultLang:'Ngôn ngữ mặc định',
     bookmarks:'Dấu trang', bookmarksCount:'{0} đã lưu',
     history:'Lịch sử', historyCount:'{0} bài viết', random:'Mở bài viết ngẫu nhiên',
@@ -1305,6 +1342,7 @@ const UI_TEXT = {
     infoToggleTitle:'Tentang artikel ini / Penanda', backTitle:'Kembali', forwardTitle:'Maju',
     randomLabel:'Acak', tabAbout:'Ringkasan', settingsTitle:'Pengaturan',
     settingsDesc:'Sesuaikan pengaturan aplikasi. Buka artikel kapan saja dari bilah pencarian.',
+    welcomeTitle:'Selamat datang', welcomeDesc:'Selamat datang di shiori. Buka artikel kapan saja dari bilah pencarian.',
     fontSize:'Ukuran Font', fontSizePercent:'Saat ini {0}%', defaultLang:'Bahasa Default',
     bookmarks:'Penanda', bookmarksCount:'{0} tersimpan',
     history:'Riwayat', historyCount:'{0} artikel', random:'Buka artikel acak',
@@ -1481,12 +1519,13 @@ function renderHome(){
   state.currentLanglinks = [];
   tocList.innerHTML = '';
   tocPanel.classList.add('collapsed');
+  contentInner.classList.add('is-home');
   contentInner.innerHTML = `
     <div class="home-screen">
       <div class="home-hero">
         <div class="home-mark">栞</div>
-        <h1 class="home-title">${escapeHtml(t('settingsTitle'))}</h1>
-        <p class="home-desc">${escapeHtml(t('settingsDesc'))}</p>
+        <h1 class="home-title">${escapeHtml(t('welcomeTitle'))}</h1>
+        <p class="home-desc">${escapeHtml(t('welcomeDesc'))}</p>
       </div>
       <div class="settings-list">
         <div class="settings-row">
@@ -1513,7 +1552,7 @@ function renderHome(){
   el('settingsFontPlus').addEventListener('click', () => { state.fontScale = Math.min(1.5, +(state.fontScale + 0.1).toFixed(2)); applyFontScale(); renderHome(); });
   renderAboutTab(null);
   renderLangPanel();
-  statusMsg.textContent = '読書の準備ができました';
+  statusMsg.textContent = t('statusReady');
 }
 
 /* ============================================================
@@ -1598,7 +1637,6 @@ function sanitizeSnippet(html){
    ============================================================ */
 async function loadArticle(title, lang, opts){
   opts = opts || {};
-  const pushHistory = opts.pushHistory !== false;
   const seq = ++state.requestSeq;
   searchInput.value = '';
   closeSuggest();
@@ -1621,14 +1659,21 @@ async function loadArticle(title, lang, opts){
     renderArticle(parsed);
     buildTOC(parsed.sections || []);
 
-    if(opts.replaceCurrent && state.historyIndex >= 0){
-      // Shift+D: 新しいタブを開かず、今のタブの中身を差し替える
-      state.history[state.historyIndex] = {title: finalTitle, lang};
-    } else if(pushHistory){
-      // 進む方向の履歴を切り捨てて追加
+    if(opts.jumpOnly){
+      // 既存タブへのジャンプ(戻る/進む・タブクリック) — 履歴配列(タブ一覧)自体は変更しない
+    } else if(opts.pushHistory){
+      // 明示的に新しいタブとして追加する場合のみ
       state.history = state.history.slice(0, state.historyIndex + 1);
       state.history.push({title: finalTitle, lang});
       state.historyIndex = state.history.length - 1;
+    } else {
+      // デフォルト: 新しいタブを開かず、常に今のタブの中身を差し替える
+      if(state.historyIndex < 0 || !state.history.length){
+        state.history.push({title: finalTitle, lang});
+        state.historyIndex = state.history.length - 1;
+      } else {
+        state.history[state.historyIndex] = {title: finalTitle, lang};
+      }
     }
     renderHistoryBar();
     updateNavButtons();
@@ -1643,6 +1688,7 @@ async function loadArticle(title, lang, opts){
 }
 
 function renderLoading(){
+  contentInner.classList.remove('is-home');
   contentInner.innerHTML = `
     <div class="loading-wrap">
       <div class="spinner"></div>
@@ -1650,6 +1696,7 @@ function renderLoading(){
     </div>`;
 }
 function renderError(title){
+  contentInner.classList.remove('is-home');
   contentInner.innerHTML = `
     <div class="error-box">
       <h3>${t('errorNotFoundTitle')}</h3>
@@ -1786,7 +1833,7 @@ function attachContentLinkHandlers(root){
         window.open(`https://${state.lang}.wikipedia.org${href}`, '_blank', 'noopener');
         return;
       }
-      loadArticle(rawTitle, state.lang, {replaceCurrent: isSameTabModifierActive()});
+      loadArticle(rawTitle, state.lang);
       return;
     }
 
@@ -1798,7 +1845,7 @@ function attachContentLinkHandlers(root){
         const t = decodeURIComponent(u.pathname.replace('/wiki/','').replace(/_/g,' '));
         if(!/^(File|ファイル|Category|カテゴリ|Special|特別):/i.test(t)){
           e.preventDefault();
-          loadArticle(t, LANG_ORDER.includes(lg) ? lg : state.lang, {replaceCurrent: isSameTabModifierActive()});
+          loadArticle(t, LANG_ORDER.includes(lg) ? lg : state.lang);
           return;
         }
       }
@@ -1847,12 +1894,12 @@ function renderHistoryBar(){
   }
   historyBar.classList.remove('empty');
   historyBar.innerHTML = state.history.map((h,i) => `
-    <div class="hist-pill ${i === state.historyIndex ? 'current':''}" data-idx="${i}">
-      <span class="n">${i+1}</span><span class="hp-title">${escapeHtml(h.title)}</span>
+    <div class="hist-pill ${i === state.historyIndex ? 'current':''} ${h.home ? 'is-home':''}" data-idx="${i}">
+      <span class="n">${h.home ? '＋' : (i+1)}</span><span class="hp-title">${h.home ? escapeHtml(t('welcomeTitle')) : escapeHtml(h.title)}</span>
       <button class="hist-close" data-remove-idx="${i}" title="${escapeAttr(t('tabCloseTitle'))}">✕</button>
     </div>`).join('');
   historyBar.querySelectorAll('.hist-pill').forEach(p => {
-    p.querySelector('.hp-title, .n').addEventListener('click', () => jumpToHistory(parseInt(p.dataset.idx,10)));
+    p.addEventListener('click', () => jumpToHistory(parseInt(p.dataset.idx,10)));
     p.querySelector('.hist-close').addEventListener('click', (e) => {
       e.stopPropagation();
       removeHistoryTab(parseInt(e.target.dataset.removeIdx,10));
@@ -1865,7 +1912,13 @@ function jumpToHistory(idx){
   if(idx < 0 || idx >= state.history.length || idx === state.historyIndex) return;
   state.historyIndex = idx;
   const h = state.history[idx];
-  loadArticle(h.title, h.lang, {pushHistory:false});
+  if(h.home){
+    renderHome();
+    renderHistoryBar();
+    updateNavButtons();
+  } else {
+    loadArticle(h.title, h.lang, {jumpOnly:true});
+  }
 }
 function removeHistoryTab(idx){
   if(idx < 0 || idx >= state.history.length) return;
@@ -1875,8 +1928,16 @@ function removeHistoryTab(idx){
     renderHome();
   } else {
     const h = state.history[state.historyIndex];
-    loadArticle(h.title, h.lang, {pushHistory:false});
+    if(h.home){ renderHome(); } else { loadArticle(h.title, h.lang, {jumpOnly:true}); }
   }
+  renderHistoryBar();
+  updateNavButtons();
+}
+function openNewTab(){
+  state.history = state.history.slice(0, state.historyIndex + 1);
+  state.history.push({home:true});
+  state.historyIndex = state.history.length - 1;
+  renderHome();
   renderHistoryBar();
   updateNavButtons();
 }
@@ -2133,16 +2194,10 @@ el('brandHome').addEventListener('click', renderHome);
 /* ============================================================
    キーボードショートカット
    ============================================================ */
-let shiftHeld = false;
-let dHeld = false;
-function isSameTabModifierActive(){ return shiftHeld && dHeld; }
 function isTypingTarget(target){
   return target === searchInput || (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable));
 }
 document.addEventListener('keydown', (e) => {
-  if(e.key === 'Shift') shiftHeld = true;
-  if(e.code === 'KeyD') dHeld = true;
-
   if(e.key === '/' && document.activeElement !== searchInput){
     e.preventDefault();
     searchInput.focus();
@@ -2155,12 +2210,13 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault();
     if(state.historyIndex >= 0) removeHistoryTab(state.historyIndex);
   }
+
+  // Shift+N: 新しいタブ(ようこそ画面)を開く
+  if(e.shiftKey && e.code === 'KeyN' && !isTypingTarget(e.target)){
+    e.preventDefault();
+    openNewTab();
+  }
 });
-document.addEventListener('keyup', (e) => {
-  if(e.key === 'Shift') shiftHeld = false;
-  if(e.code === 'KeyD') dHeld = false;
-});
-window.addEventListener('blur', () => { shiftHeld = false; dHeld = false; });
 
 /* ============================================================
    ユーティリティ
