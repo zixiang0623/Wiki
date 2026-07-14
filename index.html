@@ -377,11 +377,16 @@ body{
   flex:1;overflow-y:auto;overflow-x:hidden;min-width:0;
   scroll-behavior:smooth;
 }
+.content-panel.home-mode{display:flex;}
 .content-inner{
   max-width:760px;margin:0 auto;
   padding:var(--sp-7) var(--sp-6) 120px;
 }
-.content-inner.is-home{padding-bottom:var(--sp-7);}
+.content-inner.is-home{
+  padding:var(--sp-6);
+  margin:auto;
+  width:100%;
+}
 
 .info-panel{
   width:300px;flex-shrink:0;
@@ -625,8 +630,13 @@ body{
 .wiki-content .infobox img{width:auto;max-width:100%;height:auto;display:block;margin:0 auto;}
 .wiki-content .infobox th,.wiki-content .infobox td{
   word-break:break-word;overflow-wrap:anywhere;white-space:normal!important;
+  border-color:var(--border)!important;
 }
 .wiki-content .infobox th{text-align:left;font-family:var(--font-ui);font-weight:700;color:var(--text-dim)!important;}
+.wiki-content .infobox-title-row{
+  text-align:center!important;font-family:var(--font-display);font-weight:700;
+  font-size:1.05em;color:var(--text)!important;padding:10px!important;
+}
 
 .table-scroll{overflow-x:auto;margin-bottom:1.3em;border-radius:var(--radius-sm);}
 .table-scroll table{width:max-content;min-width:100%;margin:0;}
@@ -706,7 +716,7 @@ figure{margin:0;}
   .toc-panel.collapsed,.info-panel.collapsed{width:78vw!important;overflow:visible;}
   .info-panel.collapsed{width:82vw!important;}
   .content-inner{padding:var(--sp-5) var(--sp-4) calc(100px + env(safe-area-inset-bottom));}
-  .content-inner.is-home{padding-bottom:calc(var(--sp-5) + env(safe-area-inset-bottom));}
+  .content-inner.is-home{padding:var(--sp-4) var(--sp-4) calc(var(--sp-4) + env(safe-area-inset-bottom));margin:auto;}
   .article-title{font-size:calc(26px * var(--font-scale));}
   .wiki-content .thumb,.wiki-content .infobox-wrap{float:none!important;width:100%!important;max-width:100%!important;margin:0 0 var(--sp-4)!important;}
   .home-title{font-size:26px;}
@@ -1401,6 +1411,7 @@ const state = {
 const el = (id) => document.getElementById(id);
 const app = el('app');
 const contentInner = el('contentInner');
+const contentPanel = el('contentPanel');
 const tocPanel = el('tocPanel');
 const tocList = el('tocList');
 const infoPanel = el('infoPanel');
@@ -1520,6 +1531,7 @@ function renderHome(){
   tocList.innerHTML = '';
   tocPanel.classList.add('collapsed');
   contentInner.classList.add('is-home');
+  contentPanel.classList.add('home-mode');
   contentInner.innerHTML = `
     <div class="home-screen">
       <div class="home-hero">
@@ -1679,7 +1691,7 @@ async function loadArticle(title, lang, opts){
     updateNavButtons();
     renderLangPanel();
     contentInner.scrollTop = 0;
-    el('contentPanel').scrollTop = 0;
+    contentPanel.scrollTop = 0;
     statusMsg.textContent = t('statusViewing', finalTitle, LANGS_FULL[lang]);
   }catch(err){
     if(seq !== state.requestSeq) return;
@@ -1689,6 +1701,7 @@ async function loadArticle(title, lang, opts){
 
 function renderLoading(){
   contentInner.classList.remove('is-home');
+  contentPanel.classList.remove('home-mode');
   contentInner.innerHTML = `
     <div class="loading-wrap">
       <div class="spinner"></div>
@@ -1771,6 +1784,19 @@ function postProcessContent(root){
     wrap.className = 'infobox-wrap' + (isNested ? ' nested' : '');
     tbl.parentNode.insertBefore(wrap, tbl);
     wrap.appendChild(tbl);
+
+    // Wikipedia側のインラインstyle(点線ボーダー・独自背景色・独自フォントサイズ等)が
+    // テーマの見た目と衝突して表示が崩れる原因になるため、caption以外は除去して統一する
+    tbl.querySelectorAll('*').forEach(node => {
+      if(node.tagName === 'CAPTION') return;
+      if(node.hasAttribute('style')) node.removeAttribute('style');
+      if(node.hasAttribute('bgcolor')) node.removeAttribute('bgcolor');
+    });
+  });
+
+  // タイトル行のように横幅いっぱいに結合されたセル(colspan)は見出しとして中央寄せ表示
+  root.querySelectorAll('.infobox-wrap td[colspan], .infobox-wrap th[colspan]').forEach(cell => {
+    cell.classList.add('infobox-title-row');
   });
 
   // 大きな一般テーブル (wikitable等) は横スクロールできるようラップ
@@ -1865,6 +1891,7 @@ function attachContentLinkHandlers(root){
 function buildTOC(sections){
   if(!sections.length){
     tocList.innerHTML = `<li class="toc-empty">${t('tocEmpty')}</li>`;
+    scrollSpyHeadings = [];
     return;
   }
   tocList.innerHTML = sections.map(s => {
@@ -1881,7 +1908,41 @@ function buildTOC(sections){
       if(window.innerWidth <= 900) closeMobileDrawers();
     });
   });
+  setupScrollSpy(sections);
 }
+
+/* ---- 目次スクロールスパイ: 読んでいる章をリアルタイムでハイライト ---- */
+let scrollSpyHeadings = [];
+let scrollSpyTicking = false;
+function setupScrollSpy(sections){
+  scrollSpyHeadings = sections
+    .map(s => ({ anchor: s.anchor, el: document.getElementById(s.anchor) }))
+    .filter(h => h.el);
+  updateActiveToc();
+}
+function updateActiveToc(){
+  if(!scrollSpyHeadings.length) return;
+  const threshold = contentPanel.getBoundingClientRect().top + 88;
+  let currentAnchor = null;
+  for(const h of scrollSpyHeadings){
+    if(h.el.getBoundingClientRect().top <= threshold){
+      currentAnchor = h.anchor;
+    } else {
+      break;
+    }
+  }
+  const links = tocList.querySelectorAll('a');
+  links.forEach(a => a.classList.toggle('active', a.dataset.anchor === currentAnchor));
+  if(currentAnchor && !tocPanel.classList.contains('collapsed')){
+    const activeLink = tocList.querySelector('a.active');
+    if(activeLink) activeLink.scrollIntoView({block:'nearest'});
+  }
+}
+contentPanel.addEventListener('scroll', () => {
+  if(scrollSpyTicking) return;
+  scrollSpyTicking = true;
+  requestAnimationFrame(() => { updateActiveToc(); scrollSpyTicking = false; });
+});
 
 /* ============================================================
    履歴バー
