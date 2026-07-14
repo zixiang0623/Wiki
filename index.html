@@ -543,6 +543,35 @@ body{
 .mini-btn.saved{color:var(--on-accent);background:var(--accent-2);border-color:transparent;}
 .mini-btn svg{width:13px;height:13px;}
 
+.article-stats{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.stat-chip{
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--font-ui);font-size:11.5px;font-weight:600;
+  padding:6px 12px;border-radius:999px;
+  background:var(--surface-2);border:var(--card-border-w) solid var(--border);
+  color:var(--text-dim);box-shadow:var(--shadow-card);
+}
+.stat-chip svg{width:13px;height:13px;flex-shrink:0;color:var(--accent);}
+.stat-chip .stat-val{white-space:nowrap;}
+
+/* ---- リンクホバープレビュー（デスクトップのみ） ---- */
+.link-preview-card{
+  position:fixed;z-index:200;width:280px;
+  background:var(--surface);border:var(--card-border-w) solid var(--border);
+  border-radius:var(--radius-md);box-shadow:var(--shadow-raised);
+  backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));
+  padding:0;overflow:hidden;
+  opacity:0;transform:translateY(4px);pointer-events:none;
+  transition:opacity .15s ease, transform .15s ease;
+}
+.link-preview-card.visible{opacity:1;transform:translateY(0);}
+.lp-thumb{width:100%;height:120px;object-fit:cover;display:block;background:var(--surface-2);}
+.lp-body{padding:12px 14px;}
+.lp-title{font-family:var(--font-display);font-weight:700;font-size:14px;margin:0 0 6px;color:var(--text);}
+.lp-extract{font-family:var(--font-ui);font-size:12px;line-height:1.6;color:var(--text-dim);
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;margin:0;}
+.lp-loading{padding:16px;text-align:center;font-family:var(--font-ui);font-size:11.5px;color:var(--text-faint);}
+
 .wiki-content{
   font-family:var(--font-body);
   font-size:calc(16px * var(--font-scale));
@@ -807,6 +836,7 @@ figure{margin:0;}
   <!-- ============ メイン ============ -->
   <div class="layout">
     <div class="drawer-scrim" id="drawerScrim"></div>
+    <div class="link-preview-card" id="linkPreviewCard"></div>
 
     <aside class="panel toc-panel collapsed" id="tocPanel">
       <div class="toc-heading" id="tocHeadingLabel">目次</div>
@@ -899,7 +929,9 @@ const UI_TEXT = {
     langOtherVersionsHeading:'この記事の他言語版 ({0})',
     langOtherVersionsEmpty:'この記事には他言語版が見つかりませんでした。',
     langNoTranslation:'「{0}」の{1}版は見つかりませんでした。検索してお探しください。',
-    langSwitchedDefault:'既定の表示言語を{0}に切り替えました'
+    langSwitchedDefault:'既定の表示言語を{0}に切り替えました',
+    readMinutes:'読了目安 約{0}分',
+    viewsCount:'月間 約{0}回閲覧'
   },
   en: {
     brandSub:'Wikipedia Reader', tocHeading:'Contents', homeTooltip:'Go home',
@@ -936,7 +968,9 @@ const UI_TEXT = {
     langOtherVersionsHeading:'Other editions of this article ({0})',
     langOtherVersionsEmpty:'No other language editions were found for this article.',
     langNoTranslation:'No {1} edition of "{0}" was found. Try searching instead.',
-    langSwitchedDefault:'Default language switched to {0}'
+    langSwitchedDefault:'Default language switched to {0}',
+    readMinutes:'About {0} min read',
+    viewsCount:'~{0} views/month'
   },
   zh: {
     brandSub:'维基百科阅读器', tocHeading:'目录', homeTooltip:'返回首页',
@@ -973,7 +1007,9 @@ const UI_TEXT = {
     langOtherVersionsHeading:'本条目的其他语言版本 ({0})',
     langOtherVersionsEmpty:'未找到本条目的其他语言版本。',
     langNoTranslation:'未找到「{0}」的{1}版，请尝试搜索。',
-    langSwitchedDefault:'默认语言已切换为{0}'
+    langSwitchedDefault:'默认语言已切换为{0}',
+    readMinutes:'约{0}分钟读完',
+    viewsCount:'月浏览量 约{0}次'
   },
   ko: {
     brandSub:'위키백과 리더', tocHeading:'목차', homeTooltip:'홈으로',
@@ -1010,7 +1046,9 @@ const UI_TEXT = {
     langOtherVersionsHeading:'이 문서의 다른 언어판 ({0})',
     langOtherVersionsEmpty:'이 문서의 다른 언어판을 찾을 수 없습니다.',
     langNoTranslation:'"{0}"의 {1}판을 찾을 수 없습니다. 검색해 보세요.',
-    langSwitchedDefault:'기본 언어가 {0}(으)로 전환되었습니다'
+    langSwitchedDefault:'기본 언어가 {0}(으)로 전환되었습니다',
+    readMinutes:'약 {0}분 소요',
+    viewsCount:'월간 약 {0}회 조회'
   },
   fr: {
     brandSub:'Lecteur Wikipédia', tocHeading:'Sommaire', homeTooltip:'Accueil',
@@ -1047,7 +1085,9 @@ const UI_TEXT = {
     langOtherVersionsHeading:'Autres éditions de cet article ({0})',
     langOtherVersionsEmpty:'Aucune autre édition linguistique n\'a été trouvée pour cet article.',
     langNoTranslation:'Aucune édition {1} de « {0} » n\'a été trouvée. Essayez une recherche.',
-    langSwitchedDefault:'Langue par défaut changée pour {0}'
+    langSwitchedDefault:'Langue par défaut changée pour {0}',
+    readMinutes:'Environ {0} min de lecture',
+    viewsCount:'~{0} vues/mois'
   },
   de: {
     brandSub:'Wikipedia-Reader', tocHeading:'Inhaltsverzeichnis', homeTooltip:'Zur Startseite',
@@ -1084,7 +1124,9 @@ const UI_TEXT = {
     langOtherVersionsHeading:'Andere Sprachausgaben dieses Artikels ({0})',
     langOtherVersionsEmpty:'Für diesen Artikel wurden keine anderen Sprachausgaben gefunden.',
     langNoTranslation:'Keine {1}-Ausgabe von „{0}“ gefunden. Versuchen Sie eine Suche.',
-    langSwitchedDefault:'Standardsprache auf {0} umgestellt'
+    langSwitchedDefault:'Standardsprache auf {0} umgestellt',
+    readMinutes:'Ca. {0} Min. Lesezeit',
+    viewsCount:'~{0} Aufrufe/Monat'
   },
   es: {
     brandSub:'Lector de Wikipedia', tocHeading:'Índice', homeTooltip:'Ir al inicio',
@@ -1121,7 +1163,9 @@ const UI_TEXT = {
     langOtherVersionsHeading:'Otras ediciones de este artículo ({0})',
     langOtherVersionsEmpty:'No se encontraron otras ediciones de este artículo.',
     langNoTranslation:'No se encontró una edición en {1} de «{0}». Intente buscarlo.',
-    langSwitchedDefault:'Idioma predeterminado cambiado a {0}'
+    langSwitchedDefault:'Idioma predeterminado cambiado a {0}',
+    readMinutes:'Unos {0} min de lectura',
+    viewsCount:'~{0} vistas/mes'
   },
   pt: {
     brandSub:'Leitor da Wikipédia', tocHeading:'Índice', homeTooltip:'Ir para o início',
@@ -1158,7 +1202,9 @@ const UI_TEXT = {
     langOtherVersionsHeading:'Outras edições deste artigo ({0})',
     langOtherVersionsEmpty:'Nenhuma outra edição deste artigo foi encontrada.',
     langNoTranslation:'Nenhuma edição em {1} de "{0}" foi encontrada. Tente pesquisar.',
-    langSwitchedDefault:'Idioma padrão alterado para {0}'
+    langSwitchedDefault:'Idioma padrão alterado para {0}',
+    readMinutes:'Cerca de {0} min de leitura',
+    viewsCount:'~{0} visualizações/mês'
   },
   ru: {
     brandSub:'Читалка Википедии', tocHeading:'Содержание', homeTooltip:'На главную',
@@ -1195,7 +1241,9 @@ const UI_TEXT = {
     langOtherVersionsHeading:'Другие версии этой статьи ({0})',
     langOtherVersionsEmpty:'Другие языковые версии этой статьи не найдены.',
     langNoTranslation:'Версия «{0}» на {1} не найдена. Попробуйте выполнить поиск.',
-    langSwitchedDefault:'Язык по умолчанию изменён на {0}'
+    langSwitchedDefault:'Язык по умолчанию изменён на {0}',
+    readMinutes:'Примерно {0} мин чтения',
+    viewsCount:'~{0} просмотров/мес'
   },
   it: {
     brandSub:'Lettore di Wikipedia', tocHeading:'Indice', homeTooltip:'Vai alla home',
@@ -1232,7 +1280,9 @@ const UI_TEXT = {
     langOtherVersionsHeading:'Altre edizioni di questo articolo ({0})',
     langOtherVersionsEmpty:'Non sono state trovate altre edizioni linguistiche per questo articolo.',
     langNoTranslation:'Nessuna edizione in {1} di "{0}" trovata. Prova a cercarla.',
-    langSwitchedDefault:'Lingua predefinita cambiata in {0}'
+    langSwitchedDefault:'Lingua predefinita cambiata in {0}',
+    readMinutes:'Circa {0} min di lettura',
+    viewsCount:'~{0} visualizzazioni/mese'
   },
   ar: {
     brandSub:'قارئ ويكيبيديا', tocHeading:'المحتويات', homeTooltip:'الصفحة الرئيسية',
@@ -1269,7 +1319,9 @@ const UI_TEXT = {
     langOtherVersionsHeading:'نسخ لغوية أخرى لهذه المقالة ({0})',
     langOtherVersionsEmpty:'لم يتم العثور على نسخ لغوية أخرى لهذه المقالة.',
     langNoTranslation:'لم يتم العثور على نسخة {1} من "{0}". حاول البحث بدلاً من ذلك.',
-    langSwitchedDefault:'تم تغيير اللغة الافتراضية إلى {0}'
+    langSwitchedDefault:'تم تغيير اللغة الافتراضية إلى {0}',
+    readMinutes:'حوالي {0} دقيقة للقراءة',
+    viewsCount:'~{0} مشاهدة/شهر'
   },
   hi: {
     brandSub:'विकिपीडिया रीडर', tocHeading:'अनुक्रमणिका', homeTooltip:'होम पर जाएं',
@@ -1306,7 +1358,9 @@ const UI_TEXT = {
     langOtherVersionsHeading:'इस लेख के अन्य भाषा संस्करण ({0})',
     langOtherVersionsEmpty:'इस लेख के लिए कोई अन्य भाषा संस्करण नहीं मिला।',
     langNoTranslation:'"{0}" का {1} संस्करण नहीं मिला। खोज कर देखें।',
-    langSwitchedDefault:'डिफ़ॉल्ट भाषा {0} में बदल दी गई'
+    langSwitchedDefault:'डिफ़ॉल्ट भाषा {0} में बदल दी गई',
+    readMinutes:'लगभग {0} मिनट का पठन',
+    viewsCount:'~{0} दृश्य/माह'
   },
   vi: {
     brandSub:'Trình đọc Wikipedia', tocHeading:'Mục lục', homeTooltip:'Về trang chủ',
@@ -1343,7 +1397,9 @@ const UI_TEXT = {
     langOtherVersionsHeading:'Phiên bản ngôn ngữ khác của bài viết này ({0})',
     langOtherVersionsEmpty:'Không tìm thấy phiên bản ngôn ngữ khác cho bài viết này.',
     langNoTranslation:'Không tìm thấy phiên bản {1} của "{0}". Hãy thử tìm kiếm.',
-    langSwitchedDefault:'Đã chuyển ngôn ngữ mặc định sang {0}'
+    langSwitchedDefault:'Đã chuyển ngôn ngữ mặc định sang {0}',
+    readMinutes:'Khoảng {0} phút đọc',
+    viewsCount:'~{0} lượt xem/tháng'
   },
   id: {
     brandSub:'Pembaca Wikipedia', tocHeading:'Daftar Isi', homeTooltip:'Ke beranda',
@@ -1380,7 +1436,9 @@ const UI_TEXT = {
     langOtherVersionsHeading:'Edisi bahasa lain dari artikel ini ({0})',
     langOtherVersionsEmpty:'Tidak ditemukan edisi bahasa lain untuk artikel ini.',
     langNoTranslation:'Edisi {1} dari "{0}" tidak ditemukan. Coba cari secara manual.',
-    langSwitchedDefault:'Bahasa default diganti ke {0}'
+    langSwitchedDefault:'Bahasa default diganti ke {0}',
+    readMinutes:'Sekitar {0} menit membaca',
+    viewsCount:'~{0} tampilan/bulan'
   }
 };
 
@@ -1745,6 +1803,16 @@ function renderArticle(parsed){
           ${isBookmarked ? t('bookmarkSaved') : t('bookmarkAdd')}
         </button>
       </div>
+      <div class="article-stats" id="articleStats">
+        <span class="stat-chip" id="statReadTime">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+          <span class="stat-val">…</span>
+        </span>
+        <span class="stat-chip" id="statViews">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span class="stat-val">…</span>
+        </span>
+      </div>
     </div>
     <div class="wiki-content" id="wikiContent">${parsed.text}</div>
   `;
@@ -1752,13 +1820,68 @@ function renderArticle(parsed){
   const contentEl = el('wikiContent');
   postProcessContent(contentEl);
   attachContentLinkHandlers(contentEl);
+  attachLinkPreview(contentEl);
 
   el('bookmarkBtn').addEventListener('click', () => toggleBookmark(title));
+
+  // 読了目安時間（本文の文字数/単語数から概算、フェッチ不要で即時表示）
+  const readMinutes = estimateReadingMinutes(contentEl.textContent, state.lang);
+  el('statReadTime').querySelector('.stat-val').textContent = t('readMinutes', readMinutes);
+
+  // 閲覧数（直近30日、Wikimedia Pageviews APIから非同期取得）
+  loadPageviews(title, state.lang);
 
   // 概要スニペット (infoパネル用) を先頭段落から抽出
   const firstP = contentEl.querySelector('p');
   state.currentExtractSnippet = firstP ? firstP.textContent.trim().slice(0, 260) : '';
   renderAboutTab(title);
+}
+
+/* ---- 読了時間の概算 ---- */
+function estimateReadingMinutes(text, lang){
+  const clean = text.replace(/\s+/g, ' ').trim();
+  let minutes;
+  if(['ja','zh'].includes(lang)){
+    // 日中は分かち書きがないため文字数ベース（目安: 500文字/分）
+    const chars = clean.replace(/\s/g, '').length;
+    minutes = chars / 500;
+  } else {
+    // それ以外は単語数ベース（目安: 220語/分）
+    const words = clean.split(' ').filter(Boolean).length;
+    minutes = words / 220;
+  }
+  return Math.max(1, Math.round(minutes));
+}
+
+/* ---- 閲覧数（直近30日）の取得 ---- */
+async function loadPageviews(title, lang){
+  const chipEl = el('statViews');
+  if(!chipEl) return;
+  const valEl = chipEl.querySelector('.stat-val');
+  try{
+    const end = new Date();
+    const start = new Date(end.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const fmt = d => `${d.getUTCFullYear()}${String(d.getUTCMonth()+1).padStart(2,'0')}${String(d.getUTCDate()).padStart(2,'0')}`;
+    const article = encodeURIComponent(title.replace(/ /g, '_'));
+    const url = `https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/${lang}.wikipedia/all-access/user/${article}/daily/${fmt(start)}/${fmt(end)}`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('pageviews unavailable');
+    const data = await res.json();
+    if(!chipEl.isConnected) return; // 別記事へ既に遷移していたら破棄
+    const total = (data.items || []).reduce((sum, i) => sum + i.views, 0);
+    valEl.textContent = t('viewsCount', formatCompactNumber(total, lang));
+  }catch(_e){
+    if(chipEl.isConnected) chipEl.style.display = 'none';
+  }
+}
+function formatCompactNumber(n, lang){
+  if(lang === 'ja' || lang === 'zh'){
+    if(n >= 10000) return (n/10000).toFixed(1).replace(/\.0$/,'') + '万';
+    return n.toLocaleString();
+  }
+  if(n >= 1000000) return (n/1000000).toFixed(1).replace(/\.0$/,'') + 'M';
+  if(n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/,'') + 'K';
+  return n.toLocaleString();
 }
 
 /* ---- Wikipedia HTML の後処理: 崩れ対策 ---- */
@@ -1885,6 +2008,88 @@ function attachContentLinkHandlers(root){
   });
 }
 
+/* ---- リンクホバープレビュー（PC向け・カーソルを合わせると本文の冒頭を表示） ---- */
+const supportsHoverPreview = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+const previewCache = new Map();
+let previewTimer = null;
+let previewRequestSeq = 0;
+const NON_ARTICLE_NS = /^(File|ファイル|Category|カテゴリ|Special|特別|Help|ヘルプ|Wikipedia|Portal|ポータル|Template|テンプレート):/i;
+
+function attachLinkPreview(root){
+  if(!supportsHoverPreview) return;
+  root.addEventListener('mouseover', (e) => {
+    const a = e.target.closest('a');
+    if(!a || !root.contains(a)) return;
+    if(a.dataset.lpBound) return;
+    const href = a.getAttribute('href') || '';
+    const m = href.match(/^\/wiki\/([^#?]+)/);
+    if(!m) return;
+    const rawTitle = decodeURIComponent(m[1].replace(/_/g, ' '));
+    if(NON_ARTICLE_NS.test(rawTitle)) return;
+    clearTimeout(previewTimer);
+    previewTimer = setTimeout(() => showLinkPreview(a, rawTitle, state.lang), 380);
+  });
+  root.addEventListener('mouseout', (e) => {
+    const a = e.target.closest('a');
+    if(!a) return;
+    if(a.contains(e.relatedTarget)) return;
+    clearTimeout(previewTimer);
+    hideLinkPreview();
+  });
+}
+async function showLinkPreview(anchorEl, title, lang){
+  const seq = ++previewRequestSeq;
+  const card = el('linkPreviewCard');
+  positionPreviewCard(anchorEl);
+  const cacheKey = lang + ':' + title;
+  let data = previewCache.get(cacheKey);
+  if(!data){
+    card.innerHTML = `<div class="lp-loading">…</div>`;
+    card.classList.add('visible');
+    try{
+      const res = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/ /g,'_'))}`);
+      if(!res.ok) throw new Error('summary unavailable');
+      data = await res.json();
+      previewCache.set(cacheKey, data);
+    }catch(_e){
+      if(seq === previewRequestSeq) hideLinkPreview();
+      return;
+    }
+  }
+  if(seq !== previewRequestSeq) return; // 別のリンクに移っていたら破棄
+  renderPreviewCard(data);
+  positionPreviewCard(anchorEl); // 画像込みの高さで位置を再調整
+}
+function renderPreviewCard(data){
+  const card = el('linkPreviewCard');
+  const thumb = data.thumbnail && data.thumbnail.source
+    ? `<img class="lp-thumb" src="${escapeAttr(data.thumbnail.source)}" loading="lazy" alt="">` : '';
+  const extract = data.extract ? escapeHtml(data.extract).slice(0, 220) : '';
+  card.innerHTML = `${thumb}<div class="lp-body"><div class="lp-title">${escapeHtml(data.title || '')}</div><p class="lp-extract">${extract}</p></div>`;
+  card.classList.add('visible');
+}
+function positionPreviewCard(anchorEl){
+  const card = el('linkPreviewCard');
+  const rect = anchorEl.getBoundingClientRect();
+  const cardWidth = 280;
+  let left = rect.left;
+  if(left + cardWidth > window.innerWidth - 16) left = window.innerWidth - cardWidth - 16;
+  if(left < 16) left = 16;
+  let top = rect.bottom + 10;
+  const estimatedHeight = card.offsetHeight || 160;
+  if(top + estimatedHeight > window.innerHeight - 16){
+    top = rect.top - estimatedHeight - 10;
+    if(top < 16) top = 16;
+  }
+  card.style.left = left + 'px';
+  card.style.top = top + 'px';
+}
+function hideLinkPreview(){
+  previewRequestSeq++;
+  const card = el('linkPreviewCard');
+  if(card) card.classList.remove('visible');
+}
+
 /* ============================================================
    目次 (TOC)
    ============================================================ */
@@ -1943,6 +2148,9 @@ contentPanel.addEventListener('scroll', () => {
   scrollSpyTicking = true;
   requestAnimationFrame(() => { updateActiveToc(); scrollSpyTicking = false; });
 });
+if(supportsHoverPreview){
+  contentPanel.addEventListener('scroll', hideLinkPreview, {passive:true});
+}
 
 /* ============================================================
    履歴バー
