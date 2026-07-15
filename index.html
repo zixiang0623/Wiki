@@ -476,6 +476,57 @@ body{
 .chip .em{margin-right:6px;}
 
 .home-random{display:flex;justify-content:center;margin-top:var(--sp-6);}
+.featured-card{
+  max-width:480px;margin:0 auto var(--sp-6);
+  background:var(--surface-2);border:var(--card-border-w) solid var(--border);
+  border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-card);
+  cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;
+}
+.featured-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-raised);}
+.featured-thumb{width:100%;height:160px;object-fit:cover;display:block;background:var(--surface-3);}
+.featured-body{padding:16px 18px;}
+.featured-label{
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--font-ui);font-size:11px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:8px;
+}
+.featured-title{font-family:var(--font-display);font-weight:700;font-size:18px;margin:0 0 8px;color:var(--text);line-height:1.4;}
+.featured-extract{
+  font-family:var(--font-ui);font-size:12.5px;line-height:1.7;color:var(--text-dim);margin:0;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.featured-skeleton{padding:36px 20px;text-align:center;font-family:var(--font-ui);font-size:12px;color:var(--text-faint);}
+
+.trending-section{max-width:480px;margin:0 auto var(--sp-6);}
+.trending-heading{
+  font-family:var(--font-ui);font-size:11px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--text-faint);margin:0 0 10px 4px;
+  display:flex;align-items:center;gap:6px;
+}
+.trending-row{
+  display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;
+  scrollbar-width:thin;
+}
+.trending-row::-webkit-scrollbar{height:5px;}
+.trending-row::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px;}
+.trending-card{
+  flex:0 0 140px;cursor:pointer;
+  background:var(--surface-2);border:var(--card-border-w) solid var(--border);
+  border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-card);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.trending-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-raised);}
+.trending-thumb{width:100%;height:80px;object-fit:cover;display:block;background:var(--surface-3);}
+.trending-thumb-empty{width:100%;height:80px;background:var(--surface-3);}
+.trending-body{padding:9px 10px;}
+.trending-title{
+  font-family:var(--font-ui);font-size:11.5px;font-weight:700;color:var(--text);
+  line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.trending-skeleton{
+  flex:0 0 140px;height:135px;border-radius:var(--radius-md);
+  background:var(--surface-2);border:var(--card-border-w) solid var(--border);
+}
 .settings-list{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:10px;}
 .settings-row{
   display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);
@@ -531,7 +582,7 @@ body{
 .article-sub{font-family:var(--font-ui);font-size:12.5px;color:var(--text-faint);}
 .article-sub a{color:var(--accent);}
 .article-sub a:hover{text-decoration:underline;}
-.article-actions{display:flex;gap:8px;margin-top:var(--sp-4);}
+.article-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:var(--sp-4);}
 .mini-btn{
   display:flex;align-items:center;gap:6px;
   font-family:var(--font-ui);font-size:12px;font-weight:600;
@@ -553,6 +604,16 @@ body{
 }
 .stat-chip svg{width:13px;height:13px;flex-shrink:0;color:var(--accent);}
 .stat-chip .stat-val{white-space:nowrap;}
+
+.wiki-content .tts-active{
+  background:var(--accent-soft);
+  border-radius:var(--radius-sm);
+  box-shadow:-4px 0 0 var(--accent);
+  padding-left:10px;margin-left:-10px;
+  transition:background .2s ease;
+}
+#ttsBtn.saved svg{animation:tts-pulse 1s ease-in-out infinite;}
+@keyframes tts-pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
 
 /* ---- リンクホバープレビュー（デスクトップのみ） ---- */
 .link-preview-card{
@@ -580,6 +641,7 @@ body{
   word-break:break-word;
 }
 .wiki-content > p{margin:0 0 1.3em;}
+.wiki-content img{max-width:100%;height:auto;}
 .wiki-content b,.wiki-content strong{font-weight:700;}
 .wiki-content h2{
   font-family:var(--font-display);font-weight:700;
@@ -606,7 +668,7 @@ body{
 .wiki-content ul,.wiki-content ol{margin:0 0 1.3em;padding-left:1.5em;}
 .wiki-content li{margin-bottom:.4em;}
 .wiki-content .mw-editsection{display:none !important;}
-.wiki-content sup.reference{font-size:.72em;}
+.wiki-content sup.reference{font-size:.72em;scroll-margin-top:90px;}
 .wiki-content sup.reference a{
   background:var(--surface-2);border-bottom:none;
   padding:1px 4px;border-radius:4px;font-weight:700;color:var(--accent);
@@ -707,9 +769,75 @@ figure{margin:0;}
 .wiki-content details.navbox-wrap .navbox{font-size:11px;padding:0 14px 12px;}
 
 .wiki-content .reflist{font-size:.82em;color:var(--text-dim);}
+.wiki-content .reflist li,.wiki-content ol.references > li{scroll-margin-top:90px;}
+
+/* アンカージャンプ先の一時的なハイライト */
+@keyframes anchorFlash{
+  0%{background-color:var(--accent-soft);box-shadow:0 0 0 4px var(--accent-soft);}
+  75%{background-color:var(--accent-soft);box-shadow:0 0 0 4px var(--accent-soft);}
+  100%{background-color:transparent;box-shadow:0 0 0 0 transparent;}
+}
+.anchor-flash{
+  animation:anchorFlash 1.8s ease-out;
+  border-radius:4px;
+}
 .wiki-content .catlinks{display:none;}
 .wiki-content .noprint,.wiki-content .mw-empty-elt{display:none;}
 .wiki-content p:empty{display:none;}
+
+/* ---- フォーカスモード：本文以外の視覚要素を隠して集中して読む ---- */
+.wiki-content.focus-mode .infobox-wrap,
+.wiki-content.focus-mode .thumb,
+.wiki-content.focus-mode details.navbox-wrap,
+.wiki-content.focus-mode .table-scroll,
+.wiki-content.focus-mode > table,
+.wiki-content.focus-mode .hatnote,
+.wiki-content.focus-mode .ambox{
+  display:none !important;
+}
+.wiki-content.focus-mode{
+  max-width:620px;margin:0 auto;
+}
+
+/* ---- 関連記事 ---- */
+.related-articles{margin-top:var(--sp-7);padding-top:var(--sp-5);border-top:var(--card-border-w) solid var(--border);}
+.related-heading{
+  font-family:var(--font-display);font-weight:700;font-size:16px;margin:0 0 var(--sp-4);color:var(--text);
+}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+.related-card{
+  display:flex;flex-direction:column;text-align:left;
+  background:var(--surface-2);border:var(--card-border-w) solid var(--border);
+  border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-card);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.related-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-raised);}
+.related-thumb{width:100%;height:88px;object-fit:cover;display:block;background:var(--surface-3);}
+.related-thumb-empty{background:linear-gradient(135deg,var(--surface-3),var(--surface-2));}
+.related-body{padding:10px 12px;}
+.related-title{font-family:var(--font-ui);font-weight:700;font-size:12.5px;color:var(--text);margin-bottom:4px;
+  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.related-extract{font-family:var(--font-ui);font-size:11px;color:var(--text-faint);line-height:1.5;
+  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+
+/* ---- 比較読みビュー（2言語並読） ---- */
+.content-panel.compare-mode{display:flex;overflow:hidden;}
+.content-panel.compare-mode > .content-inner{
+  flex:1 1 50%;max-width:50%;height:100%;overflow-y:auto;margin:0;
+}
+#contentInnerSecondary{display:none;}
+.content-panel.compare-mode #contentInnerSecondary{
+  display:block;border-left:var(--card-border-w) solid var(--border);
+}
+.compare-lang-label{
+  font-family:var(--font-mono);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--text-faint);margin-bottom:8px;
+}
+@media (max-width:900px){
+  .content-panel.compare-mode{flex-direction:column;overflow-y:auto;overflow-x:hidden;}
+  .content-panel.compare-mode > .content-inner{max-width:100%;height:auto;overflow-y:visible;}
+  .content-panel.compare-mode #contentInnerSecondary{border-left:none;border-top:var(--card-border-w) solid var(--border);}
+}
 
 /* 数式画像 */
 .wiki-content .mwe-math-fallback-image-inline,.wiki-content img.mwe-math-fallback-image-display{
@@ -847,6 +975,9 @@ figure{margin:0;}
       <div class="content-inner" id="contentInner">
         <!-- ホーム / 記事 / ローディング がここに描画される -->
       </div>
+      <div class="content-inner" id="contentInnerSecondary">
+        <!-- 比較読みモード時、もう一方の言語の記事がここに描画される -->
+      </div>
     </main>
 
     <aside class="panel info-panel collapsed" id="infoPanel">
@@ -931,7 +1062,21 @@ const UI_TEXT = {
     langNoTranslation:'「{0}」の{1}版は見つかりませんでした。検索してお探しください。',
     langSwitchedDefault:'既定の表示言語を{0}に切り替えました',
     readMinutes:'読了目安 約{0}分',
-    viewsCount:'月間 約{0}回閲覧'
+    viewsCount:'月間 約{0}回閲覧',
+    featuredLoading:'読み込み中…',
+    featuredUnavailable:'今日のおすすめ記事は取得できませんでした',
+    featuredLabelTfa:'今日の一枚',
+    featuredLabelTrending:'今、話題の記事',
+    trendingHeading:'よく読まれている記事',
+    ttsPlay:'読み上げ',
+    ttsPause:'一時停止',
+    ttsUnsupported:'この端末では読み上げに対応していません',
+    focusMode:'フォーカスモード',
+    relatedHeading:'関連記事',
+    compareStart:'比較読み',
+    compareExit:'比較読みを終了',
+    compareNoTranslation:'比較できる他言語版が見つかりませんでした',
+    compareLoadFailed:'読み込みに失敗しました'
   },
   en: {
     brandSub:'Wikipedia Reader', tocHeading:'Contents', homeTooltip:'Go home',
@@ -970,7 +1115,21 @@ const UI_TEXT = {
     langNoTranslation:'No {1} edition of "{0}" was found. Try searching instead.',
     langSwitchedDefault:'Default language switched to {0}',
     readMinutes:'About {0} min read',
-    viewsCount:'~{0} views/month'
+    viewsCount:'~{0} views/month',
+    featuredLoading:'Loading…',
+    featuredUnavailable:'Couldn\'t load a featured article today',
+    featuredLabelTfa:'Featured today',
+    featuredLabelTrending:'Trending now',
+    trendingHeading:'Trending articles',
+    ttsPlay:'Read aloud',
+    ttsPause:'Pause',
+    ttsUnsupported:'Text-to-speech isn\'t supported on this device',
+    focusMode:'Focus mode',
+    relatedHeading:'Related articles',
+    compareStart:'Compare languages',
+    compareExit:'Exit compare view',
+    compareNoTranslation:'No translated version available to compare',
+    compareLoadFailed:'Failed to load'
   },
   zh: {
     brandSub:'维基百科阅读器', tocHeading:'目录', homeTooltip:'返回首页',
@@ -1009,7 +1168,21 @@ const UI_TEXT = {
     langNoTranslation:'未找到「{0}」的{1}版，请尝试搜索。',
     langSwitchedDefault:'默认语言已切换为{0}',
     readMinutes:'约{0}分钟读完',
-    viewsCount:'月浏览量 约{0}次'
+    viewsCount:'月浏览量 约{0}次',
+    featuredLoading:'正在加载…',
+    featuredUnavailable:'今日暂无推荐条目',
+    featuredLabelTfa:'今日精选',
+    featuredLabelTrending:'热门条目',
+    trendingHeading:'热门条目',
+    ttsPlay:'朗读',
+    ttsPause:'暂停',
+    ttsUnsupported:'此设备不支持朗读功能',
+    focusMode:'专注模式',
+    relatedHeading:'相关条目',
+    compareStart:'双语对照',
+    compareExit:'退出对照阅读',
+    compareNoTranslation:'未找到可供对照阅读的其他语言版本',
+    compareLoadFailed:'加载失败'
   },
   ko: {
     brandSub:'위키백과 리더', tocHeading:'목차', homeTooltip:'홈으로',
@@ -1048,7 +1221,21 @@ const UI_TEXT = {
     langNoTranslation:'"{0}"의 {1}판을 찾을 수 없습니다. 검색해 보세요.',
     langSwitchedDefault:'기본 언어가 {0}(으)로 전환되었습니다',
     readMinutes:'약 {0}분 소요',
-    viewsCount:'월간 약 {0}회 조회'
+    viewsCount:'월간 약 {0}회 조회',
+    featuredLoading:'불러오는 중…',
+    featuredUnavailable:'오늘의 추천 문서를 가져올 수 없습니다',
+    featuredLabelTfa:'오늘의 문서',
+    featuredLabelTrending:'지금 인기 문서',
+    trendingHeading:'인기 문서',
+    ttsPlay:'읽어주기',
+    ttsPause:'일시정지',
+    ttsUnsupported:'이 기기에서는 읽어주기를 지원하지 않습니다',
+    focusMode:'포커스 모드',
+    relatedHeading:'관련 문서',
+    compareStart:'언어 비교 보기',
+    compareExit:'비교 보기 종료',
+    compareNoTranslation:'비교할 다른 언어판을 찾을 수 없습니다',
+    compareLoadFailed:'불러오기에 실패했습니다'
   },
   fr: {
     brandSub:'Lecteur Wikipédia', tocHeading:'Sommaire', homeTooltip:'Accueil',
@@ -1087,7 +1274,21 @@ const UI_TEXT = {
     langNoTranslation:'Aucune édition {1} de « {0} » n\'a été trouvée. Essayez une recherche.',
     langSwitchedDefault:'Langue par défaut changée pour {0}',
     readMinutes:'Environ {0} min de lecture',
-    viewsCount:'~{0} vues/mois'
+    viewsCount:'~{0} vues/mois',
+    featuredLoading:'Chargement…',
+    featuredUnavailable:'Impossible de charger l\'article du jour',
+    featuredLabelTfa:'Article du jour',
+    featuredLabelTrending:'Tendance',
+    trendingHeading:'Articles tendance',
+    ttsPlay:'Lire à voix haute',
+    ttsPause:'Pause',
+    ttsUnsupported:'La synthèse vocale n\'est pas prise en charge sur cet appareil',
+    focusMode:'Mode focus',
+    relatedHeading:'Articles liés',
+    compareStart:'Comparer les langues',
+    compareExit:'Quitter la comparaison',
+    compareNoTranslation:'Aucune version traduite disponible pour comparer',
+    compareLoadFailed:'Échec du chargement'
   },
   de: {
     brandSub:'Wikipedia-Reader', tocHeading:'Inhaltsverzeichnis', homeTooltip:'Zur Startseite',
@@ -1126,7 +1327,21 @@ const UI_TEXT = {
     langNoTranslation:'Keine {1}-Ausgabe von „{0}“ gefunden. Versuchen Sie eine Suche.',
     langSwitchedDefault:'Standardsprache auf {0} umgestellt',
     readMinutes:'Ca. {0} Min. Lesezeit',
-    viewsCount:'~{0} Aufrufe/Monat'
+    viewsCount:'~{0} Aufrufe/Monat',
+    featuredLoading:'Wird geladen…',
+    featuredUnavailable:'Empfohlener Artikel konnte nicht geladen werden',
+    featuredLabelTfa:'Artikel des Tages',
+    featuredLabelTrending:'Im Trend',
+    trendingHeading:'Beliebte Artikel',
+    ttsPlay:'Vorlesen',
+    ttsPause:'Pause',
+    ttsUnsupported:'Sprachausgabe wird auf diesem Gerät nicht unterstützt',
+    focusMode:'Fokusmodus',
+    relatedHeading:'Verwandte Artikel',
+    compareStart:'Sprachen vergleichen',
+    compareExit:'Vergleich beenden',
+    compareNoTranslation:'Keine übersetzte Version zum Vergleichen verfügbar',
+    compareLoadFailed:'Laden fehlgeschlagen'
   },
   es: {
     brandSub:'Lector de Wikipedia', tocHeading:'Índice', homeTooltip:'Ir al inicio',
@@ -1165,7 +1380,21 @@ const UI_TEXT = {
     langNoTranslation:'No se encontró una edición en {1} de «{0}». Intente buscarlo.',
     langSwitchedDefault:'Idioma predeterminado cambiado a {0}',
     readMinutes:'Unos {0} min de lectura',
-    viewsCount:'~{0} vistas/mes'
+    viewsCount:'~{0} vistas/mes',
+    featuredLoading:'Cargando…',
+    featuredUnavailable:'No se pudo cargar el artículo destacado de hoy',
+    featuredLabelTfa:'Artículo destacado',
+    featuredLabelTrending:'Tendencia',
+    trendingHeading:'Artículos populares',
+    ttsPlay:'Leer en voz alta',
+    ttsPause:'Pausar',
+    ttsUnsupported:'La lectura en voz alta no es compatible con este dispositivo',
+    focusMode:'Modo enfoque',
+    relatedHeading:'Artículos relacionados',
+    compareStart:'Comparar idiomas',
+    compareExit:'Salir de la comparación',
+    compareNoTranslation:'No hay una versión traducida disponible para comparar',
+    compareLoadFailed:'Error al cargar'
   },
   pt: {
     brandSub:'Leitor da Wikipédia', tocHeading:'Índice', homeTooltip:'Ir para o início',
@@ -1204,7 +1433,21 @@ const UI_TEXT = {
     langNoTranslation:'Nenhuma edição em {1} de "{0}" foi encontrada. Tente pesquisar.',
     langSwitchedDefault:'Idioma padrão alterado para {0}',
     readMinutes:'Cerca de {0} min de leitura',
-    viewsCount:'~{0} visualizações/mês'
+    viewsCount:'~{0} visualizações/mês',
+    featuredLoading:'Carregando…',
+    featuredUnavailable:'Não foi possível carregar o artigo em destaque de hoje',
+    featuredLabelTfa:'Destaque de hoje',
+    featuredLabelTrending:'Em alta',
+    trendingHeading:'Artigos populares',
+    ttsPlay:'Ler em voz alta',
+    ttsPause:'Pausar',
+    ttsUnsupported:'A leitura em voz alta não é compatível com este dispositivo',
+    focusMode:'Modo foco',
+    relatedHeading:'Artigos relacionados',
+    compareStart:'Comparar idiomas',
+    compareExit:'Sair da comparação',
+    compareNoTranslation:'Nenhuma versão traduzida disponível para comparar',
+    compareLoadFailed:'Falha ao carregar'
   },
   ru: {
     brandSub:'Читалка Википедии', tocHeading:'Содержание', homeTooltip:'На главную',
@@ -1243,7 +1486,21 @@ const UI_TEXT = {
     langNoTranslation:'Версия «{0}» на {1} не найдена. Попробуйте выполнить поиск.',
     langSwitchedDefault:'Язык по умолчанию изменён на {0}',
     readMinutes:'Примерно {0} мин чтения',
-    viewsCount:'~{0} просмотров/мес'
+    viewsCount:'~{0} просмотров/мес',
+    featuredLoading:'Загрузка…',
+    featuredUnavailable:'Не удалось загрузить статью дня',
+    featuredLabelTfa:'Статья дня',
+    featuredLabelTrending:'В тренде',
+    trendingHeading:'Популярные статьи',
+    ttsPlay:'Читать вслух',
+    ttsPause:'Пауза',
+    ttsUnsupported:'Озвучивание текста не поддерживается на этом устройстве',
+    focusMode:'Режим фокуса',
+    relatedHeading:'Похожие статьи',
+    compareStart:'Сравнить языки',
+    compareExit:'Выйти из сравнения',
+    compareNoTranslation:'Нет переведённой версии для сравнения',
+    compareLoadFailed:'Не удалось загрузить'
   },
   it: {
     brandSub:'Lettore di Wikipedia', tocHeading:'Indice', homeTooltip:'Vai alla home',
@@ -1282,7 +1539,21 @@ const UI_TEXT = {
     langNoTranslation:'Nessuna edizione in {1} di "{0}" trovata. Prova a cercarla.',
     langSwitchedDefault:'Lingua predefinita cambiata in {0}',
     readMinutes:'Circa {0} min di lettura',
-    viewsCount:'~{0} visualizzazioni/mese'
+    viewsCount:'~{0} visualizzazioni/mese',
+    featuredLoading:'Caricamento…',
+    featuredUnavailable:'Impossibile caricare l\'articolo in evidenza di oggi',
+    featuredLabelTfa:'In evidenza oggi',
+    featuredLabelTrending:'Di tendenza',
+    trendingHeading:'Articoli di tendenza',
+    ttsPlay:'Leggi ad alta voce',
+    ttsPause:'Pausa',
+    ttsUnsupported:'La lettura vocale non è supportata su questo dispositivo',
+    focusMode:'Modalità focus',
+    relatedHeading:'Articoli correlati',
+    compareStart:'Confronta lingue',
+    compareExit:'Esci dal confronto',
+    compareNoTranslation:'Nessuna versione tradotta disponibile per il confronto',
+    compareLoadFailed:'Caricamento non riuscito'
   },
   ar: {
     brandSub:'قارئ ويكيبيديا', tocHeading:'المحتويات', homeTooltip:'الصفحة الرئيسية',
@@ -1321,7 +1592,21 @@ const UI_TEXT = {
     langNoTranslation:'لم يتم العثور على نسخة {1} من "{0}". حاول البحث بدلاً من ذلك.',
     langSwitchedDefault:'تم تغيير اللغة الافتراضية إلى {0}',
     readMinutes:'حوالي {0} دقيقة للقراءة',
-    viewsCount:'~{0} مشاهدة/شهر'
+    viewsCount:'~{0} مشاهدة/شهر',
+    featuredLoading:'جارٍ التحميل…',
+    featuredUnavailable:'تعذّر تحميل مقالة اليوم المميزة',
+    featuredLabelTfa:'مقالة اليوم',
+    featuredLabelTrending:'الأكثر تداولاً',
+    trendingHeading:'مقالات شائعة',
+    ttsPlay:'قراءة بصوت عالٍ',
+    ttsPause:'إيقاف مؤقت',
+    ttsUnsupported:'تحويل النص إلى كلام غير مدعوم على هذا الجهاز',
+    focusMode:'وضع التركيز',
+    relatedHeading:'مقالات ذات صلة',
+    compareStart:'مقارنة اللغات',
+    compareExit:'إنهاء وضع المقارنة',
+    compareNoTranslation:'لم يتم العثور على نسخة مترجمة للمقارنة',
+    compareLoadFailed:'فشل التحميل'
   },
   hi: {
     brandSub:'विकिपीडिया रीडर', tocHeading:'अनुक्रमणिका', homeTooltip:'होम पर जाएं',
@@ -1360,7 +1645,21 @@ const UI_TEXT = {
     langNoTranslation:'"{0}" का {1} संस्करण नहीं मिला। खोज कर देखें।',
     langSwitchedDefault:'डिफ़ॉल्ट भाषा {0} में बदल दी गई',
     readMinutes:'लगभग {0} मिनट का पठन',
-    viewsCount:'~{0} दृश्य/माह'
+    viewsCount:'~{0} दृश्य/माह',
+    featuredLoading:'लोड हो रहा है…',
+    featuredUnavailable:'आज का चयनित लेख लोड नहीं हो सका',
+    featuredLabelTfa:'आज का लेख',
+    featuredLabelTrending:'अभी लोकप्रिय',
+    trendingHeading:'लोकप्रिय लेख',
+    ttsPlay:'ज़ोर से पढ़ें',
+    ttsPause:'रोकें',
+    ttsUnsupported:'इस डिवाइस पर टेक्स्ट-टू-स्पीच समर्थित नहीं है',
+    focusMode:'फ़ोकस मोड',
+    relatedHeading:'संबंधित लेख',
+    compareStart:'भाषा तुलना',
+    compareExit:'तुलना मोड बंद करें',
+    compareNoTranslation:'तुलना के लिए कोई अनूदित संस्करण नहीं मिला',
+    compareLoadFailed:'लोड करने में विफल'
   },
   vi: {
     brandSub:'Trình đọc Wikipedia', tocHeading:'Mục lục', homeTooltip:'Về trang chủ',
@@ -1399,7 +1698,21 @@ const UI_TEXT = {
     langNoTranslation:'Không tìm thấy phiên bản {1} của "{0}". Hãy thử tìm kiếm.',
     langSwitchedDefault:'Đã chuyển ngôn ngữ mặc định sang {0}',
     readMinutes:'Khoảng {0} phút đọc',
-    viewsCount:'~{0} lượt xem/tháng'
+    viewsCount:'~{0} lượt xem/tháng',
+    featuredLoading:'Đang tải…',
+    featuredUnavailable:'Không thể tải bài viết nổi bật hôm nay',
+    featuredLabelTfa:'Bài viết hôm nay',
+    featuredLabelTrending:'Đang thịnh hành',
+    trendingHeading:'Bài viết thịnh hành',
+    ttsPlay:'Đọc to',
+    ttsPause:'Tạm dừng',
+    ttsUnsupported:'Thiết bị này không hỗ trợ đọc văn bản',
+    focusMode:'Chế độ tập trung',
+    relatedHeading:'Bài viết liên quan',
+    compareStart:'So sánh ngôn ngữ',
+    compareExit:'Thoát chế độ so sánh',
+    compareNoTranslation:'Không tìm thấy phiên bản dịch để so sánh',
+    compareLoadFailed:'Tải không thành công'
   },
   id: {
     brandSub:'Pembaca Wikipedia', tocHeading:'Daftar Isi', homeTooltip:'Ke beranda',
@@ -1438,7 +1751,21 @@ const UI_TEXT = {
     langNoTranslation:'Edisi {1} dari "{0}" tidak ditemukan. Coba cari secara manual.',
     langSwitchedDefault:'Bahasa default diganti ke {0}',
     readMinutes:'Sekitar {0} menit membaca',
-    viewsCount:'~{0} tampilan/bulan'
+    viewsCount:'~{0} tampilan/bulan',
+    featuredLoading:'Memuat…',
+    featuredUnavailable:'Tidak dapat memuat artikel pilihan hari ini',
+    featuredLabelTfa:'Artikel hari ini',
+    featuredLabelTrending:'Sedang tren',
+    trendingHeading:'Artikel populer',
+    ttsPlay:'Bacakan',
+    ttsPause:'Jeda',
+    ttsUnsupported:'Text-to-speech tidak didukung di perangkat ini',
+    focusMode:'Mode fokus',
+    relatedHeading:'Artikel terkait',
+    compareStart:'Bandingkan bahasa',
+    compareExit:'Keluar mode banding',
+    compareNoTranslation:'Tidak ditemukan versi terjemahan untuk dibandingkan',
+    compareLoadFailed:'Gagal memuat'
   }
 };
 
@@ -1463,7 +1790,10 @@ const state = {
   suggestIndex: -1,
   searchSeq: 0,
   suggestItems: [],
-  requestSeq: 0
+  requestSeq: 0,
+  focusMode: localStorage.getItem('shiori_focus') === '1',
+  compareMode: false,
+  compareLang: null
 };
 
 const el = (id) => document.getElementById(id);
@@ -1584,6 +1914,8 @@ function applyStaticUIText(){
    ホーム画面
    ============================================================ */
 function renderHome(){
+  if(typeof ttsSupported !== 'undefined' && ttsSupported) stopTTS();
+  if(typeof exitCompareMode === 'function') exitCompareMode();
   state.currentTitle = null;
   state.currentLanglinks = [];
   tocList.innerHTML = '';
@@ -1596,6 +1928,16 @@ function renderHome(){
         <div class="home-mark">栞</div>
         <h1 class="home-title">${escapeHtml(t('welcomeTitle'))}</h1>
         <p class="home-desc">${escapeHtml(t('welcomeDesc'))}</p>
+      </div>
+      <div class="featured-card" id="featuredCard">
+        <div class="featured-skeleton">${escapeHtml(t('featuredLoading'))}</div>
+      </div>
+      <div class="trending-section" id="trendingSection" style="display:none;">
+        <div class="trending-heading">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          ${escapeHtml(t('trendingHeading'))}
+        </div>
+        <div class="trending-row" id="trendingRow"></div>
       </div>
       <div class="settings-list">
         <div class="settings-row">
@@ -1620,6 +1962,7 @@ function renderHome(){
   el('homeRandomBtn').addEventListener('click', openRandom);
   el('settingsFontMinus').addEventListener('click', () => { state.fontScale = Math.max(0.8, +(state.fontScale - 0.1).toFixed(2)); applyFontScale(); renderHome(); });
   el('settingsFontPlus').addEventListener('click', () => { state.fontScale = Math.min(1.5, +(state.fontScale + 0.1).toFixed(2)); applyFontScale(); renderHome(); });
+  loadFeaturedArticle(state.lang);
   renderAboutTab(null);
   renderLangPanel();
   statusMsg.textContent = t('statusReady');
@@ -1708,6 +2051,8 @@ function sanitizeSnippet(html){
 async function loadArticle(title, lang, opts){
   opts = opts || {};
   const seq = ++state.requestSeq;
+  if(ttsSupported) stopTTS();
+  if(typeof exitCompareMode === 'function') exitCompareMode();
   searchInput.value = '';
   closeSuggest();
   renderLoading();
@@ -1802,6 +2147,18 @@ function renderArticle(parsed){
           <svg viewBox="0 0 24 24" fill="${isBookmarked ? 'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           ${isBookmarked ? t('bookmarkSaved') : t('bookmarkAdd')}
         </button>
+        <button class="mini-btn" id="ttsBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span id="ttsBtnLabel">${t('ttsPlay')}</span>
+        </button>
+        <button class="mini-btn ${state.focusMode ? 'saved':''}" id="focusBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+          ${t('focusMode')}
+        </button>
+        <button class="mini-btn" id="compareBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="16" rx="1"/><rect x="13" y="4" width="8" height="16" rx="1"/></svg>
+          <span id="compareBtnLabel">${t('compareStart')}</span>
+        </button>
       </div>
       <div class="article-stats" id="articleStats">
         <span class="stat-chip" id="statReadTime">
@@ -1814,7 +2171,8 @@ function renderArticle(parsed){
         </span>
       </div>
     </div>
-    <div class="wiki-content" id="wikiContent">${parsed.text}</div>
+    <div class="wiki-content${state.focusMode ? ' focus-mode' : ''}" id="wikiContent">${parsed.text}</div>
+    <div class="related-articles" id="relatedArticles" style="display:none;"></div>
   `;
 
   const contentEl = el('wikiContent');
@@ -1823,13 +2181,20 @@ function renderArticle(parsed){
   attachLinkPreview(contentEl);
 
   el('bookmarkBtn').addEventListener('click', () => toggleBookmark(title));
+  el('ttsBtn').addEventListener('click', () => toggleTTS(contentEl));
+  el('focusBtn').addEventListener('click', toggleFocusMode);
+  el('compareBtn').addEventListener('click', toggleCompareMode);
+  exitCompareMode(); // 記事を移動したら比較読みは一旦リセット
 
-  // 読了目安時間（本文の文字数/単語数から概算、フェッチ不要で即時表示）
-  const readMinutes = estimateReadingMinutes(contentEl.textContent, state.lang);
+  // 読了目安時間（脚注・表・infobox・navboxなど本文以外を除いた文字数/単語数から概算）
+  const readMinutes = estimateReadingMinutes(getProseText(contentEl), state.lang);
   el('statReadTime').querySelector('.stat-val').textContent = t('readMinutes', readMinutes);
 
   // 閲覧数（直近30日、Wikimedia Pageviews APIから非同期取得）
   loadPageviews(title, state.lang);
+
+  // 関連記事（Wikimedia REST APIから非同期取得）
+  loadRelatedArticles(title, state.lang);
 
   // 概要スニペット (infoパネル用) を先頭段落から抽出
   const firstP = contentEl.querySelector('p');
@@ -1837,12 +2202,25 @@ function renderArticle(parsed){
   renderAboutTab(title);
 }
 
+/* ---- 読了時間計算用に本文だけのテキストを抽出（注釈・表・infobox・navbox等は除外） ---- */
+function getProseText(contentEl){
+  const clone = contentEl.cloneNode(true);
+  clone.querySelectorAll(
+    '.infobox-wrap, .table-scroll, table, details.navbox-wrap, .reflist, sup.reference, .hatnote, .ambox, .catlinks'
+  ).forEach(n => n.remove());
+  return clone.textContent;
+}
+
 /* ---- 読了時間の概算 ---- */
 function estimateReadingMinutes(text, lang){
   const clean = text.replace(/\s+/g, ' ').trim();
   let minutes;
-  if(['ja','zh'].includes(lang)){
-    // 日中は分かち書きがないため文字数ベース（目安: 500文字/分）
+  if(lang === 'zh'){
+    // 中国語は分かち書きがなく字あたりの情報密度が高いため文字数ベース（目安: 400文字/分）
+    const chars = clean.replace(/\s/g, '').length;
+    minutes = chars / 400;
+  } else if(lang === 'ja'){
+    // 日本語は文字数ベース（目安: 500文字/分）
     const chars = clean.replace(/\s/g, '').length;
     minutes = chars / 500;
   } else {
@@ -1884,19 +2262,237 @@ function formatCompactNumber(n, lang){
   return n.toLocaleString();
 }
 
+/* ============================================================
+   フォーカスモード：画像・infobox・表などを隠して本文に集中
+   ============================================================ */
+function toggleFocusMode(){
+  state.focusMode = !state.focusMode;
+  localStorage.setItem('shiori_focus', state.focusMode ? '1' : '0');
+  const contentEl = el('wikiContent');
+  if(contentEl) contentEl.classList.toggle('focus-mode', state.focusMode);
+  const btn = el('focusBtn');
+  if(btn) btn.classList.toggle('saved', state.focusMode);
+}
+
+/* ============================================================
+   関連記事レコメンド（Wikimedia REST APIの related エンドポイント）
+   ============================================================ */
+async function loadRelatedArticles(title, lang){
+  const wrap = el('relatedArticles');
+  if(!wrap) return;
+  wrap.style.display = 'none';
+  wrap.innerHTML = '';
+  try{
+    const res = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/related/${encodeURIComponent(title.replace(/ /g,'_'))}`);
+    if(!res.ok) throw new Error('related unavailable');
+    const data = await res.json();
+    if(!wrap.isConnected) return; // 別記事へ既に遷移していたら破棄
+    const pages = (data.pages || []).filter(p => p.title && p.title !== title).slice(0, 6);
+    if(!pages.length) return;
+    wrap.innerHTML = `
+      <h3 class="related-heading">${t('relatedHeading')}</h3>
+      <div class="related-grid">
+        ${pages.map(p => `
+          <button class="related-card" data-title="${escapeAttr(p.title)}">
+            ${p.thumbnail && p.thumbnail.source
+              ? `<img class="related-thumb" src="${escapeAttr(p.thumbnail.source)}" loading="lazy" alt="">`
+              : `<div class="related-thumb related-thumb-empty"></div>`}
+            <div class="related-body">
+              <div class="related-title">${escapeHtml(p.title)}</div>
+              <div class="related-extract">${escapeHtml((p.extract || '').slice(0, 70))}</div>
+            </div>
+          </button>`).join('')}
+      </div>`;
+    wrap.style.display = 'block';
+    wrap.querySelectorAll('.related-card').forEach(card => {
+      card.addEventListener('click', () => loadArticle(card.dataset.title, lang));
+    });
+  }catch(_e){
+    if(wrap.isConnected) wrap.style.display = 'none';
+  }
+}
+
+/* ============================================================
+   比較読みビュー（今の記事ともう一方の言語版を並べて読む）
+   ============================================================ */
+let compareRequestSeq = 0;
+async function toggleCompareMode(){
+  if(state.compareMode){
+    exitCompareMode();
+    return;
+  }
+  if(!state.currentTitle || !state.currentLanglinks.length){
+    statusMsg.textContent = t('compareNoTranslation');
+    return;
+  }
+  let targetLang = null, targetTitle = null;
+  const pairLang = state.lang === 'ja' ? 'en' : (state.lang === 'en' ? 'ja' : 'en');
+  let match = state.currentLanglinks.find(l => l.lang === pairLang);
+  if(!match) match = state.currentLanglinks[0];
+  if(!match){
+    statusMsg.textContent = t('compareNoTranslation');
+    return;
+  }
+  targetLang = match.lang;
+  targetTitle = match.title;
+
+  const seq = ++compareRequestSeq;
+  const secWrap = el('contentInnerSecondary');
+  secWrap.innerHTML = `<div class="loading-wrap"><div class="spinner"></div></div>`;
+  contentPanel.classList.add('compare-mode');
+  state.compareMode = true;
+  state.compareLang = targetLang;
+  updateCompareBtnState();
+
+  try{
+    const parsed = await fetchArticle(targetLang, targetTitle);
+    if(seq !== compareRequestSeq) return;
+    secWrap.innerHTML = `
+      <div class="compare-lang-label">${escapeHtml(LANGS_FULL[targetLang] || targetLang)}</div>
+      <h1 class="article-title" style="font-size:24px;">${escapeHtml(parsed.title)}</h1>
+      <div class="wiki-content compare-content">${parsed.text}</div>
+    `;
+    const contentEl = secWrap.querySelector('.wiki-content');
+    postProcessContent(contentEl);
+    // 比較ペイン内のリンクは状態が複雑になるのを避けるため常にWikipedia原文を新しいタブで開く
+    contentEl.querySelectorAll('a[href]').forEach(a => {
+      const href = a.getAttribute('href') || '';
+      if(href.startsWith('/wiki/')){
+        a.setAttribute('href', `https://${targetLang}.wikipedia.org${href}`);
+        a.target = '_blank';
+        a.rel = 'noopener';
+      }
+    });
+  }catch(_e){
+    if(seq !== compareRequestSeq) return;
+    secWrap.innerHTML = `<div class="error-box"><p>${t('compareLoadFailed')}</p></div>`;
+  }
+}
+function exitCompareMode(){
+  compareRequestSeq++;
+  state.compareMode = false;
+  state.compareLang = null;
+  contentPanel.classList.remove('compare-mode');
+  const secWrap = el('contentInnerSecondary');
+  if(secWrap) secWrap.innerHTML = '';
+  updateCompareBtnState();
+}
+function updateCompareBtnState(){
+  const btn = el('compareBtn');
+  if(!btn) return;
+  btn.classList.toggle('saved', state.compareMode);
+  const label = el('compareBtnLabel');
+  if(label) label.textContent = state.compareMode ? t('compareExit') : t('compareStart');
+}
+
+/* ============================================================
+   読み上げモード（Web Speech API）
+   ============================================================ */
+const TTS_LANG_MAP = {
+  ja:'ja-JP', en:'en-US', zh:'zh-CN', ko:'ko-KR', fr:'fr-FR', de:'de-DE',
+  es:'es-ES', pt:'pt-PT', ru:'ru-RU', it:'it-IT', ar:'ar-SA', hi:'hi-IN',
+  vi:'vi-VN', id:'id-ID'
+};
+const ttsSupported = 'speechSynthesis' in window;
+const tts = { queue: [], index: -1, playing: false, paused: false, lang: 'ja' };
+
+function buildTTSQueue(contentEl){
+  const nodes = contentEl.querySelectorAll('p, h2, h3, h4, li');
+  const queue = [];
+  nodes.forEach(node => {
+    if(node.closest('.infobox-wrap, .table-scroll, details.navbox-wrap, .reflist, .hatnote, .ambox')) return;
+    const text = node.textContent.replace(/\s+/g, ' ').trim();
+    if(text.length < 2) return;
+    queue.push({ el: node, text });
+  });
+  return queue;
+}
+function setTtsButtonState(mode){
+  const btn = el('ttsBtn');
+  const label = el('ttsBtnLabel');
+  if(!btn || !label) return;
+  if(mode === 'playing'){
+    btn.classList.add('saved');
+    label.textContent = t('ttsPause');
+  } else {
+    btn.classList.remove('saved');
+    label.textContent = t('ttsPlay');
+  }
+}
+function clearTtsHighlight(){
+  document.querySelectorAll('.tts-active').forEach(n => n.classList.remove('tts-active'));
+}
+function stopTTS(){
+  if(ttsSupported) window.speechSynthesis.cancel();
+  tts.playing = false;
+  tts.paused = false;
+  tts.index = -1;
+  clearTtsHighlight();
+  setTtsButtonState('stopped');
+}
+function speakTtsFrom(index){
+  if(!ttsSupported || index >= tts.queue.length){
+    stopTTS();
+    return;
+  }
+  tts.index = index;
+  clearTtsHighlight();
+  const item = tts.queue[index];
+  item.el.classList.add('tts-active');
+  item.el.scrollIntoView({ behavior:'smooth', block:'center' });
+
+  const utter = new SpeechSynthesisUtterance(item.text);
+  utter.lang = TTS_LANG_MAP[tts.lang] || 'ja-JP';
+  utter.rate = 1;
+  utter.onend = () => {
+    if(!tts.playing) return; // 停止操作で既に打ち切られている場合は続けない
+    speakTtsFrom(index + 1);
+  };
+  utter.onerror = () => { stopTTS(); };
+  window.speechSynthesis.speak(utter);
+}
+function toggleTTS(contentEl){
+  if(!ttsSupported){
+    statusMsg.textContent = t('ttsUnsupported');
+    return;
+  }
+  if(tts.playing && !tts.paused){
+    // 再生中 -> 一時停止
+    window.speechSynthesis.pause();
+    tts.paused = true;
+    setTtsButtonState('stopped');
+    return;
+  }
+  if(tts.paused){
+    // 一時停止中 -> 再開
+    window.speechSynthesis.resume();
+    tts.paused = false;
+    setTtsButtonState('playing');
+    return;
+  }
+  // 停止中 -> 最初から再生開始
+  tts.queue = buildTTSQueue(contentEl);
+  tts.lang = state.lang;
+  if(!tts.queue.length) return;
+  tts.playing = true;
+  tts.paused = false;
+  setTtsButtonState('playing');
+  speakTtsFrom(0);
+}
+
 /* ---- Wikipedia HTML の後処理: 崩れ対策 ---- */
 function postProcessContent(root){
   // script は完全除去（安全対策）
   root.querySelectorAll('script,style').forEach(n => n.remove());
 
   // 画像のプロトコル相対URLを補正 + lazy load
+  // ※ width/height属性はあえて残す（height:auto指定と組み合わせることでブラウザが
+  //    先にアスペクト比を確保でき、遅延読み込み時のレイアウトシフト＝スクロール位置ずれを防げる）
   root.querySelectorAll('img').forEach(img => {
     const src = img.getAttribute('src') || '';
     if(src.startsWith('//')) img.src = 'https:' + src;
     img.loading = 'lazy';
     img.removeAttribute('srcset');
-    img.removeAttribute('width');
-    img.removeAttribute('height');
   });
 
   // infobox は div でラップして角丸クリップを一箇所に統一（caption/内側テーブルの角丸・直角混在を防止）
@@ -1908,12 +2504,27 @@ function postProcessContent(root){
     tbl.parentNode.insertBefore(wrap, tbl);
     wrap.appendChild(tbl);
 
-    // Wikipedia側のインラインstyle(点線ボーダー・独自背景色・独自フォントサイズ等)が
-    // テーマの見た目と衝突して表示が崩れる原因になるため、caption以外は除去して統一する
+    // Wikipedia側のインラインstyle(点線ボーダー・独自背景色等)がテーマの見た目と衝突して
+    // 表示が崩れる原因になるため、罫線・背景系のプロパティだけを取り除く。
+    // ただし道路標識などposition指定で位置合わせされている特殊な構造は、
+    // 丸ごと消すと崩壊するため一切変更しない。
     tbl.querySelectorAll('*').forEach(node => {
       if(node.tagName === 'CAPTION') return;
-      if(node.hasAttribute('style')) node.removeAttribute('style');
       if(node.hasAttribute('bgcolor')) node.removeAttribute('bgcolor');
+      const style = node.getAttribute('style');
+      if(!style) return;
+      if(/position\s*:\s*(absolute|relative|fixed)/i.test(style)) return;
+      const cleaned = style
+        .split(';')
+        .map(s => s.trim())
+        .filter(Boolean)
+        .filter(decl => !/^(border|background|box-shadow|outline)/i.test(decl))
+        .join('; ');
+      if(cleaned){
+        node.setAttribute('style', cleaned);
+      } else {
+        node.removeAttribute('style');
+      }
     });
   });
 
@@ -1958,18 +2569,31 @@ function postProcessContent(root){
 }
 
 /* ---- 記事内リンクのクリックをインターセプトして SPA 的に遷移 ---- */
+/* ---- 同一ページ内アンカーへスクロールし、着地箇所を一時的にハイライトする共通処理 ---- */
+let anchorFlashTimer = null;
+function scrollToAnchorWithHighlight(targetEl){
+  if(!targetEl) return;
+  targetEl.scrollIntoView({behavior:'smooth', block:'start'});
+  clearTimeout(anchorFlashTimer);
+  document.querySelectorAll('.anchor-flash').forEach(n => n.classList.remove('anchor-flash'));
+  // 一度クラスを外してから再度付与し、連続クリック時もアニメーションを最初からやり直す
+  void targetEl.offsetWidth;
+  targetEl.classList.add('anchor-flash');
+  anchorFlashTimer = setTimeout(() => targetEl.classList.remove('anchor-flash'), 1800);
+}
+
 function attachContentLinkHandlers(root){
   root.addEventListener('click', (e) => {
     const a = e.target.closest('a');
     if(!a) return;
     const href = a.getAttribute('href') || '';
 
-    // 同一記事内アンカー
+    // 同一記事内アンカー（脚注・出典など）
     if(href.startsWith('#')){
       e.preventDefault();
       const targetId = decodeURIComponent(href.slice(1));
       const targetEl = root.querySelector(`#${CSS.escape(targetId)}`) || document.getElementById(targetId);
-      if(targetEl) targetEl.scrollIntoView({behavior:'smooth', block:'start'});
+      scrollToAnchorWithHighlight(targetEl);
       return;
     }
 
@@ -2107,7 +2731,7 @@ function buildTOC(sections){
     a.addEventListener('click', (e) => {
       e.preventDefault();
       const target = document.getElementById(a.dataset.anchor);
-      if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+      scrollToAnchorWithHighlight(target);
       tocList.querySelectorAll('a').forEach(x => x.classList.remove('active'));
       a.classList.add('active');
       if(window.innerWidth <= 900) closeMobileDrawers();
@@ -2230,6 +2854,110 @@ async function openRandom(){
   }
 }
 el('randomBtn').addEventListener('click', openRandom);
+
+/* ============================================================
+   今日のおすすめ記事
+   ============================================================ */
+const featuredCache = new Map(); // key: lang:yyyymmdd -> {item, trending}
+let featuredRequestSeq = 0;
+async function loadFeaturedArticle(lang){
+  const seq = ++featuredRequestSeq;
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  const cacheKey = `${lang}:${yyyy}${mm}${dd}`;
+
+  const renderFeatured = (item) => {
+    if(seq !== featuredRequestSeq) return; // 別記事/別言語に切り替わっていたら破棄
+    const card = el('featuredCard');
+    if(!card) return;
+    if(!item){
+      card.innerHTML = `<div class="featured-skeleton">${escapeHtml(t('featuredUnavailable'))}</div>`;
+      return;
+    }
+    const thumb = item.thumbnail && item.thumbnail.source
+      ? `<img class="featured-thumb" src="${escapeAttr(item.thumbnail.source)}" loading="lazy" alt="">` : '';
+    const extract = item.extract ? escapeHtml(item.extract).slice(0, 180) : '';
+    card.innerHTML = `
+      ${thumb}
+      <div class="featured-body">
+        <div class="featured-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9 12 2"/></svg>
+          ${escapeHtml(item.label)}
+        </div>
+        <h3 class="featured-title">${escapeHtml(item.title)}</h3>
+        <p class="featured-extract">${extract}</p>
+      </div>`;
+    card.onclick = () => loadArticle(item.rawTitle, lang);
+  };
+
+  const renderTrending = (list) => {
+    if(seq !== featuredRequestSeq) return;
+    const section = el('trendingSection');
+    const row = el('trendingRow');
+    if(!section || !row) return;
+    if(!list || !list.length){ section.style.display = 'none'; return; }
+    section.style.display = 'block';
+    row.innerHTML = list.map(a => `
+      <div class="trending-card" data-title="${escapeAttr(a.rawTitle)}">
+        ${a.thumbnail && a.thumbnail.source
+          ? `<img class="trending-thumb" src="${escapeAttr(a.thumbnail.source)}" loading="lazy" alt="">`
+          : `<div class="trending-thumb-empty"></div>`}
+        <div class="trending-body"><div class="trending-title">${escapeHtml(a.title)}</div></div>
+      </div>`).join('');
+    row.querySelectorAll('.trending-card').forEach(cardEl => {
+      cardEl.addEventListener('click', () => loadArticle(cardEl.dataset.title, lang));
+    });
+  };
+
+  if(featuredCache.has(cacheKey)){
+    const cached = featuredCache.get(cacheKey);
+    renderFeatured(cached.item);
+    renderTrending(cached.trending);
+    return;
+  }
+
+  try{
+    const res = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/feed/featured/${yyyy}/${mm}/${dd}`);
+    if(!res.ok) throw new Error('feed unavailable');
+    const data = await res.json();
+    let item = null;
+    const mostReadArticles = (data.mostread && data.mostread.articles) ? data.mostread.articles : [];
+
+    if(data.tfa){
+      item = {
+        rawTitle: data.tfa.title, title: data.tfa.normalizedtitle || data.tfa.title,
+        extract: data.tfa.extract, thumbnail: data.tfa.thumbnail || data.tfa.originalimage,
+        label: t('featuredLabelTfa')
+      };
+    } else if(mostReadArticles.length){
+      const top = mostReadArticles.find(a => a.extract) || mostReadArticles[0];
+      item = {
+        rawTitle: top.title, title: top.normalizedtitle || top.title,
+        extract: top.extract, thumbnail: top.thumbnail || top.originalimage,
+        label: t('featuredLabelTrending')
+      };
+    }
+
+    // トレンド行: featuredカードに既に使った記事は除外して上位5件
+    const trending = mostReadArticles
+      .filter(a => !item || a.title !== item.rawTitle)
+      .slice(0, 5)
+      .map(a => ({
+        rawTitle: a.title, title: a.normalizedtitle || a.title,
+        thumbnail: a.thumbnail || a.originalimage
+      }));
+
+    featuredCache.set(cacheKey, {item, trending});
+    renderFeatured(item);
+    renderTrending(trending);
+  }catch(_e){
+    featuredCache.set(cacheKey, {item:null, trending:[]});
+    renderFeatured(null);
+    renderTrending([]);
+  }
+}
 
 /* ============================================================
    ブックマーク
